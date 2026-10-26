@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    services:
+      stripe-mock:
+        image: stripe/stripe-mock:latest
+        ports:
+          - 12111:12111
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm check
+      - run: pnpm test
+      - run: pnpm build
+
+  e2e:
+    runs-on: ubuntu-24.04
+    needs: check
+    services:
+      # Catches the relay's emails, so the password-reset tests can read them.
+      mailpit:
+        image: axllent/mailpit:v1.32
+        ports:
+          - 1025:1025
+          - 8025:8025
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: sudo apt-get update && sudo apt-get install -y imagemagick libimage-exiftool-perl ffmpeg
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - name: Start Immich
+        run: |
+          docker compose -f dev/immich/docker-compose.yml up -d
+          for i in $(seq 1 90); do
+            curl -sf http://localhost:2283/api/server/ping && break
+            # Immich can start before Postgres is ready; give it a nudge.
+            [ $((i % 15)) -eq 0 ] && docker compose -f dev/immich/docker-compose.yml restart immich-server
+            sleep 2
+          done
+          curl -sf http://localhost:2283/api/server/ping
+
+      - name: Sample photos
+        run: dev/make-samples.sh /tmp/shrim-samples
+
+      - run: pnpm build
+      - name: Start relay and agent
+        run: |
+          (cd apps/relay && PORT=6173 SHRIM_BILLING=dev SHRIM_DATA_DIR=/tmp/relay SHRIM_ADMIN_EMAILS=admin@shrim.test \
+            SMTP_HOST=localhost SMTP_PORT=1025 MAIL_FROM='shrim.pics <hello@shrim.test>' \
+            nohup node ../../scripts/serve.mjs build > /tmp/relay.log 2>&1 &)
+          (cd apps/agent && PORT=6174 IMMICH_URL=http://localhost:2283 SHRIM_RELAY_URL=http://localhost:6173 DATA_DIR=/tmp/agent \
+            nohup node ../../scripts/serve.mjs build > /tmp/agent.log 2>&1 &)
+          sleep 3
+
+      - name: End-to-end tests
+        run: pnpm e2e
+        env:
+          E2E_RELAY_URL: http://localhost:6173
+          E2E_AGENT_URL: http://localhost:6174
+          SAMPLES_DIR: /tmp/shrim-samples
+
+      - if: failure()
+        run: tail -n 100 /tmp/relay.log /tmp/agent.log
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-results
+          path: e2e/.out
