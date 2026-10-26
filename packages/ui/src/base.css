@@ -1,0 +1,471 @@
+/* Our reset (instead of Preflight) and element defaults, in the base layer so any utility wins. */
+
+@layer base {
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+		/* Bare `border`, `border-t`, `divide-y`... draw the hairline colour. */
+		border-color: var(--color-border);
+	}
+
+	* {
+		margin: 0;
+	}
+
+	html {
+		-webkit-text-size-adjust: 100%;
+		text-size-adjust: 100%;
+		-moz-tab-size: 4;
+		tab-size: 4;
+		hanging-punctuation: first last;
+	}
+
+	img,
+	picture,
+	video,
+	canvas,
+	svg {
+		display: block;
+		max-width: 100%;
+	}
+
+	img,
+	video {
+		height: auto;
+	}
+
+	input,
+	button,
+	textarea,
+	select {
+		font: inherit;
+		color: inherit;
+		letter-spacing: inherit;
+	}
+
+	button {
+		background: none;
+		border: 0;
+		padding: 0;
+		cursor: pointer;
+	}
+
+	button:disabled {
+		cursor: not-allowed;
+	}
+
+	ul[role='list'],
+	ol[role='list'] {
+		list-style: none;
+		padding: 0;
+	}
+
+	p,
+	h1,
+	h2,
+	h3,
+	h4,
+	li,
+	dd {
+		overflow-wrap: break-word;
+	}
+
+	[hidden] {
+		display: none !important;
+	}
+
+	html {
+		background: var(--color-bg);
+		color: var(--color-text);
+		font-family: var(--font-sans);
+		font-size: 100%;
+		line-height: var(--leading-md);
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		text-rendering: optimizeLegibility;
+	}
+
+	body {
+		min-height: 100vh;
+		min-height: 100dvh;
+		font-size: var(--text-md);
+		line-height: var(--leading-md);
+	}
+
+	::selection {
+		background: var(--color-selection);
+	}
+
+	h1,
+	h2,
+	h3,
+	h4 {
+		font-weight: var(--weight-semibold);
+		text-wrap: balance;
+	}
+
+	h1 {
+		font-size: var(--text-2xl);
+		line-height: var(--leading-2xl);
+		letter-spacing: var(--tracking-tight);
+	}
+
+	h2 {
+		font-size: var(--text-xl);
+		line-height: var(--leading-xl);
+		letter-spacing: var(--tracking-tight);
+	}
+
+	h3 {
+		font-size: var(--text-lg);
+		line-height: var(--leading-lg);
+	}
+
+	h4 {
+		font-size: var(--text-md);
+		line-height: var(--leading-md);
+	}
+
+	p {
+		text-wrap: pretty;
+	}
+
+	small {
+		font-size: var(--text-sm);
+		line-height: var(--leading-sm);
+	}
+
+	strong,
+	b {
+		font-weight: var(--weight-semibold);
+	}
+
+	/* The link underline standard; `underline-link`, `link-accent` and `link-muted` below use it too. */
+	a {
+		color: var(--color-accent-text);
+		text-decoration: underline;
+		text-decoration-thickness: var(--underline-thickness);
+		text-underline-offset: var(--underline-offset);
+		text-decoration-color: var(--underline-color);
+		transition: text-decoration-color var(--duration-fast) var(--ease-out);
+	}
+
+	/* Hover only where it exists (like Tailwind's hover:), so a tap leaves no sticky state. */
+	@media (hover: hover) {
+		a:hover {
+			text-decoration-color: currentColor;
+		}
+	}
+
+	/* Links used as navigation or inside components opt out of the underline */
+	a.plain {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	code,
+	kbd,
+	samp,
+	pre {
+		font-family: var(--font-mono);
+		font-size: 0.9em;
+	}
+
+	:not(pre) > code {
+		white-space: nowrap;
+		padding: 0.1em 0.35em;
+		border-radius: var(--radius-sm);
+		background: var(--color-surface-sunken);
+	}
+
+	pre {
+		overflow-x: auto;
+		padding: var(--space-4);
+		border: var(--border);
+		border-radius: var(--radius-md);
+		background: var(--color-surface-sunken);
+		font-size: var(--text-sm);
+		line-height: var(--leading-sm);
+	}
+
+	kbd {
+		display: inline-block;
+		min-width: 1.5em;
+		padding: 0 0.35em;
+		border: var(--border-width) solid var(--color-border-strong);
+		border-bottom-width: 2px;
+		border-radius: var(--radius-xs);
+		font-size: var(--text-xs);
+		line-height: 1.5;
+		text-align: center;
+	}
+
+	hr {
+		border: 0;
+		border-top: var(--border);
+	}
+
+	:focus {
+		outline: none;
+	}
+
+	:focus-visible {
+		outline: var(--focus-width) solid var(--color-focus);
+		outline-offset: var(--focus-offset);
+	}
+
+	/* Inputs show the ring tight to their border */
+	input:focus-visible,
+	select:focus-visible,
+	textarea:focus-visible {
+		outline-offset: 0;
+		border-color: var(--color-focus);
+	}
+
+	label {
+		display: inline-block;
+		font-size: var(--text-sm);
+		line-height: var(--leading-sm);
+		font-weight: var(--weight-medium);
+	}
+
+	input:not([type='checkbox'], [type='radio'], [type='file'], [type='range']),
+	select,
+	textarea {
+		display: block;
+		width: 100%;
+		min-height: var(--control-h-md);
+		padding: 0 var(--space-3);
+		border: var(--border-width) solid var(--color-border-field);
+		border-radius: var(--radius-md);
+		background: var(--color-field);
+		font-size: var(--text-md);
+		line-height: var(--leading-md);
+		transition: border-color var(--duration-fast) var(--ease-out);
+	}
+
+	textarea {
+		padding-block: var(--space-2);
+		resize: vertical;
+		min-height: 5.5rem;
+	}
+
+	input::placeholder,
+	textarea::placeholder {
+		color: var(--color-text-subtle);
+		opacity: 1;
+	}
+
+	input:hover:not(:disabled, :focus),
+	select:hover:not(:disabled, :focus),
+	textarea:hover:not(:disabled, :focus) {
+		border-color: var(--color-text-subtle);
+	}
+
+	input[aria-invalid='true'],
+	select[aria-invalid='true'],
+	textarea[aria-invalid='true'] {
+		border-color: var(--color-danger);
+	}
+
+	input:disabled,
+	select:disabled,
+	textarea:disabled {
+		background: var(--color-surface-sunken);
+		color: var(--color-text-subtle);
+		cursor: not-allowed;
+	}
+
+	input[readonly] {
+		background: var(--color-surface-sunken);
+	}
+
+	select {
+		appearance: none;
+		padding-right: var(--space-10);
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2355616b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+		background-repeat: no-repeat;
+		background-position: right var(--space-3) center;
+	}
+
+	@media (prefers-color-scheme: dark) {
+		select {
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a2adb6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+		}
+	}
+
+	input[type='checkbox'],
+	input[type='radio'] {
+		width: 1.125rem;
+		height: 1.125rem;
+		margin: 0;
+		accent-color: var(--color-primary);
+		cursor: pointer;
+	}
+
+	fieldset {
+		border: 0;
+		padding: 0;
+		min-width: 0;
+	}
+
+	legend {
+		padding: 0;
+		font-size: var(--text-sm);
+		font-weight: var(--weight-medium);
+	}
+
+	dialog {
+		padding: 0;
+		border: 0;
+		color: inherit;
+		background: transparent;
+		max-width: none;
+		max-height: none;
+	}
+
+	dialog::backdrop {
+		background: var(--color-overlay);
+	}
+
+	/* Links, tokens and other things people paste are set smaller in mono. */
+	input.mono {
+		font-size: var(--text-sm);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+			scroll-behavior: auto !important;
+		}
+	}
+}
+
+/* Shadows switch with the colour scheme. Tailwind would inline a theme shadow's value
+   (to support shadow colours), so they are plain variables with explicit utilities. */
+@utility shadow-sm {
+	box-shadow: var(--shadow-sm);
+}
+@utility shadow-md {
+	box-shadow: var(--shadow-md);
+}
+@utility shadow-lg {
+	box-shadow: var(--shadow-lg);
+}
+
+@utility visually-hidden {
+	position: absolute !important;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* Things people copy or compare character by character. */
+@utility mono {
+	font-family: var(--font-mono);
+	font-variant-ligatures: none;
+}
+
+@utility tabular {
+	font-variant-numeric: tabular-nums;
+}
+
+/* Small uppercase label over a code ("Code", "Your code"). The one place caps are allowed
+   (design-system 3.2). Named caps-label because Tailwind's `overline` is a text decoration. */
+@utility caps-label {
+	font-size: var(--text-xs);
+	line-height: var(--leading-xs);
+	font-weight: var(--font-weight-medium);
+	letter-spacing: var(--tracking-caps);
+	text-transform: uppercase;
+	color: var(--color-text-subtle);
+}
+
+/* The link underline on any element, in its own colour: 40% at rest, full on hover. */
+@utility underline-link {
+	text-decoration-line: underline;
+	text-decoration-thickness: var(--underline-thickness);
+	text-underline-offset: var(--underline-offset);
+	text-decoration-color: var(--underline-color);
+	transition-property: color, text-decoration-color;
+	transition-duration: var(--duration-fast);
+	transition-timing-function: var(--ease-out);
+	@media (hover: hover) {
+		&:hover {
+			text-decoration-color: currentColor;
+		}
+	}
+}
+
+/* A <button> that looks like a link in running text (accent, like <a>). */
+@utility link-accent {
+	color: var(--color-accent-text);
+	text-decoration-line: underline;
+	text-decoration-thickness: var(--underline-thickness);
+	text-underline-offset: var(--underline-offset);
+	text-decoration-color: var(--underline-color);
+	transition-property: color, text-decoration-color;
+	transition-duration: var(--duration-fast);
+	transition-timing-function: var(--ease-out);
+	@media (hover: hover) {
+		&:hover:not(:disabled) {
+			text-decoration-color: currentColor;
+		}
+	}
+	&:disabled {
+		opacity: 0.5;
+	}
+}
+
+/* A quieter link-button ("Not you?"): muted, and text-coloured with a full underline on hover. */
+@utility link-muted {
+	color: var(--color-text-muted);
+	text-decoration-line: underline;
+	text-decoration-thickness: var(--underline-thickness);
+	text-underline-offset: var(--underline-offset);
+	text-decoration-color: var(--underline-color);
+	transition-property: color, text-decoration-color;
+	transition-duration: var(--duration-fast);
+	transition-timing-function: var(--ease-out);
+	@media (hover: hover) {
+		&:hover:not(:disabled) {
+			color: var(--color-text);
+			text-decoration-color: currentColor;
+		}
+	}
+	&:disabled {
+		opacity: 0.5;
+	}
+}
+
+/* Drop zones: one dashed width for the upload dialog and the page drop overlay.
+   Pair it with a colour (border-strong, border-accent). */
+@utility border-drop {
+	--tw-border-style: dashed;
+	border-style: dashed;
+	border-width: var(--border-dashed-width);
+}
+
+/* A 44px hit area as ::after, without changing layout. The control must be positioned;
+   this doesn't set `relative` itself so it never fights an `absolute` control. */
+@utility touch-target {
+	&::after {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: max(100%, var(--touch-target));
+		height: max(100%, var(--touch-target));
+		transform: translate(-50%, -50%);
+	}
+}

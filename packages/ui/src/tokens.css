@@ -1,0 +1,331 @@
+/*
+ * `static` so every var is emitted for scoped CSS; `--*: initial` drops Tailwind's defaults so
+ * off-brand values don't compile. Dark mode and breakpoints override the same vars below, so
+ * utilities follow without `dark:`. Scoped media queries must repeat the breakpoint literals.
+ */
+
+@theme static {
+	--*: initial;
+
+	--breakpoint-xs: 480px;
+	--breakpoint-sm: 640px;
+	--breakpoint-md: 768px;
+	--breakpoint-lg: 1024px;
+
+	--color-bg: #f6f7f8;
+	--color-surface: #ffffff; /* panels, dialogs, inputs */
+	--color-surface-sunken: #eef1f3; /* subtle fills, code, hover on ghost */
+	--color-surface-raised: #ffffff; /* popovers, menus (with shadow) */
+	--color-surface-pressed: color-mix(
+		in srgb,
+		var(--color-surface-sunken),
+		var(--color-text) 6%
+	); /* ghost press, hover on sunken */
+	--color-border: #e0e4e8; /* dividers, panel borders */
+	--color-border-strong: #c5ccd3; /* secondary button border, drop zone */
+	--color-border-field: #8b95a0; /* input borders (3:1 on surface) */
+	--color-field: #ffffff;
+
+	--color-text: #1b2329; /* 15.9:1 on surface */
+	--color-text-muted: #55616b; /* 6.3:1 on surface, secondary text */
+	--color-text-subtle: #626e79; /* 5.2:1 on surface, placeholders, meta */
+
+	--color-accent: #e2506a; /* shrimp. Logo, progress, highlights. Not for body text. */
+	--color-accent-text: #be2f4b; /* links and accent-colored text (5.7:1) */
+	--color-accent-soft: #fdecef; /* accent badge / highlight background */
+	--color-accent-on-soft: #a82842; /* text on accent-soft (6:1) */
+
+	--color-primary: #1b2329; /* primary button = ink */
+	--color-primary-hover: #2c363e;
+	--color-primary-active: #0f161b;
+	--color-on-primary: #ffffff;
+
+	--color-focus: #d63d5a; /* focus ring (4.5:1 on surface) */
+
+	--color-success: #17764a;
+	--color-success-soft: #e6f4ec;
+	--color-warning: #985a00;
+	--color-warning-soft: #fff3dd;
+	--color-danger: #b42318;
+	--color-danger-hover: #9b1d13;
+	--color-danger-soft: #fdecea;
+	--color-on-danger: #ffffff;
+
+	--color-status-online: #1f9d5c;
+	--color-status-offline: #8b95a0;
+	--color-status-connecting: #c27a00;
+	--color-status-error: #b42318;
+
+	--color-inverse: #1b2329;
+	--color-on-inverse: #f2f4f6;
+	--color-on-inverse-muted: #b5bec6;
+
+	--color-tile: #e7ebee; /* photo placeholder while loading */
+	--color-qr-fg: #000000; /* QR codes only, never themed: scanners need contrast */
+	--color-qr-bg: #ffffff;
+	--color-overlay: rgb(15 20 23 / 0.45); /* dialog backdrop */
+	--color-scrim: rgb(8 11 13); /* lightbox, same in both themes; opaque so the page never shows through */
+	--color-on-scrim: #e6eaed;
+	--color-on-scrim-muted: #a2adb6;
+	--color-scrim-control: rgb(255 255 255 / 0.08);
+	--color-scrim-control-hover: rgb(255 255 255 / 0.16);
+	/* On top of photos: same in both themes. */
+	--color-on-media: #ffffff;
+	--color-media-badge: rgb(0 0 0 / 0.55);
+	--color-scrim-panel: #12181c; /* lightbox details panel */
+	--color-selection: rgb(226 80 106 / 0.22);
+
+	--font-sans:
+		ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+		'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+	--font-mono:
+		ui-monospace, 'SF Mono', SFMono-Regular, 'Cascadia Mono', 'JetBrains Mono', Menlo, Consolas, 'Liberation Mono',
+		monospace;
+
+	/* text-*: size with its line height. leading-* alone changes the line height. */
+	--text-xs: 0.75rem; /* 12px  badges, counters */
+	--text-xs--line-height: var(--leading-xs);
+	--text-sm: 0.875rem; /* 14px  labels, help, buttons, table cells */
+	--text-sm--line-height: var(--leading-sm);
+	--text-md: 1rem; /* 16px  body */
+	--text-md--line-height: var(--leading-md);
+	--text-lg: 1.125rem; /* 18px  panel titles, lead */
+	--text-lg--line-height: var(--leading-lg);
+	--text-xl: 1.375rem; /* 22px  section headings */
+	--text-xl--line-height: var(--leading-xl);
+	--text-2xl: 1.75rem; /* 28px  page titles */
+	--text-2xl--line-height: var(--leading-2xl);
+	--text-3xl: 2.25rem; /* 36px  album title (desktop), landing h2 */
+	--text-3xl--line-height: var(--leading-3xl);
+	--text-4xl: clamp(2.25rem, 1.5rem + 3.2vw, 3.5rem); /* 36-56px landing hero */
+	--text-4xl--line-height: var(--leading-4xl);
+	/* The landing headline: the landing scale, capped so it fits a two-column hero. */
+	--text-hero: min(var(--text-4xl), 2.75rem);
+	--text-hero--line-height: var(--leading-4xl);
+
+	--leading-none: 1;
+	--leading-xs: 1rem;
+	--leading-sm: 1.25rem;
+	--leading-md: 1.5rem;
+	--leading-lg: 1.75rem;
+	--leading-xl: 1.75rem;
+	--leading-2xl: 2.125rem;
+	--leading-3xl: 2.625rem;
+	--leading-4xl: 1.08;
+	--leading-prose: 1.6;
+
+	--font-weight-regular: 400;
+	--font-weight-medium: 500;
+	--font-weight-semibold: 600;
+
+	--tracking-normal: 0; /* undoes the heading tracking from base.css */
+	--tracking-tight: -0.011em; /* xl, 2xl */
+	--tracking-tighter: -0.022em; /* 3xl, 4xl */
+	--tracking-caps: 0.06em; /* caps-label: the small uppercase label over a code */
+	--tracking-code: 0.08em; /* codes people type: pairing code inputs and displays */
+	--tracking-emoji: -0.05em; /* EasyId: pulls its two emoji together */
+
+	/* ---------- Spacing: 4px steps. p-4 = 16px, gap-1.5 = 6px, px = 1px ---------- */
+	--spacing: 0.25rem;
+
+	--radius-xs: 4px; /* checkbox, small tags inside rows */
+	--radius-sm: 6px; /* buttons sm, code inline */
+	--radius-md: 8px; /* buttons, inputs, copy field */
+	--radius-lg: 12px; /* panels, drop zone, toasts */
+	--radius-xl: 16px; /* dialogs */
+	--radius-full: 999px; /* badges, dots, round icon buttons */
+	--radius-tile: 3px; /* photo tiles */
+
+	--transition-duration-instant: 80ms;
+	--transition-duration-fast: 120ms; /* hover, press, color changes */
+	--transition-duration-base: 180ms; /* fades, small reveals, tile fade-in */
+	--transition-duration-slow: 280ms; /* dialogs, lightbox, toasts */
+	--transition-duration-gentle: 600ms; /* slideshow crossfade only */
+	--ease-out: cubic-bezier(0.2, 0, 0, 1);
+	--ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+	--ease-in: cubic-bezier(0.4, 0, 1, 1);
+	/* transition-colors / transition-transform without duration-* or ease-* */
+	--default-transition-duration: var(--transition-duration-fast);
+	--default-transition-timing-function: var(--ease-out);
+
+	--animate-spin: spin 0.8s linear infinite;
+	--animate-pulse: pulse 1.6s var(--ease-in-out) infinite;
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+	@keyframes pulse {
+		50% {
+			opacity: 0.35;
+		}
+	}
+
+	/* ---------- Layout: max-w-narrow, max-w-content... ---------- */
+	--container-narrow: 25rem; /* 400  auth forms */
+	--container-content: 47.5rem; /* 760  dashboard, agent admin */
+	--container-wide: 70rem; /* 1120 landing */
+	--container-viewer: 100rem; /* 1600 viewer grid cap */
+	--container-measure: 65ch; /* max line length for prose */
+	--container-headline: 18ch; /* hero headline */
+	--container-lead: 48ch; /* hero lead paragraph */
+
+	--z-index-topbar: 10;
+	--z-index-dropzone: 30;
+	--z-index-toast: 40;
+	--z-index-dialog: 50;
+	--z-index-lightbox: 60;
+}
+
+/* Short names for the colours most used on one property: text-muted, border-strong... */
+@theme inline {
+	--text-color-muted: var(--color-text-muted);
+	--text-color-subtle: var(--color-text-subtle);
+	--border-color-strong: var(--color-border-strong);
+	--border-color-field: var(--color-border-field);
+}
+
+:root {
+	color-scheme: light dark;
+
+	/* ---------- Shadows (borders do most of the work) ---------- */
+	--shadow-sm: 0 1px 2px rgb(16 24 32 / 0.06);
+	--shadow-md: 0 6px 16px -4px rgb(16 24 32 / 0.12), 0 2px 4px -2px rgb(16 24 32 / 0.06);
+	--shadow-lg: 0 24px 48px -12px rgb(16 24 32 / 0.25), 0 4px 8px -4px rgb(16 24 32 / 0.08);
+
+	/* ---------- Names kept for scoped CSS (aliases of the theme above) ---------- */
+	--weight-regular: var(--font-weight-regular);
+	--weight-medium: var(--font-weight-medium);
+	--weight-semibold: var(--font-weight-semibold);
+	--measure: var(--container-measure);
+
+	--space-0: 0;
+	--space-px: 1px;
+	--space-0-5: calc(var(--spacing) * 0.5); /* 2 */
+	--space-1: calc(var(--spacing) * 1); /* 4 */
+	--space-1-5: calc(var(--spacing) * 1.5); /* 6 */
+	--space-2: calc(var(--spacing) * 2); /* 8 */
+	--space-3: calc(var(--spacing) * 3); /* 12 */
+	--space-4: calc(var(--spacing) * 4); /* 16 */
+	--space-5: calc(var(--spacing) * 5); /* 20 */
+	--space-6: calc(var(--spacing) * 6); /* 24 */
+	--space-8: calc(var(--spacing) * 8); /* 32 */
+	--space-10: calc(var(--spacing) * 10); /* 40 */
+	--space-12: calc(var(--spacing) * 12); /* 48 */
+	--space-16: calc(var(--spacing) * 16); /* 64 */
+	--space-20: calc(var(--spacing) * 20); /* 80 */
+	--space-24: calc(var(--spacing) * 24); /* 96 */
+
+	--duration-instant: var(--transition-duration-instant);
+	--duration-fast: var(--transition-duration-fast);
+	--duration-base: var(--transition-duration-base);
+	--duration-slow: var(--transition-duration-slow);
+	--duration-gentle: var(--transition-duration-gentle);
+
+	--z-topbar: var(--z-index-topbar);
+	--z-dropzone: var(--z-index-dropzone);
+	--z-toast: var(--z-index-toast);
+	--z-dialog: var(--z-index-dialog);
+	--z-lightbox: var(--z-index-lightbox);
+
+	--border-width: 1px;
+	--border: var(--border-width) solid var(--color-border);
+	--border-dashed-width: 2px; /* drop zones (border-drop): the upload dialog and the page overlay */
+	--focus-width: 2px;
+	--focus-offset: 2px;
+
+	/* ---------- Links (base `a`, underline-link, link-accent, link-muted) ---------- */
+	--underline-offset: 0.2em;
+	--underline-thickness: 1px;
+	/* The resting underline: 40% of the text colour; hover draws it at full colour. */
+	--underline-color: color-mix(in srgb, currentColor 40%, transparent);
+
+	/* ---------- Layout (no utility namespace: use h-10, size-5... or these in scoped CSS) ---------- */
+	--gutter: 1rem; /* page side padding, grows at md/lg */
+	--topbar-h: 3.5rem; /* 56 = h-14 */
+
+	--control-h-sm: 2rem; /* 32 = h-8 */
+	--control-h-md: 2.5rem; /* 40 = h-10 */
+	--control-h-lg: 3rem; /* 48 = h-12 */
+	--touch-target: 2.75rem; /* 44 = size-11 */
+
+	--icon-xs: 0.75rem; /* 12, badges only */
+	--icon-sm: 1rem; /* 16 */
+	--icon-md: 1.25rem; /* 20 */
+	--icon-lg: 1.5rem; /* 24 */
+	--icon-stroke: 1.75;
+
+	--grid-gap: 2px; /* 4px from md */
+	--grid-row-h: 132px; /* target row height, changes per breakpoint */
+}
+
+@media (min-width: 768px) {
+	:root {
+		--gutter: 1.5rem;
+		--grid-gap: 4px;
+		--grid-row-h: 200px;
+	}
+}
+
+@media (min-width: 1024px) {
+	:root {
+		--gutter: 2rem;
+		--grid-row-h: 240px;
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-bg: #0f1417;
+		--color-surface: #161d22;
+		--color-surface-sunken: #0b0f12;
+		--color-surface-raised: #1d252b;
+		--color-border: #273038;
+		--color-border-strong: #36424c;
+		--color-border-field: #5f6b76;
+		--color-field: #0b0f12;
+
+		--color-text: #e6eaed;
+		--color-text-muted: #a2adb6;
+		--color-text-subtle: #8b97a1;
+
+		--color-accent: #f0687f;
+		--color-accent-text: #ff8fa2;
+		--color-accent-soft: #3a1d25;
+		--color-accent-on-soft: #ff9fb0;
+
+		--color-primary: #e6eaed;
+		--color-primary-hover: #ffffff;
+		--color-primary-active: #c9d0d6;
+		--color-on-primary: #11181c;
+
+		--color-focus: #f27a8f;
+
+		--color-success: #4cc38a;
+		--color-success-soft: #12291e;
+		--color-warning: #e5a23b;
+		--color-warning-soft: #2d2310;
+		--color-danger: #f47a6e;
+		--color-danger-hover: #f79287;
+		--color-danger-soft: #36191a;
+		--color-on-danger: #11181c;
+
+		--color-status-online: #4cc38a;
+		--color-status-offline: #6b7782;
+		--color-status-connecting: #e5a23b;
+		--color-status-error: #f47a6e;
+
+		--color-inverse: #e6eaed;
+		--color-on-inverse: #11181c;
+		--color-on-inverse-muted: #4a555e;
+
+		--color-tile: #1b2328;
+		--color-overlay: rgb(0 0 0 / 0.6);
+		--color-selection: rgb(240 104 127 / 0.35);
+
+		--shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+		--shadow-md: 0 8px 20px -4px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+		--shadow-lg: 0 24px 56px -12px rgb(0 0 0 / 0.7), 0 4px 8px -4px rgb(0 0 0 / 0.4);
+	}
+}

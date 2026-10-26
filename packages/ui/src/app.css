@@ -1,0 +1,20 @@
+/*
+ * The one stylesheet both apps import. Our own reset replaces Preflight.
+ * Scoped <style> blocks in components are unlayered, so they win over every layer here.
+ */
+
+@layer theme, base, components, utilities;
+
+@import 'tailwindcss/utilities.css' layer(utilities) source(none);
+
+@import './tokens.css' layer(theme);
+@import './base.css';
+
+/* Where class names are used. Both apps share this file, so both are scanned. */
+@source './';
+@source '../../../apps/relay/src';
+@source '../../../apps/agent/src';
+
+/* Words that appear in our markup as plain class names but must not become utilities
+   (the landing page has its own `.container`). */
+@source not inline('container');
