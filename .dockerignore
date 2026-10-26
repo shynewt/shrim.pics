@@ -1,0 +1,9 @@
+**/node_modules
+**/.svelte-kit
+**/build
+.dev
+.data
+dev/immich/data
+e2e/.out
+test-results
+.git

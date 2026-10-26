@@ -1,0 +1,4 @@
+# Also skips everything in .gitignore
+pnpm-lock.yaml
+apps/*/static
+LICENSE
