@@ -25,6 +25,7 @@ import {
 import { config } from '#lib/server/config.ts';
 import { agentOnline, disconnectAgent, notifyAccountChanged } from '#lib/server/router.ts';
 import { formText } from '#lib/server/http.ts';
+import { limits } from '#lib/server/limits.ts';
 import type { Actions, PageServerLoad } from './$types';
 
 const DAY = 86_400_000;
@@ -140,12 +141,15 @@ export const actions: Actions = {
 	deleteAccount: async ({ locals, request, cookies }) => {
 		if (!locals.account) redirect(303, '/login');
 		const password = formText(await request.formData(), 'password');
+		// As slow to guess as signing in, for someone holding a stolen session.
+		if (!limits.auth.take(`delete:${locals.account.id}`)) return fail(429, { deleteError: 'rate' as const });
 		const row = accountById(locals.account.id);
-		if (!row || !(await verifyPassword(password, row.password_hash))) return fail(400, { deleteError: 'password' });
+		if (!row || !(await verifyPassword(password, row.password_hash)))
+			return fail(400, { deleteError: 'password' as const });
 		try {
 			await cancelForDeletion(row.id);
 		} catch {
-			return fail(502, { deleteError: 'billing' });
+			return fail(502, { deleteError: 'billing' as const });
 		}
 		disconnectAgent(row.id);
 		deleteAccount(row.id);

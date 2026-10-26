@@ -31,6 +31,11 @@
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
+	const DELETE_ERRORS = {
+		password: "That password isn't right.",
+		rate: 'Too many attempts. Wait a minute and try again.',
+		billing: "We couldn't cancel your plan with Stripe, so nothing was deleted. Try again in a moment."
+	};
 
 	let activating = $state(false);
 	let confirmDisconnect = $state(false);
@@ -554,11 +559,7 @@
 		<Field
 			id="delete-password"
 			label="Your password"
-			error={form && 'deleteError' in form
-				? form.deleteError === 'password'
-					? "That password isn't right."
-					: "We couldn't cancel your plan with Stripe, so nothing was deleted. Try again in a moment."
-				: null}
+			error={form && 'deleteError' in form && form.deleteError ? DELETE_ERRORS[form.deleteError] : null}
 		>
 			{#snippet children({ describedby, invalid })}
 				<PasswordInput id="delete-password" name="password" autocomplete="current-password" {describedby} {invalid} />
