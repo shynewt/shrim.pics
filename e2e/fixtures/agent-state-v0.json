@@ -1,0 +1,26 @@
+{
+	"relayUrl": "http://localhost:5173",
+	"agentToken": "shr_agent_fixture_not_a_real_token_000000000",
+	"immichApiKey": "fixture-not-a-real-immich-api-key-0000000",
+	"immichApiKeySavedAt": "2026-10-25T18:00:00.000Z",
+	"immichKeyCanDelete": true,
+	"immichKeyCanUpdate": true,
+	"immichPublicUrl": "http://localhost:2283",
+	"setupSeen": true,
+	"shares": [
+		{
+			"id": "Fx7upgr4de",
+			"key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+			"immich": { "key": "fixture-not-a-real-immich-share-key" },
+			"label": "Lisbon from before",
+			"albumName": "Lisbon, August",
+			"linkType": "ALBUM",
+			"allowUpload": false,
+			"createdAt": "2026-10-25T18:05:00.000Z",
+			"expiresAt": "2026-11-24T18:05:00.000Z",
+			"immichLinkId": "00000000-0000-4000-8000-000000000000",
+			"allowDownload": true,
+			"showMetadata": true
+		}
+	]
+}
