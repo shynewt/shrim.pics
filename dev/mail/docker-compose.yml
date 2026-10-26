@@ -1,0 +1,18 @@
+# Mailpit catches every email the relay sends, for local testing. Nothing leaves your machine.
+# Start: docker compose up -d   (podman: podman compose up -d)
+# Then run the relay with SMTP_HOST=localhost SMTP_PORT=1025 and open http://localhost:8025
+name: shrim-dev-mail
+
+services:
+  mailpit:
+    container_name: shrim_mailpit
+    image: docker.io/axllent/mailpit:v1.32
+    environment:
+      MP_MAX_MESSAGES: '500'
+      MP_DISABLE_VERSION_CHECK: 'true'
+      MP_SMTP_AUTH_ACCEPT_ANY: 'true'
+      MP_SMTP_AUTH_ALLOW_INSECURE: 'true'
+    ports:
+      - '127.0.0.1:1025:1025' # SMTP
+      - '127.0.0.1:8025:8025' # web UI and API
+    restart: 'no'

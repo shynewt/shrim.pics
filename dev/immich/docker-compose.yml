@@ -1,0 +1,42 @@
+# Local Immich for developing and testing shrim.pics. Dev-only credentials; machine learning is off.
+# Start: docker compose up -d   (podman: set DOCKER_HOST to the podman socket)
+name: shrim-dev-immich
+
+services:
+  immich-server:
+    container_name: shrim_immich_server
+    image: ghcr.io/immich-app/immich-server:v3.3.5
+    volumes:
+      - ./data/library:/data
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      DB_PASSWORD: postgres
+      DB_USERNAME: postgres
+      DB_DATABASE_NAME: immich
+      IMMICH_MACHINE_LEARNING_ENABLED: 'false'
+    ports:
+      - '2283:2283'
+    depends_on:
+      - redis
+      - database
+    restart: 'no'
+
+  redis:
+    container_name: shrim_immich_redis
+    image: docker.io/valkey/valkey:9@sha256:c123e3715db63d06d4ad6964884037aa0d5d4d703939b9929954112889708e1d
+    healthcheck:
+      test: redis-cli ping | grep -q PONG || exit 1
+    restart: 'no'
+
+  database:
+    container_name: shrim_immich_postgres
+    image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: immich
+      POSTGRES_INITDB_ARGS: '--data-checksums'
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    shm_size: 128mb
+    restart: 'no'
