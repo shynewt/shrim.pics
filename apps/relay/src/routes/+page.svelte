@@ -86,6 +86,10 @@
 			a: 'Open your agent and copy it again. If you think the wrong people have it, revoke it and make a new one. We can’t recover a link for you, because we never see the key.'
 		},
 		{
+			q: 'Who makes shrim.pics?',
+			a: 'People who run Immich at home, like you. We share our own albums with shrim.pics, so we want it to be great: simple for you, easy for your friends, and private for everyone.'
+		},
+		{
 			q: 'Is this made by the Immich team?',
 			a: 'No. shrim.pics is an independent project, not affiliated with Immich or FUTO. It works next to your Immich server and uses Immich’s own share links.'
 		},

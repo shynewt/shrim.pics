@@ -41,7 +41,7 @@ We love sharing albums with friends, family and sometimes strangers. But every l
 
 Cloudflare Tunnel solves the reaching part, but puts a third party inside your homelab. [immich-public-proxy](https://github.com/alangrainger/immich-public-proxy) is a great project, but it still needs your domain and a way in from the internet.
 
-So we built **shrim.pics**. It's easy to set up, it never sees your photos, and anyone can open your albums while your server stays yours alone.
+So we built **shrim.pics**. It's easy to set up, it never sees your photos, and anyone can open your albums while your server stays yours alone. We use it for our own albums too, so we want it to be great.
 
 ## How it works
 
