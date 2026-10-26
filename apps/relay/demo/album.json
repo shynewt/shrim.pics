@@ -1,0 +1,176 @@
+{
+	"title": "Spring in Seville",
+	"description": "Orange blossom, tiled courtyards, tapas and a lot of walking.",
+	"place": "Seville, Spain",
+	"assets": [
+		{
+			"id": "c3224d3c-9243-450e-bd4a-38588b380060",
+			"name": "plaza-de-espana",
+			"takenAt": "2026-04-18T18:50:00",
+			"width": 1440,
+			"height": 1080,
+			"thumbhash": "Z+cFPYpTJ1jodJcfptj7cYaAUgkY"
+		},
+		{
+			"id": "2518cd17-379c-470c-b6d8-2218668982b9",
+			"name": "giralda",
+			"takenAt": "2026-04-18T17:46:00",
+			"width": 1047,
+			"height": 1440,
+			"thumbhash": "ZecJNQanZl+IaFiYiHaIeFaAagSY",
+			"camera": "SONY DSLR-A550",
+			"exposure": "f/8 · 1/125 s · 28 mm · ISO 200"
+		},
+		{
+			"id": "598fc12f-3544-4ad8-a0f7-df2dd9120ff3",
+			"name": "tapas",
+			"takenAt": "2026-04-18T16:42:00",
+			"width": 1440,
+			"height": 917,
+			"thumbhash": "ZloGJIS4x8tvh5etd5ood3BSCA==",
+			"exposure": "f/1.85 · 1/522 s · 6.81 mm · ISO 43"
+		},
+		{
+			"id": "72aa381e-e6d9-4fca-bad9-a2374c9abf1b",
+			"name": "las-setas",
+			"takenAt": "2026-04-18T15:38:00",
+			"width": 1440,
+			"height": 1080,
+			"thumbhash": "ZggOHYSniWl8aHePlbd4Wld6cHUH"
+		},
+		{
+			"id": "1e1dfbd0-7565-4116-9ab6-9ec1c1b6895f",
+			"name": "alcazar-fountain",
+			"takenAt": "2026-04-18T14:34:00",
+			"width": 960,
+			"height": 1440,
+			"thumbhash": "ntcFRQZ6d2+qmGYJeYT3WWiAhgd4",
+			"camera": "SONY DSC-RX100M3",
+			"exposure": "f/5.6 · 1/400 s · 8.8 mm · ISO 125"
+		},
+		{
+			"id": "618b384d-a84c-4d90-9f36-8261b97f1247",
+			"name": "triana",
+			"takenAt": "2026-04-18T13:30:00",
+			"width": 1440,
+			"height": 959,
+			"thumbhash": "4PcJHYSHd3ePd3iFh3h4h3lwgmcH",
+			"camera": "SONY DSLR-A550",
+			"exposure": "f/11 · 1/125 s · 18 mm · ISO 200"
+		},
+		{
+			"id": "d3ae7d3f-1ec8-4204-b566-4ce88a1a8cdb",
+			"name": "tiled-steps",
+			"takenAt": "2026-04-18T12:26:00",
+			"width": 1440,
+			"height": 959,
+			"thumbhash": "3xgKJYT82KeEiXiIh4eHiPeJd494",
+			"camera": "SONY DSLR-A550",
+			"exposure": "f/13 · 1/40 s · 45 mm · ISO 200"
+		},
+		{
+			"id": "00cbdf89-a675-4298-aea7-a7031f9f4116",
+			"name": "flamenco",
+			"takenAt": "2026-04-18T11:22:00",
+			"width": 1440,
+			"height": 1081,
+			"thumbhash": "D2YGHYRop2dliodCePdndXuH/0Um"
+		},
+		{
+			"id": "89060264-b8e9-454c-8355-44b179cf0121",
+			"name": "plaza-bridge",
+			"takenAt": "2026-04-17T18:50:00",
+			"width": 1440,
+			"height": 958,
+			"thumbhash": "lwgKDYKyWFifhHiWZ2mXiPm9ifx7",
+			"camera": "NIKON CORPORATION NIKON D70",
+			"exposure": "f/8 · 1/80 s · 31 mm"
+		},
+		{
+			"id": "f5f5f846-32bc-40d3-9089-28c399a1bc32",
+			"name": "santa-cruz",
+			"takenAt": "2026-04-17T17:46:00",
+			"width": 1080,
+			"height": 1440,
+			"thumbhash": "IggKFQIxqX+JuGo4iHl3hzDZKlqv",
+			"camera": "Apple iPhone SE (2nd generation)",
+			"exposure": "f/1.8 · 1/121 s · 3.99 mm · ISO 25"
+		},
+		{
+			"id": "0f0bc409-c666-42c6-917f-bb7e3de819d9",
+			"name": "orange-trees",
+			"takenAt": "2026-04-17T16:42:00",
+			"width": 1440,
+			"height": 1046,
+			"thumbhash": "HBkKDYJQqZiLaHZXmIh3eADJJPqW",
+			"camera": "SONY DSLR-A550",
+			"exposure": "f/11 · 1/100 s · 30 mm · ISO 200"
+		},
+		{
+			"id": "933c9586-99fc-4156-a0fc-51d6386a20b1",
+			"name": "cafe-street",
+			"takenAt": "2026-04-17T15:38:00",
+			"width": 1440,
+			"height": 960,
+			"thumbhash": "XRgKDYRAmnRHd2iXZ1d2ivK+BjpX",
+			"camera": "NIKON CORPORATION NIKON D5500",
+			"exposure": "f/3.5 · 1/100 s · 35 mm · ISO 160"
+		},
+		{
+			"id": "e5a4dd85-4761-4295-883d-bb617bd05551",
+			"name": "tapas-board",
+			"takenAt": "2026-04-17T14:34:00",
+			"width": 1440,
+			"height": 1080,
+			"thumbhash": "V1kGDYTXhYOKdnh/dWRXeQDlrnn4"
+		},
+		{
+			"id": "02692a6f-04cc-462d-ad99-83e6784b7c4d",
+			"name": "plaza-tower",
+			"takenAt": "2026-04-16T18:50:00",
+			"width": 1440,
+			"height": 1003,
+			"thumbhash": "owcKXYoveYheiYhlaUeJiodweAmH"
+		},
+		{
+			"id": "e711d5cb-05ee-402f-8a96-702fecd8f1dc",
+			"name": "cathedral",
+			"takenAt": "2026-04-16T17:46:00",
+			"width": 1440,
+			"height": 1174,
+			"thumbhash": "XecFNoi0Ch66dmpxeIl3V4iZpGBICnY=",
+			"camera": "SONY DSLR-A550",
+			"exposure": "f/8 · 1/160 s · 35 mm · ISO 200"
+		},
+		{
+			"id": "fad0ec9e-ca24-44e2-9afc-1a086d007af9",
+			"name": "puerta-del-leon",
+			"takenAt": "2026-04-16T16:42:00",
+			"width": 1440,
+			"height": 1143,
+			"thumbhash": "YCgOLoh/iIlrlXh4h4eHeIiId1BTBkY=",
+			"camera": "SONY DSLR-A550",
+			"exposure": "f/8 · 1/125 s · 30 mm · ISO 200"
+		},
+		{
+			"id": "5556b6d6-d999-4952-aac6-a22aa7485205",
+			"name": "patio-doncellas",
+			"takenAt": "2026-04-16T15:38:00",
+			"width": 1440,
+			"height": 954,
+			"thumbhash": "FwgSDYA+ZIe/Z3d2mneIiA9pQfMp",
+			"camera": "NIKON CORPORATION NIKON D5100",
+			"exposure": "f/8 · 1/250 s · 18 mm · ISO 200"
+		},
+		{
+			"id": "cf89eb9d-5d4a-451b-aedc-11cd6a2abc3a",
+			"name": "guadalquivir",
+			"takenAt": "2026-04-16T14:34:00",
+			"width": 1440,
+			"height": 960,
+			"thumbhash": "KMcJFYISdYiPh4i/m+eHdqZ/kPoX",
+			"camera": "SONY DSC-RX100M3",
+			"exposure": "f/5.6 · 1/400 s · 25.7 mm · ISO 125"
+		}
+	]
+}
