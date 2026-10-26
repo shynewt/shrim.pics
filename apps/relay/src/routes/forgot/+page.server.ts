@@ -1,12 +1,10 @@
 import { fail } from '@sveltejs/kit';
-import { accountByEmail, createPasswordReset, normalizeEmail } from '#lib/server/accounts.ts';
+import { accountByEmail, createPasswordReset, normalizeEmail, validEmail } from '#lib/server/accounts.ts';
 import { config } from '#lib/server/config.ts';
 import { formText } from '#lib/server/http.ts';
 import { limits } from '#lib/server/limits.ts';
 import { mailAvailable, resetEmail, sendLater } from '#lib/server/mail.ts';
 import type { Actions, PageServerLoad } from './$types';
-
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const load: PageServerLoad = () => ({
 	mail: mailAvailable(),
@@ -19,7 +17,7 @@ export const actions: Actions = {
 	default: async ({ request, getClientAddress, url }) => {
 		const email = formText(await request.formData(), 'email').trim();
 		if (!mailAvailable()) return fail(503, { email, error: 'mail' as const });
-		if (!EMAIL.test(email)) return fail(400, { email, error: 'email' as const });
+		if (!validEmail(email)) return fail(400, { email, error: 'email' as const });
 		if (!limits.forgot.take(getClientAddress())) return fail(429, { email, error: 'rate' as const });
 
 		const account = accountByEmail(email);

@@ -11,7 +11,9 @@ import { pathToFileURL } from 'node:url';
 const dir = resolve(process.argv[2] ?? 'build');
 const injected = !process.env.PROTOCOL_HEADER;
 if (injected) process.env.PROTOCOL_HEADER = 'x-shrim-proto';
-process.env.BODY_SIZE_LIMIT ??= 'Infinity'; // the apps enforce their own limits
+// No server-wide cap, so the relay's streaming routes can take large bodies: each app caps
+// the rest in its handle hook (refuseLargeBody).
+process.env.BODY_SIZE_LIMIT ??= 'Infinity';
 
 const { handler } = await import(pathToFileURL(`${dir}/handler.js`).href);
 

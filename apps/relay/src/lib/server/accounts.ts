@@ -73,6 +73,13 @@ export function toAccount(row: AccountRow): Account {
 
 export const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
+/**
+ * someone@example.com, at most 254 characters (the SMTP limit). Each part excludes the
+ * character that ends it, so the pattern can't backtrack: matching takes linear time.
+ */
+const EMAIL = /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/;
+export const validEmail = (email: string) => email.length <= 254 && EMAIL.test(email);
+
 export function accountByEmail(email: string): AccountRow | undefined {
 	return db.prepare('SELECT * FROM accounts WHERE email = ?').get(normalizeEmail(email)) as AccountRow | undefined;
 }

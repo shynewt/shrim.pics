@@ -1,6 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import type { Handle } from '@sveltejs/kit/hooks';
 import { authEnabled, localUser, resolveSession } from '#lib/server/auth.ts';
+import { refuseLargeBody } from '#lib/server/form.ts';
 import { enqueue } from '#lib/server/handler.ts';
 import { startRelay } from '#lib/server/relay.ts';
 
@@ -10,7 +11,13 @@ export async function init() {
 
 const PUBLIC = new Set(['/login', '/login/sso', '/login/sso/start']);
 
+/** Forms and JSON only: friends' uploads come in through the relay, not here. */
+const MAX_BODY = 256 * 1024;
+
 export const handle: Handle = async ({ event, resolve }) => {
+	const refused = refuseLargeBody(event.request, MAX_BODY);
+	if (refused) return refused;
+
 	event.locals.signedIn = false;
 	if (!authEnabled()) {
 		event.locals.user = localUser();

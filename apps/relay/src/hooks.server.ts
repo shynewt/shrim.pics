@@ -1,6 +1,7 @@
 import type { Handle } from '@sveltejs/kit/hooks';
 import { SESSION_COOKIE, accountForSession, toAccount } from '#lib/server/accounts.ts';
 import { checkBillingConfig } from '#lib/server/billing.ts';
+import { refuseLargeBody } from '#lib/server/http.ts';
 import { startMaintenance } from '#lib/server/maintenance.ts';
 
 export function init() {
@@ -8,7 +9,23 @@ export function init() {
 	startMaintenance();
 }
 
+const KB = 1024;
+
+/**
+ * The most a request body may hold. Viewer requests (uploads included) and agent
+ * responses stream through and cap themselves; forms and JSON are small.
+ */
+function bodyLimit(path: string): number | null {
+	if (path.startsWith('/api/v1/s/') || /^\/agent\/v1\/requests\/[^/]+\/response$/.test(path)) return null;
+	if (path === '/api/stripe/webhook') return 1024 * KB;
+	return 256 * KB;
+}
+
 export const handle: Handle = async ({ event, resolve }) => {
+	const limit = bodyLimit(event.url.pathname);
+	const refused = limit === null ? null : refuseLargeBody(event.request, limit);
+	if (refused) return refused;
+
 	const row = accountForSession(event.cookies.get(SESSION_COOKIE));
 	event.locals.account = row ? toAccount(row) : null;
 

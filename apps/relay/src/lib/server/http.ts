@@ -5,6 +5,21 @@ export function relayError(status: number, code: RelayErrorCode): Response {
 }
 
 /**
+ * Refuses a request body over `max` bytes before anything reads it, or null to go on.
+ * The server itself sets no limit (scripts/serve.mjs) so the streaming routes can take
+ * large bodies; every other route is capped with this. SvelteKit cuts off a body that
+ * runs past its Content-Length, so a body without one is refused: browsers and
+ * Stripe always send it.
+ */
+export function refuseLargeBody(request: Request, max: number): Response | null {
+	if (!request.body) return null;
+	const length = Number(request.headers.get('content-length') ?? NaN);
+	if (!Number.isInteger(length)) return new Response('Length required', { status: 411 });
+	if (length > max) return new Response('Payload too large', { status: 413 });
+	return null;
+}
+
+/**
  * Reads up to `inlineLimit` bytes. If the body ended within that, returns it
  * whole; otherwise returns a stream of everything (prefix included). Either
  * way the total is capped at `max` bytes.
