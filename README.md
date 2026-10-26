@@ -51,7 +51,7 @@ Add it to the `docker-compose.yml` that runs Immich:
 services:
   # your Immich services…
   shrim-agent:
-    image: shrim-agent:latest # build it: docker build -f apps/agent/Dockerfile -t shrim-agent .
+    image: ghcr.io/shynewt/shrim-agent:latest
     environment:
       IMMICH_URL: http://immich-server:2283
     ports:
@@ -96,13 +96,12 @@ Already have your own sign-in in front of the agent, like Authelia or Tailscale?
 Run the whole thing yourself, for free:
 
 ```sh
-docker build -f apps/relay/Dockerfile -t shrim-relay .
 docker run -d -p 3000:3000 -v shrim-relay:/data \
   -e SHRIM_PUBLIC_ORIGIN=https://share.example.com \
   -e SHRIM_BILLING=off \
   -e SHRIM_SIGNUPS=closed \
   -e SHRIM_ADMIN_EMAILS=you@example.com \
-  shrim-relay
+  ghcr.io/shynewt/shrim-relay:latest
 ```
 
 Put it behind HTTPS with Caddy, Traefik or nginx, and turn off response buffering: the agent's connection and the photos are streamed. Then point your agent at it with `SHRIM_RELAY_URL`.

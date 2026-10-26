@@ -93,7 +93,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		shares,
 		relayUrl,
 		ownRelay: !/^https:\/\/shrim\.pics$/.test(relayUrl),
-		agentImage: process.env.SHRIM_AGENT_IMAGE || 'shrim-agent:latest',
+		agentImage: process.env.SHRIM_AGENT_IMAGE || 'ghcr.io/shynewt/shrim-agent:latest',
 		supportEmail: config.operator.email
 	};
 };

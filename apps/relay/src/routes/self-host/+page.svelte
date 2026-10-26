@@ -8,12 +8,12 @@
   -e SHRIM_BILLING=off \\
   -e SHRIM_SIGNUPS=closed \\
   -e SHRIM_ADMIN_EMAILS=you@example.com \\
-  shrim-relay`;
+  ghcr.io/shynewt/shrim-relay:latest`;
 
 	const agent = `services:
   # …your Immich services…
   shrim-agent:
-    image: shrim-agent:latest
+    image: ghcr.io/shynewt/shrim-agent:latest
     environment:
       IMMICH_URL: http://immich-server:2283
       SHRIM_RELAY_URL: https://share.example.com
@@ -32,8 +32,8 @@
 
 	<h2>1. Run the relay</h2>
 	<p>
-		The relay needs a public HTTPS address. Build the image from the repository, then start it behind your reverse proxy
-		(Caddy, Traefik or nginx). Turn off response buffering for it, because photos and the agent connection are streamed.
+		The relay needs a public HTTPS address. Start it behind your reverse proxy (Caddy, Traefik or nginx). Turn off
+		response buffering for it, because photos and the agent connection are streamed.
 	</p>
 	<CodeBlock code={relay} />
 	<p>
