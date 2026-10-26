@@ -90,6 +90,10 @@ const MIGRATIONS = [
 		expires_at INTEGER NOT NULL
 	);
 	CREATE INDEX email_confirmations_account ON email_confirmations(account_id);
+	`,
+	`
+	-- Agent tokens are made when the agent collects them now; none wait here in the clear.
+	UPDATE pairing_codes SET token = NULL;
 	`
 ];
 

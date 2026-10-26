@@ -86,7 +86,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			connected: !!token,
 			everSeen: !!token?.seenAt,
 			// Approved a code moments ago: the agent picks up its token within seconds.
-			connecting: !!token && !token.seenAt && pairingJustApproved(account.id),
+			connecting: pairingJustApproved(account.id),
 			connectedAt: token?.createdAt ?? null,
 			seenAt: token?.seenAt ?? null
 		},

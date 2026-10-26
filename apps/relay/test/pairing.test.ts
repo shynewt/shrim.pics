@@ -17,6 +17,8 @@ describe('pairing', () => {
 		// Typed sloppily by a human: lowercase, no dash, with spaces.
 		expect(accounts.approvePairing(` ${userCode.replace('-', '').toLowerCase()} `, owner.id)).toBe('approved');
 		expect(accounts.approvePairing(userCode, owner.id)).toBe('used');
+		// Nothing secret waits in the database for the agent.
+		expect(accounts.agentTokenInfo(owner.id)).toBeNull();
 
 		const polled = accounts.pollPairing(deviceCode);
 		expect(polled.status).toBe('approved');

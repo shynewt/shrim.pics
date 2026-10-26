@@ -591,7 +591,6 @@ interface PairingRow {
 	account_id: string | null;
 	approved_at: number | null;
 	denied_at: number | null;
-	token: string | null;
 }
 
 export type PairingCheck = 'pending' | 'not_found' | 'expired' | 'used' | 'denied';
@@ -622,12 +621,10 @@ export function describePairing(userCode: string, viewerIp: string) {
 export function approvePairing(userCode: string, accountId: string): PairingCheck | 'approved' {
 	const { row, state } = findPairing(userCode);
 	if (!row || state !== 'pending') return state;
-	// The token waits here until the agent collects it, then it's wiped.
-	const token = rotateAgentToken(accountId);
-	db.prepare('UPDATE pairing_codes SET account_id = ?, approved_at = ?, token = ? WHERE device_hash = ?').run(
+	// No token yet: it's made when the agent collects it, so it's never stored in the clear.
+	db.prepare('UPDATE pairing_codes SET account_id = ?, approved_at = ? WHERE device_hash = ?').run(
 		accountId,
 		Date.now(),
-		token,
 		row.device_hash
 	);
 	pairIps.delete(row.user_code);
@@ -653,9 +650,10 @@ export function pollPairing(deviceCode: string): PollResult {
 		db.prepare('DELETE FROM pairing_codes WHERE device_hash = ?').run(row.device_hash);
 		return { status: 'denied' };
 	}
-	if (row.token) {
+	if (row.approved_at && row.account_id) {
 		db.prepare('DELETE FROM pairing_codes WHERE device_hash = ?').run(row.device_hash);
-		return { status: 'approved', token: row.token };
+		// Made only now: the old agent, if any, keeps working until the new one has its token.
+		return { status: 'approved', token: rotateAgentToken(row.account_id) };
 	}
 	if (row.expires_at < Date.now()) return { status: 'expired' };
 	return { status: 'pending' };
