@@ -1,13 +1,27 @@
 import { error, redirect } from '@sveltejs/kit';
-import { accountById, toAccount, type AccountSummary } from './accounts.ts';
+import { dev } from '$app/env';
+import { accountById, createEmailConfirmation, toAccount, type Account, type AccountSummary } from './accounts.ts';
 import { planView, type PlanView } from './billing.ts';
 import { config } from './config.ts';
+import { operatorConfirmEmail, operatorConfirmLink, sendLater } from './mail.ts';
 import { agentOnline } from './router.ts';
 
-/** Operator pages don't exist for anyone else. */
+/** Operator pages don't exist for anyone else. A listed address confirms itself first. */
 export function requireAdmin(locals: App.Locals) {
 	if (!locals.account) redirect(303, '/login');
+	if (locals.account.adminPending) redirect(303, '/admin/confirm');
 	if (!locals.account.admin) error(404, 'Not found');
+}
+
+/** Without email, the link goes to the log: only whoever runs the server reads that. */
+export function sendOperatorConfirmation(account: Pick<Account, 'id' | 'email'>, origin: string) {
+	const token = createEmailConfirmation(account.id);
+	if (config.mail.host || dev) sendLater(operatorConfirmEmail(account.email, origin, token));
+	else {
+		console.warn(
+			`[admin] Email isn't set up, so here is the link that confirms ${account.email} as an operator. Open it while signed in: ${operatorConfirmLink(origin, token)}`
+		);
+	}
 }
 
 export interface AgentFacts {

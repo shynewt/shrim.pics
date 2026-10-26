@@ -1,5 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { accountByEmail, accountCount, createAccount, validEmail } from '#lib/server/accounts.ts';
+import { accountByEmail, accountCount, createAccount, toAccount, validEmail } from '#lib/server/accounts.ts';
+import { sendOperatorConfirmation } from '#lib/server/admin.ts';
 import { config } from '#lib/server/config.ts';
 import { limits } from '#lib/server/limits.ts';
 import { startSession } from '#lib/server/session.ts';
@@ -26,6 +27,7 @@ export const actions: Actions = {
 
 		const account = await createAccount(email, password);
 		startSession(cookies, account.id);
+		if (toAccount(account).adminPending) sendOperatorConfirmation(account, config.publicOrigin ?? url.origin);
 		redirect(303, safeNext(url.searchParams.get('next')));
 	}
 };

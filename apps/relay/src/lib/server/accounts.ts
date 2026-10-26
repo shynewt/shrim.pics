@@ -53,20 +53,27 @@ export interface Account {
 	activeUntil: number | null;
 	suspended: boolean;
 	active: boolean;
+	/** Listed in SHRIM_ADMIN_EMAILS, with the address confirmed. */
 	admin: boolean;
+	/** Listed, but the address isn't confirmed yet: no operator pages until it is. */
+	adminPending: boolean;
 	createdAt: number;
 }
 
 export function toAccount(row: AccountRow): Account {
 	const suspended = row.suspended_at !== null;
 	const paid = config.billing === 'off' || (row.active_until ?? 0) > Date.now();
+	// Anyone can sign up with any address, so being listed isn't enough on its own.
+	const listed = config.adminEmails.includes(row.email);
+	const confirmed = row.email_confirmed_at !== null;
 	return {
 		id: row.id,
 		email: row.email,
 		activeUntil: row.active_until,
 		suspended,
 		active: paid && !suspended,
-		admin: config.adminEmails.includes(row.email),
+		admin: listed && confirmed,
+		adminPending: listed && !confirmed,
 		createdAt: row.created_at
 	};
 }
@@ -103,7 +110,8 @@ export async function createAccount(email: string, password: string): Promise<Ac
 		stripe_customer_id: null,
 		stripe_subscription_id: null,
 		plan_status: null,
-		plan_cancel_at_period_end: 0
+		plan_cancel_at_period_end: 0,
+		email_confirmed_at: null
 	};
 	db.prepare(
 		'INSERT INTO accounts (id, email, password_hash, active_until, suspended_at, created_at) VALUES (?, ?, ?, ?, ?, ?)'
@@ -190,7 +198,10 @@ export async function resetPassword(token: string, password: string): Promise<Ac
 	if (!account) return null;
 	db.exec('BEGIN');
 	try {
-		db.prepare('UPDATE accounts SET password_hash = ? WHERE id = ?').run(hash, account.id);
+		// The link came to the address, so it's confirmed too.
+		db.prepare(
+			'UPDATE accounts SET password_hash = ?, email_confirmed_at = COALESCE(email_confirmed_at, ?) WHERE id = ?'
+		).run(hash, Date.now(), account.id);
 		db.prepare('DELETE FROM password_resets WHERE account_id = ?').run(account.id);
 		db.prepare('DELETE FROM sessions WHERE account_id = ?').run(account.id);
 		db.exec('COMMIT');
@@ -199,6 +210,48 @@ export async function resetPassword(token: string, password: string): Promise<Ac
 		throw e;
 	}
 	return account;
+}
+
+// A link only that mailbox gets, opened while signed in to the account: someone who
+// signed up with another person's address can't confirm it, and its owner can't confirm
+// an account they don't control (they reset its password instead, which also confirms).
+
+export const CONFIRM_HOURS = 24;
+
+/** A new confirmation link for the account. Asking again replaces the old one. */
+export function createEmailConfirmation(accountId: string): string {
+	const token = randomToken(32);
+	db.exec('BEGIN');
+	try {
+		db.prepare('DELETE FROM email_confirmations WHERE account_id = ?').run(accountId);
+		db.prepare('INSERT INTO email_confirmations (token_hash, account_id, expires_at) VALUES (?, ?, ?)').run(
+			sha256(token),
+			accountId,
+			Date.now() + CONFIRM_HOURS * 3_600_000
+		);
+		db.exec('COMMIT');
+	} catch (e) {
+		db.exec('ROLLBACK');
+		throw e;
+	}
+	return token;
+}
+
+export function confirmEmail(token: string, accountId: string): boolean {
+	const row = db
+		.prepare('SELECT account_id FROM email_confirmations WHERE token_hash = ? AND expires_at > ?')
+		.get(sha256(token), Date.now()) as { account_id: string } | undefined;
+	if (row?.account_id !== accountId) return false;
+	db.exec('BEGIN');
+	try {
+		db.prepare('UPDATE accounts SET email_confirmed_at = ? WHERE id = ?').run(Date.now(), accountId);
+		db.prepare('DELETE FROM email_confirmations WHERE account_id = ?').run(accountId);
+		db.exec('COMMIT');
+	} catch (e) {
+		db.exec('ROLLBACK');
+		throw e;
+	}
+	return true;
 }
 
 /** Makes a new agent token, replacing any old one. The token is only ever shown once. */

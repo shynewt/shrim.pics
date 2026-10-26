@@ -10,46 +10,25 @@
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Browser, type Page } from '@playwright/test';
+import {
+	MAILPIT,
+	count,
+	mailpitUp,
+	mails,
+	operatorPage as operatorSignIn,
+	waitForMail,
+	type Mail
+} from './fixtures/mail.ts';
 
 const RELAY = process.env.E2E_RELAY_URL ?? 'http://localhost:5273';
-const MAILPIT = process.env.MAILPIT_URL ?? 'http://localhost:8025';
 const SHOTS = join(import.meta.dirname, '.out', 'screens');
 
 const run = Date.now();
 const owner = { email: `forgetful-${run}@shrim.test`, password: 'the-first-password', next: 'the-second-password' };
-const operator = { email: 'admin@shrim.test', password: 'operator-password' };
 let resetLink = '';
 /** A fresh link sent by the operator, for the screenshots. */
 let operatorLink = '';
 const RESET = /^Reset your .+ password$/;
-
-interface MailSummary {
-	ID: string;
-	Subject: string;
-}
-interface Mail extends MailSummary {
-	From: { Name: string; Address: string };
-	Text: string;
-	HTML: string;
-}
-
-async function mails(to: string): Promise<MailSummary[]> {
-	const res = await fetch(`${MAILPIT}/api/v1/search?query=${encodeURIComponent(`to:"${to}"`)}`);
-	return ((await res.json()) as { messages: MailSummary[] }).messages;
-}
-
-/** How many emails to `to` have a matching subject so far. */
-const count = async (to: string, subject: RegExp) => (await mails(to)).filter((m) => subject.test(m.Subject)).length;
-
-/** Waits until there are more than `seen` matching emails to `to`, and returns the newest in full. */
-async function waitForMail(to: string, subject: RegExp, seen = 0): Promise<Mail> {
-	for (let i = 0; i < 75; i++) {
-		const found = (await mails(to)).filter((m) => subject.test(m.Subject)); // newest first
-		if (found.length > seen) return (await (await fetch(`${MAILPIT}/api/v1/message/${found[0].ID}`)).json()) as Mail;
-		await new Promise((r) => setTimeout(r, 200));
-	}
-	throw new Error(`No new email to ${to} matching ${subject}`);
-}
 
 const linkIn = (mail: Mail) => mail.Text.match(/https?:\/\/\S+\/reset\?token=[\w-]+/)?.[0] ?? '';
 
@@ -73,25 +52,13 @@ async function signUp(page: Page, email: string, password: string) {
 	await expect(page).toHaveURL(/\/dashboard$/);
 }
 
-/** Signs in as the operator, making the account on a fresh relay. */
-async function operatorPage(browser: Browser): Promise<Page> {
-	const page = await (await browser.newContext()).newPage();
-	await signIn(page, operator.email, operator.password);
-	const mismatch = page.getByText("That email and password don't match");
-	await Promise.race([page.waitForURL(/\/dashboard$/), mismatch.waitFor()]);
-	if (await mismatch.isVisible()) await signUp(page, operator.email, operator.password);
-	return page;
-}
+const operatorPage = (browser: Browser) => operatorSignIn(browser, RELAY);
 
 test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async () => {
 	mkdirSync(SHOTS, { recursive: true });
-	const up = await fetch(`${MAILPIT}/api/v1/info`).then(
-		(r) => r.ok,
-		() => false
-	);
-	test.skip(!up, `Mailpit isn't running on ${MAILPIT} (cd dev/mail && docker compose up -d)`);
+	test.skip(!(await mailpitUp()), `Mailpit isn't running on ${MAILPIT} (cd dev/mail && docker compose up -d)`);
 });
 
 test('someone who forgot their password gets a link by email and chooses a new one', async ({ page, browser }) => {

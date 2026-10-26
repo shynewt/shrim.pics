@@ -57,6 +57,7 @@ export function cleanUp() {
 	const now = Date.now();
 	db.prepare('DELETE FROM sessions WHERE expires_at < ?').run(now);
 	db.prepare('DELETE FROM password_resets WHERE expires_at < ?').run(now);
+	db.prepare('DELETE FROM email_confirmations WHERE expires_at < ?').run(now);
 	db.prepare('DELETE FROM pairing_codes WHERE expires_at < ?').run(now - DAY);
 	// Resolved reports (they contain full links) are kept 12 months, then deleted.
 	db.prepare('DELETE FROM reports WHERE resolved_at IS NOT NULL AND resolved_at < ?').run(now - 365 * DAY);

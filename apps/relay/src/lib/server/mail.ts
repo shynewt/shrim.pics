@@ -83,6 +83,22 @@ export function resetEmail(to: string, origin: string, token: string): Email {
 	]);
 }
 
+export const operatorConfirmLink = (origin: string, token: string) =>
+	`${origin}/admin/confirm?token=${encodeURIComponent(token)}`;
+
+export function operatorConfirmEmail(to: string, origin: string, token: string): Email {
+	const name = site(origin);
+	return email(to, `Confirm you run ${name}`, [
+		'Hi,',
+		`This address is listed as an operator of ${name}. To open the operator pages, open this link in the browser where you're signed in:`,
+		operatorConfirmLink(origin, token),
+		'The link works for 24 hours.',
+		`If you didn't make a ${name} account, someone else used your address. Don't open the link. Reset the password instead, which signs them out:`,
+		`${origin}/forgot`,
+		name
+	]);
+}
+
 export function passwordChangedEmail(to: string, origin: string): Email {
 	const name = site(origin);
 	const help = config.operator.email ? ` and write to ${config.operator.email}` : '';

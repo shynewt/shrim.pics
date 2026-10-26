@@ -81,6 +81,15 @@ const MIGRATIONS = [
 		expires_at INTEGER NOT NULL
 	);
 	CREATE INDEX password_resets_account ON password_resets(account_id);
+	`,
+	`
+	ALTER TABLE accounts ADD COLUMN email_confirmed_at INTEGER;
+	CREATE TABLE email_confirmations (
+		token_hash TEXT PRIMARY KEY,
+		account_id TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+		expires_at INTEGER NOT NULL
+	);
+	CREATE INDEX email_confirmations_account ON email_confirmations(account_id);
 	`
 ];
 
@@ -118,6 +127,8 @@ export interface AccountRow {
 	/** Stripe subscription status, e.g. active, past_due, canceled. */
 	plan_status: string | null;
 	plan_cancel_at_period_end: number;
+	/** When the owner proved the address is theirs (a confirmation link, or a password reset). */
+	email_confirmed_at: number | null;
 }
 
 export interface ShareRow {

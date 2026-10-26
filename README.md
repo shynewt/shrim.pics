@@ -123,7 +123,7 @@ Put it behind HTTPS with Caddy, Traefik or nginx, and turn off response bufferin
 | `SHRIM_PUBLIC_ORIGIN`                              | request origin   | Used in share links and to mark cookies secure                                   |
 | `SHRIM_BILLING`                                    | `off`            | `off`: everyone is active. `dev`: a test button. `stripe`: Stripe subscriptions  |
 | `SHRIM_SIGNUPS`                                    | `open`           | `closed` allows only the first account                                           |
-| `SHRIM_ADMIN_EMAILS`                               | none             | Accounts that see the operator page and reports                                  |
+| `SHRIM_ADMIN_EMAILS`                               | none             | Accounts that see the operator page and reports, once they confirm the address   |
 | `SHRIM_DATA_DIR`                                   | `/data`          | The SQLite database                                                              |
 | `SHRIM_BACKUP_DIR`                                 | `<data>/backups` | Daily database copies, the last 14 kept                                          |
 | `SHRIM_DEMO`                                       | `on`             | `off` hides the example album                                                    |
@@ -160,7 +160,7 @@ pnpm e2e      # end to end against the local Immich, with its own relay and agen
 - **Email.** Without `SMTP_HOST`, the dev relay prints emails to its console. `e2e/accounts.spec.ts` reads them from Mailpit and is skipped when it isn't running.
 - **Single sign-on.** `node dev/sso/up.mjs` starts a test provider ([Dex](https://dexidp.io)) and points the dev Immich at it, with the user `robin@shrim.test` / `robin-dev-password`. `node dev/sso/down.mjs` undoes it. The SSO test runs only while it's up.
 - **Example album.** The relay answers it itself, encrypted like an agent would, from `apps/relay/demo`. Rebuild it with `node dev/demo-album.mjs <photos-dir>`.
-- **Operator page.** `SHRIM_ADMIN_EMAILS=you@example.com` gives that account `/admin`.
+- **Operator page.** `SHRIM_ADMIN_EMAILS=you@example.com` gives that account `/admin`, after it confirms the address with the emailed link (printed to the console in development).
 
 </details>
 

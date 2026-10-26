@@ -12,6 +12,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
+import { mailpitUp, operatorPage } from './fixtures/mail.ts';
 
 const RELAY = process.env.E2E_RELAY_URL ?? 'http://localhost:5273';
 const AGENT = process.env.E2E_AGENT_URL ?? 'http://localhost:5274';
@@ -426,6 +427,7 @@ test('broken links explain themselves', async ({ page }) => {
 });
 
 test('someone reports an album from the viewer and the operator disables it', async ({ page, browser }) => {
+	test.skip(!(await mailpitUp()), "Mailpit isn't running (cd dev/mail && docker compose up -d)");
 	await open(page, shareLink);
 	await page.getByRole('link', { name: 'Report this album' }).click();
 	await expect(page.getByLabel('Link')).toHaveValue(shareLink); // prefilled, key included
@@ -434,29 +436,14 @@ test('someone reports an album from the viewer and the operator disables it', as
 	await page.getByRole('button', { name: 'Send report' }).click();
 	await expect(page.getByRole('heading', { name: 'Thanks, we got your report' })).toBeVisible();
 
-	// The operator (SHRIM_ADMIN_EMAILS) reviews it in a separate session.
-	const ctx = await browser.newContext();
-	const admin = await ctx.newPage();
-	await open(admin, `${RELAY}/login`);
-	await admin.getByLabel('Email').fill('admin@shrim.test');
-	await admin.getByLabel('Password', { exact: true }).fill('operator-password');
-	await admin.getByRole('button', { name: 'Sign in' }).click();
-	const mismatch = admin.getByText("That email and password don't match");
-	await Promise.race([admin.waitForURL(/\/dashboard$/), mismatch.waitFor()]);
-	if (await mismatch.isVisible()) {
-		await open(admin, `${RELAY}/signup`);
-		await admin.getByLabel('Email').fill('admin@shrim.test');
-		await admin.getByLabel('Password', { exact: true }).fill('operator-password');
-		await admin.getByRole('button', { name: 'Create account' }).click();
-	}
-	await expect(admin).toHaveURL(/\/dashboard$/);
-	await open(admin, `${RELAY}/admin`);
+	// The operator (SHRIM_ADMIN_EMAILS) reviews it in a separate session, once their address is confirmed by email.
+	const admin = await operatorPage(browser, RELAY);
 	const id = shareLink.match(/\/s\/([A-Za-z0-9]{10})#/)![1];
 	const report = admin.locator('li', { hasText: id }).first();
 	await expect(report.getByText('Shared without consent')).toBeVisible();
 	await report.getByRole('button', { name: 'Disable link' }).click();
 	await expect(admin.getByText('Link disabled').first()).toBeVisible();
-	await ctx.close();
+	await admin.context().close();
 
 	await open(page, shareLink);
 	await expect(page.getByRole('heading', { name: 'This link is no longer available' })).toBeVisible();
