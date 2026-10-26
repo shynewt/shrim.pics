@@ -22,6 +22,14 @@ export const config = {
 	 * `none`: no sign-in, for when something in front (a VPN, Authelia…) already checks who you are.
 	 */
 	auth: authMode(env.SHRIM_AUTH),
+	/**
+	 * Names the agent answers on besides IP addresses and localhost, e.g. `nas.home.arpa,.ts.net`.
+	 * Checked with SHRIM_AUTH=none (always, once set): see lib/server/hosts.ts.
+	 */
+	allowedHosts: (env.SHRIM_ALLOWED_HOSTS ?? '')
+		.split(',')
+		.map((s) => s.trim().toLowerCase())
+		.filter(Boolean),
 	/** Only with SHRIM_AUTH=none: lets the agent list albums and create Immich share links. */
 	immichApiKey: env.IMMICH_API_KEY ?? '',
 	dataDir: resolve(env.DATA_DIR ?? '.data'),

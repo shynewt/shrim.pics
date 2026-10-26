@@ -80,7 +80,7 @@ Everyone in your home signs in with their own Immich account and sees their own 
 
 Nobody types an Immich password into the agent. It keeps one narrow API key per person, on its own volume, and never sends it to shrim.pics. Friends who open a link only ever reach Immich through that album's share link.
 
-Already have your own sign-in in front of the agent, like Authelia or Tailscale? Set `SHRIM_AUTH=none`. Anyone who can reach the page can then share your albums.
+Already have your own sign-in in front of the agent, like Authelia or Tailscale? Set `SHRIM_AUTH=none`. Anyone who can reach the page can then share your albums. The agent then only answers on IP addresses and the names in `SHRIM_ALLOWED_HOSTS`, so other websites can't reach it through your browser.
 
 <details>
 <summary><b>Agent settings</b></summary>
@@ -93,6 +93,7 @@ Already have your own sign-in in front of the agent, like Authelia or Tailscale?
 | `SHRIM_RELAY_URL`     | `https://shrim.pics`        | The relay to connect to                                                           |
 | `SHRIM_AUTH`          | `immich`                    | `immich`: everyone signs in with Immich. `none`: no sign-in, only behind your own |
 | `IMMICH_API_KEY`      | none                        | Only with `SHRIM_AUTH=none`: the key for the album list                           |
+| `SHRIM_ALLOWED_HOSTS` | none                        | Names to answer on besides IP addresses, e.g. `nas.home.arpa,.ts.net`             |
 | `SHRIM_AGENT_TOKEN`   | none                        | Connect with a token instead of a code                                            |
 | `SHRIM_MAX_UPLOAD_MB` | `4096`                      | Largest file friends can add                                                      |
 | `DATA_DIR`            | `/data`                     | Holds your share keys and everyone's API keys. Back it up and keep it private.    |
