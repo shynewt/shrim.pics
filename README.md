@@ -120,7 +120,7 @@ Put it behind HTTPS with Caddy, Traefik or nginx, and turn off response bufferin
 
 | Setting                                            | Default          |                                                                                  |
 | -------------------------------------------------- | ---------------- | -------------------------------------------------------------------------------- |
-| `SHRIM_PUBLIC_ORIGIN`                              | request origin   | Used in share links and to mark cookies secure                                   |
+| `SHRIM_PUBLIC_ORIGIN`                              | request origin   | Used in share links and emails, and to mark cookies secure. Required with SMTP   |
 | `SHRIM_BILLING`                                    | `off`            | `off`: everyone is active. `dev`: a test button. `stripe`: Stripe subscriptions  |
 | `SHRIM_SIGNUPS`                                    | `open`           | `closed` allows only the first account                                           |
 | `SHRIM_ADMIN_EMAILS`                               | none             | Accounts that see the operator page and reports, once they confirm the address   |

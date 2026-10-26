@@ -65,7 +65,7 @@ jobs:
       - run: pnpm build
       - name: Start relay and agent
         run: |
-          (cd apps/relay && PORT=6173 SHRIM_BILLING=dev SHRIM_DATA_DIR=/tmp/relay SHRIM_ADMIN_EMAILS=admin@shrim.test \
+          (cd apps/relay && PORT=6173 SHRIM_PUBLIC_ORIGIN=http://localhost:6173 SHRIM_BILLING=dev SHRIM_DATA_DIR=/tmp/relay SHRIM_ADMIN_EMAILS=admin@shrim.test \
             SMTP_HOST=localhost SMTP_PORT=1025 MAIL_FROM='shrim.pics <hello@shrim.test>' \
             nohup node ../../scripts/serve.mjs build > /tmp/relay.log 2>&1 &)
           (cd apps/agent && PORT=6174 IMMICH_URL=http://localhost:2283 SHRIM_RELAY_URL=http://localhost:6173 DATA_DIR=/tmp/agent \

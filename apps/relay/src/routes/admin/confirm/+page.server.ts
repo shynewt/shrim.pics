@@ -5,6 +5,7 @@ import { sendOperatorConfirmation } from '#lib/server/admin.ts';
 import { config } from '#lib/server/config.ts';
 import { formText } from '#lib/server/http.ts';
 import { limits } from '#lib/server/limits.ts';
+import { emailOrigin } from '#lib/server/mail.ts';
 import type { Actions, PageServerLoad } from './$types';
 
 /** Only for an address in SHRIM_ADMIN_EMAILS that isn't confirmed yet. */
@@ -38,7 +39,7 @@ export const actions: Actions = {
 	send: ({ locals, url }) => {
 		const account = pending(locals);
 		if (!limits.resetMail.take(`confirm:${account.email}`)) return fail(429, { error: 'rate' as const });
-		sendOperatorConfirmation(account, config.publicOrigin ?? url.origin);
+		sendOperatorConfirmation(account, emailOrigin(url));
 		return { sent: true as const };
 	}
 };

@@ -15,7 +15,7 @@ import {
 import { planFor, requireAdmin } from '#lib/server/admin.ts';
 import { config } from '#lib/server/config.ts';
 import { formText } from '#lib/server/http.ts';
-import { resetEmail, sendMail } from '#lib/server/mail.ts';
+import { emailOrigin, resetEmail, sendMail } from '#lib/server/mail.ts';
 import { agentConnectedAt, agentOnline, disconnectAgent, notifyAccountChanged } from '#lib/server/router.ts';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -106,7 +106,7 @@ export const actions: Actions = {
 	reset: async ({ locals, params, url }) => {
 		requireAdmin(locals);
 		const row = target(params);
-		const origin = config.publicOrigin ?? url.origin;
+		const origin = emailOrigin(url);
 		const token = createPasswordReset(row.id);
 		if (config.mail.host) {
 			try {

@@ -1,9 +1,8 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { MIN_PASSWORD, accountForPasswordReset, resetPassword } from '#lib/server/accounts.ts';
-import { config } from '#lib/server/config.ts';
 import { formText } from '#lib/server/http.ts';
 import { limits } from '#lib/server/limits.ts';
-import { passwordChangedEmail, sendLater } from '#lib/server/mail.ts';
+import { emailOrigin, passwordChangedEmail, sendLater } from '#lib/server/mail.ts';
 import { startSession } from '#lib/server/session.ts';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -25,7 +24,7 @@ export const actions: Actions = {
 		const account = await resetPassword(token, password);
 		if (!account) return fail(410, { error: 'invalid' as const });
 		startSession(cookies, account.id);
-		sendLater(passwordChangedEmail(account.email, config.publicOrigin ?? url.origin));
+		sendLater(passwordChangedEmail(account.email, emailOrigin(url)));
 		redirect(303, '/dashboard');
 	}
 };

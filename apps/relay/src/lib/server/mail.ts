@@ -15,6 +15,19 @@ export interface Email {
 
 export const mailAvailable = () => !!config.mail.host || dev;
 
+/**
+ * Links in emails go to SHRIM_PUBLIC_ORIGIN. Without it they would follow the request's
+ * Host header, which the sender chooses: a reset link could then point at their server.
+ */
+export function checkMailConfig() {
+	if (config.mail.host && !config.publicOrigin && !dev) {
+		throw new Error('SMTP_HOST is set, so SHRIM_PUBLIC_ORIGIN must be too: links in emails point to it');
+	}
+}
+
+/** Where links in emails point. The request's own origin only when no email goes out, or in development. */
+export const emailOrigin = (url: URL) => config.publicOrigin ?? url.origin;
+
 const LOCAL = /^(localhost|127\.\d+\.\d+\.\d+|::1|host\.containers\.internal|host\.docker\.internal|mailpit)$/;
 
 let transport: Transporter | undefined;

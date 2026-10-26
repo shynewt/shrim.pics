@@ -2,10 +2,12 @@ import type { Handle } from '@sveltejs/kit/hooks';
 import { SESSION_COOKIE, accountForSession, toAccount } from '#lib/server/accounts.ts';
 import { checkBillingConfig } from '#lib/server/billing.ts';
 import { refuseLargeBody } from '#lib/server/http.ts';
+import { checkMailConfig } from '#lib/server/mail.ts';
 import { startMaintenance } from '#lib/server/maintenance.ts';
 
 export function init() {
 	checkBillingConfig();
+	checkMailConfig();
 	startMaintenance();
 }
 

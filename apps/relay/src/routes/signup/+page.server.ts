@@ -3,6 +3,7 @@ import { accountByEmail, accountCount, createAccount, toAccount, validEmail } fr
 import { sendOperatorConfirmation } from '#lib/server/admin.ts';
 import { config } from '#lib/server/config.ts';
 import { limits } from '#lib/server/limits.ts';
+import { emailOrigin } from '#lib/server/mail.ts';
 import { startSession } from '#lib/server/session.ts';
 import { safeNext } from '#lib/server/next.ts';
 import { formText } from '#lib/server/http.ts';
@@ -27,7 +28,7 @@ export const actions: Actions = {
 
 		const account = await createAccount(email, password);
 		startSession(cookies, account.id);
-		if (toAccount(account).adminPending) sendOperatorConfirmation(account, config.publicOrigin ?? url.origin);
+		if (toAccount(account).adminPending) sendOperatorConfirmation(account, emailOrigin(url));
 		redirect(303, safeNext(url.searchParams.get('next')));
 	}
 };

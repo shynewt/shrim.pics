@@ -3,7 +3,7 @@ import { accountByEmail, createPasswordReset, normalizeEmail, validEmail } from 
 import { config } from '#lib/server/config.ts';
 import { formText } from '#lib/server/http.ts';
 import { limits } from '#lib/server/limits.ts';
-import { mailAvailable, resetEmail, sendLater } from '#lib/server/mail.ts';
+import { emailOrigin, mailAvailable, resetEmail, sendLater } from '#lib/server/mail.ts';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = () => ({
@@ -23,7 +23,7 @@ export const actions: Actions = {
 		const account = accountByEmail(email);
 		if (account && limits.resetMail.take(normalizeEmail(email))) {
 			const token = createPasswordReset(account.id);
-			sendLater(resetEmail(account.email, config.publicOrigin ?? url.origin, token));
+			sendLater(resetEmail(account.email, emailOrigin(url), token));
 		}
 		return { sent: true as const, email };
 	}
