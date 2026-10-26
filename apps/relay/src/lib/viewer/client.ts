@@ -48,6 +48,14 @@ export class Queue {
 	}
 }
 
+/**
+ * A blob's URL is on our origin, so it only gets a photo or video type the agent names,
+ * never one a browser would run as a page (HTML, SVG).
+ */
+function mediaType(type: string | undefined): string {
+	return type && /^(image\/(?!svg)|video\/)[\w.+-]+$/i.test(type) ? type : 'application/octet-stream';
+}
+
 export class ShareClient {
 	readonly queue = new Queue(6);
 	#info = new Map<string, Promise<AssetInfo>>();
@@ -126,7 +134,7 @@ export class ShareClient {
 			got += value.length;
 			if (r.head.size) onProgress?.(Math.min(1, got / r.head.size));
 		}
-		return { blob: new Blob(parts, { type: r.head.type ?? 'application/octet-stream' }), head: r.head };
+		return { blob: new Blob(parts, { type: mediaType(r.head.type) }), head: r.head };
 	}
 
 	/** Encrypts a request ahead of time, so the next upload part is ready while this one sends. */

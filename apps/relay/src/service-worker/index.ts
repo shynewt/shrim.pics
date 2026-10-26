@@ -40,7 +40,8 @@ sw.addEventListener('message', (event) => {
 
 sw.addEventListener('fetch', (event) => {
 	const { request } = event;
-	if (request.method !== 'GET') return;
+	// Only for players: opening the address itself goes to the network (and finds nothing).
+	if (request.method !== 'GET' || request.mode === 'navigate') return;
 	const url = new URL(request.url);
 	if (url.origin !== sw.location.origin) return;
 	const match = url.pathname.match(VIDEO_PATH);
@@ -73,6 +74,9 @@ function ask(client: Client, msg: RangeAsk): Promise<RangeAnswer> {
 		client.postMessage(msg, [channel.port2]);
 	});
 }
+
+/** The agent says what type a video is, but it's served on our origin: only ever a video type. */
+const videoType = (type: string) => (/^video\/[\w.+-]+$/i.test(type) ? type : 'application/octet-stream');
 
 function plain(status: number, headers: Record<string, string> = {}) {
 	return new Response(null, { status, headers: { 'cache-control': 'no-store', ...headers } });
@@ -142,7 +146,10 @@ async function serve(event: FetchEvent, share: string, asset: string): Promise<R
 	);
 
 	const headers: Record<string, string> = {
-		'content-type': first.type,
+		'content-type': videoType(first.type),
+		// Our origin, made here (the server's headers don't apply): never let it run as a page.
+		'x-content-type-options': 'nosniff',
+		'content-security-policy': "default-src 'none'; sandbox",
 		'content-length': String(span.end - span.start + 1),
 		'accept-ranges': 'bytes',
 		// Plaintext: never into any cache.
