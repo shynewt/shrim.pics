@@ -35,6 +35,14 @@
 
 <br>
 
+## Why?
+
+We love sharing albums with friends, family and sometimes strangers. But every link also hands out our homelab's address, and that never felt right. Many homelabs aren't even reachable from outside, because they sit behind a VPN.
+
+Cloudflare Tunnel solves the reaching part, but puts a third party inside your homelab. [immich-public-proxy](https://github.com/alangrainger/immich-public-proxy) is a great project, but it still needs your domain and a way in from the internet.
+
+So we built **shrim.pics**. It's easy to set up, it never sees your photos, and anyone can open your albums while your server stays yours alone.
+
 ## How it works
 
 - **The agent** is a small container next to Immich. It connects out to shrim.pics, so you open no ports, and it encrypts everything before it leaves your network.
