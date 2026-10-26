@@ -264,12 +264,14 @@ export const actions: Actions = {
 			return err('immichDown');
 		}
 		if (link.password) return err('password');
-		// Remember where Immich lives publicly, only to link to its settings later.
-		try {
-			const u = new URL(url);
-			if (!state.immichPublicUrl) state.immichPublicUrl = u.origin;
-		} catch {
-			// a bare key: nothing to learn
+		// Remember where Immich lives publicly, only to link to its settings later. Only from an
+		// admin: the key is checked, the host isn't, and everyone's sign-in page links there.
+		if (locals.user.isAdmin && !state.immichPublicUrl) {
+			try {
+				state.immichPublicUrl = new URL(url).origin;
+			} catch {
+				// a bare key: nothing to learn
+			}
 		}
 		try {
 			return { created: await finishShare(locals.user, ref, link, label, days) };
