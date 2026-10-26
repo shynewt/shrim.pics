@@ -1,6 +1,7 @@
 import type { Handle } from '@sveltejs/kit/hooks';
 import { SESSION_COOKIE, accountForSession, toAccount } from '#lib/server/accounts.ts';
 import { checkBillingConfig } from '#lib/server/billing.ts';
+import { config } from '#lib/server/config.ts';
 import { refuseLargeBody } from '#lib/server/http.ts';
 import { checkMailConfig } from '#lib/server/mail.ts';
 import { startMaintenance } from '#lib/server/maintenance.ts';
@@ -12,6 +13,13 @@ export function init() {
 }
 
 const KB = 1024;
+
+/**
+ * Browsers that have been here once never try plain http again, so nobody on the network
+ * can answer that first request in our place. Two years; no subdomains, which a
+ * self-hosted relay may not own.
+ */
+const HSTS = config.publicOrigin?.startsWith('https://') ? 'max-age=63072000' : null;
 
 /**
  * The most a request body may hold. Viewer requests (uploads included) and agent
@@ -37,5 +45,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 	response.headers.set('referrer-policy', 'same-origin');
 	response.headers.set('x-frame-options', 'DENY');
 	response.headers.set('permissions-policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()');
+	if (HSTS) response.headers.set('strict-transport-security', HSTS);
 	return response;
 };
