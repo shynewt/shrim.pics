@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const env = process.env;
@@ -14,6 +15,27 @@ function onOff(name: string, fallback: 'on' | 'off'): boolean {
 	const v = env[name] || fallback;
 	if (v === 'on' || v === 'off') return v === 'on';
 	throw new Error(`${name} must be on or off (got "${v}")`);
+}
+
+/**
+ * A secret from `<name>_FILE` (a file, e.g. a mounted Docker secret) or `<name>`. Setting both
+ * is an error, as is a file we can't read. One trailing newline is dropped. Empty counts as unset.
+ */
+export function secret(
+	name: string,
+	vars: NodeJS.ProcessEnv = env,
+	read: (path: string) => string = (path) => readFileSync(path, 'utf8')
+): string {
+	const path = vars[`${name}_FILE`];
+	if (!path) return vars[name] ?? '';
+	if (vars[name]) throw new Error(`Set either ${name} or ${name}_FILE, not both`);
+	try {
+		return read(path).replace(/\r?\n$/, '');
+	} catch (e) {
+		// Name the file and why, never what is in it.
+		const why = (e as NodeJS.ErrnoException).code ?? 'unreadable';
+		throw new Error(`${name}_FILE (${path}) could not be read: ${why}`, { cause: e });
+	}
 }
 
 export const config = {
@@ -33,8 +55,8 @@ export const config = {
 	requestTimeout: Number(env.SHRIM_REQUEST_TIMEOUT ?? 20),
 	maxPendingPerAgent: Number(env.SHRIM_MAX_PENDING ?? 48),
 	stripe: {
-		secretKey: env.STRIPE_SECRET_KEY ?? '',
-		webhookSecret: env.STRIPE_WEBHOOK_SECRET ?? '',
+		secretKey: secret('STRIPE_SECRET_KEY'),
+		webhookSecret: secret('STRIPE_WEBHOOK_SECRET'),
 		/** The yearly recurring price, e.g. price_123. */
 		priceId: env.STRIPE_PRICE_ID ?? '',
 		/** Let Stripe Tax work out VAT. Needs Stripe Tax set up in the dashboard. */
@@ -50,7 +72,7 @@ export const config = {
 		host: env.SMTP_HOST ?? '',
 		port: Number(env.SMTP_PORT || 587),
 		user: env.SMTP_USER ?? '',
-		password: env.SMTP_PASSWORD ?? '',
+		password: secret('SMTP_PASSWORD'),
 		/** true: TLS from the start (usually port 465). Otherwise STARTTLS, required unless the host is local. */
 		secure: env.SMTP_SECURE === 'true',
 		/** e.g. "Photos <photos@example.com>". Defaults to SMTP_USER. */
