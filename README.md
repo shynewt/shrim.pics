@@ -63,20 +63,22 @@ services:
     environment:
       IMMICH_URL: http://immich-server:2283
     ports:
-      - 2284:3000
+      - 127.0.0.1:2284:3000
     volumes:
       - ./shrim:/data
     restart: always
 ```
 
-Open `http://<your-server>:2284` and sign in with Immich. The agent shows a short code: approve it on shrim.pics and it connects by itself. Then pick an album and send the link, or show its QR code.
+Open `http://localhost:2284` on that machine and sign in with Immich. The agent shows a short code: approve it on shrim.pics and it connects by itself. Then pick an album and send the link, or show its QR code.
+
+The port is published on localhost only, so the agent isn't open to your whole network. From another device, use an SSH tunnel (`ssh -L 2284:localhost:2284 <your-server>`, then open `http://localhost:2284`) or your reverse proxy (with `SHRIM_AUTH=none`, add its name to `SHRIM_ALLOWED_HOSTS`). To open it straight from your LAN, publish `2284:3000` instead.
 
 ### Signing in
 
 Everyone in your home signs in with their own Immich account and sees their own links. Immich admins see everyone's links and are the only ones who can connect the agent.
 
 - **API key.** The sign-in page links to your API keys in Immich and lists what to tick: `user.read`, `album.read` and `sharedLink.create`, plus `sharedLink.update` and `sharedLink.delete` if you want to edit and remove Immich links from the agent.
-- **Single sign-on.** If Immich signs people in with OAuth, the agent uses that too. Add `http://<your-server>:2284/login/sso` to your sign-in provider's redirect URIs.
+- **Single sign-on.** If Immich signs people in with OAuth, the agent uses that too. Add the address you open the agent at, plus `/login/sso` (for example `http://localhost:2284/login/sso`), to your sign-in provider's redirect URIs.
 
 Nobody types an Immich password into the agent. It keeps one narrow API key per person, on its own volume, and never sends it to shrim.pics. Friends who open a link only ever reach Immich through that album's share link.
 
@@ -105,7 +107,7 @@ Already have your own sign-in in front of the agent, like Authelia or Tailscale?
 Run the whole thing yourself, for free:
 
 ```sh
-docker run -d -p 3000:3000 -v shrim-relay:/data \
+docker run -d -p 127.0.0.1:3000:3000 -v shrim-relay:/data \
   -e SHRIM_PUBLIC_ORIGIN=https://share.example.com \
   -e SHRIM_BILLING=off \
   -e SHRIM_SIGNUPS=closed \

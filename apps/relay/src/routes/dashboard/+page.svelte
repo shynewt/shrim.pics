@@ -62,7 +62,7 @@
 			'      IMMICH_URL: http://immich-server:2283',
 			...(data.ownRelay ? [`      SHRIM_RELAY_URL: ${data.relayUrl}`] : []),
 			'    ports:',
-			'      - 2284:3000',
+			'      - 127.0.0.1:2284:3000',
 			'    volumes:',
 			'      - ./shrim:/data',
 			'    restart: always'
@@ -142,8 +142,8 @@
 {#snippet connectAgent()}
 	<div class={stepBody}>
 		<p>
-			Open <code>http://&lt;that machine&gt;:2284</code> in your browser and sign in as an Immich admin (with an Immich API
-			key, or single sign-on). It shows a code. Approve it there, or type it here.
+			Open <code>http://localhost:2284</code> in a browser on that machine (it listens on localhost only) and sign in as an
+			Immich admin, with an Immich API key or single sign-on. It shows a code. Approve it there, or type it here.
 		</p>
 		{@render codeForm(false)}
 	</div>

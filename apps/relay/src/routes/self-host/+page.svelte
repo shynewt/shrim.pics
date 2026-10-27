@@ -2,7 +2,7 @@
 	import { CodeBlock } from '@shrim/ui';
 	import Prose from '#lib/components/Prose.svelte';
 
-	const relay = `docker run -d --name shrim-relay -p 3000:3000 \\
+	const relay = `docker run -d --name shrim-relay -p 127.0.0.1:3000:3000 \\
   -v shrim-relay:/data \\
   -e SHRIM_PUBLIC_ORIGIN=https://share.example.com \\
   -e SHRIM_BILLING=off \\
@@ -18,7 +18,7 @@
       IMMICH_URL: http://immich-server:2283
       SHRIM_RELAY_URL: https://share.example.com
     ports:
-      - 2284:3000
+      - 127.0.0.1:2284:3000
     volumes:
       - ./shrim:/data
     restart: always`;
@@ -48,9 +48,10 @@
 
 	<h2>3. Connect the agent with a code</h2>
 	<p>
-		Open <code>http://&lt;that machine&gt;:2284</code> in your browser and sign in as an Immich admin, with an Immich API
-		key or your single sign-on. The agent shows a short code: approve it on your relay, signed in with your account. That's
-		all.
+		Open <code>http://localhost:2284</code> in a browser on that machine and sign in as an Immich admin, with an Immich
+		API key or your single sign-on. The port is published on localhost only, so the agent isn't open to your whole
+		network. From another device, use an SSH tunnel (<code>ssh -L 2284:localhost:2284 &lt;that machine&gt;</code>) or
+		your reverse proxy. The agent shows a short code: approve it on your relay, signed in with your account. That's all.
 	</p>
 	<p>
 		Everyone in your home can then sign in to the agent with their own Immich account and share their own albums. If you
