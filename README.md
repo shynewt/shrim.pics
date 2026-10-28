@@ -121,20 +121,24 @@ Put it behind HTTPS with Caddy, Traefik or nginx, and turn off response bufferin
 <summary><b>Relay settings</b></summary>
 <br>
 
-| Setting                                            | Default          |                                                                                  |
-| -------------------------------------------------- | ---------------- | -------------------------------------------------------------------------------- |
-| `SHRIM_PUBLIC_ORIGIN`                              | request origin   | Used in share links and emails, and to mark cookies secure. Required with SMTP   |
-| `SHRIM_BILLING`                                    | `off`            | `off`: everyone is active. `dev`: a test button. `stripe`: Stripe subscriptions  |
-| `SHRIM_SIGNUPS`                                    | `open`           | `closed` allows only the first account                                           |
-| `SHRIM_ADMIN_EMAILS`                               | none             | Accounts that see the operator page and reports, once they confirm the address   |
-| `SHRIM_DATA_DIR`                                   | `/data`          | The SQLite database                                                              |
-| `SHRIM_BACKUP_DIR`                                 | `<data>/backups` | Daily database copies, the last 14 kept                                          |
-| `SHRIM_DEMO`                                       | `on`             | `off` hides the example album                                                    |
-| `SHRIM_SOURCE_URL`                                 | none             | Link to the source code on the site                                              |
-| `SMTP_*`, `MAIL_FROM`                              | none             | Email for password resets (via any SMTP service)                                 |
-| `SHRIM_OPERATOR_*`, `SHRIM_HOSTING*`               | none             | Who runs the relay, for the terms and privacy policy                             |
-| `STRIPE_*`                                         | none             | Billing with Stripe                                                              |
-| `PROTOCOL_HEADER`, `HOST_HEADER`, `ADDRESS_HEADER` | none             | [adapter-node](https://svelte.dev/docs/kit/adapter-node) settings behind a proxy |
+| Setting                                                         | Default          |                                                                                  |
+| --------------------------------------------------------------- | ---------------- | -------------------------------------------------------------------------------- |
+| `SHRIM_PUBLIC_ORIGIN`                                           | request origin   | Used in share links and emails, and to mark cookies secure. Required with SMTP   |
+| `SHRIM_BILLING`                                                 | `off`            | `off`: everyone is active. `dev`: a test button. `stripe`: Stripe subscriptions  |
+| `SHRIM_SIGNUPS`                                                 | `open`           | `closed` allows only the first account                                           |
+| `SHRIM_ADMIN_EMAILS`                                            | none             | Accounts that see the operator page and reports, once they confirm the address   |
+| `SHRIM_DATA_DIR`                                                | `/data`          | The SQLite database                                                              |
+| `SHRIM_BACKUP_DIR`                                              | `<data>/backups` | Daily database copies, the last 14 kept                                          |
+| `SHRIM_DEMO`                                                    | `on`             | `off` hides the example album                                                    |
+| `SHRIM_SOURCE_URL`                                              | none             | Link to the source code on the site                                              |
+| `SMTP_*`, `MAIL_FROM`                                           | none             | Email for password resets (via any SMTP service)                                 |
+| `SHRIM_OPERATOR_*`, `SHRIM_HOSTING*`                            | none             | Who runs the relay, for the terms and privacy policy                             |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID` | none             | Billing with `SHRIM_BILLING=stripe`                                              |
+| `SHRIM_PRICE`                                                   | none             | The yearly price shown with Stripe billing, e.g. `10 €`                          |
+| `SHRIM_TERMS_DATE`                                              | none             | The "Last updated" date on the terms and privacy pages                           |
+| `PROTOCOL_HEADER`, `HOST_HEADER`, `ADDRESS_HEADER`              | none             | [adapter-node](https://svelte.dev/docs/kit/adapter-node) settings behind a proxy |
+
+Secrets (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SMTP_PASSWORD`) can also come from a file, such as a Docker secret: set `<NAME>_FILE` to its path instead.
 
 </details>
 
