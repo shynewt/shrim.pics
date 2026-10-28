@@ -133,7 +133,10 @@ export function applySubscription(sub: Stripe.Subscription) {
 		return;
 	}
 	const customer = typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
-	const end = periodEnd(sub);
+	// newer API versions (and the portal) cancel by setting cancel_at, not cancel_at_period_end
+	const ending = sub.cancel_at_period_end || sub.cancel_at !== null;
+	const period = periodEnd(sub);
+	const end = sub.cancel_at && period ? Math.min(period, sub.cancel_at * 1000) : period;
 	let activeUntil: number | null;
 	if (sub.status === 'past_due' && end) activeUntil = end + RETRY_GRACE_MS;
 	else if (LIVE.has(sub.status) && end) activeUntil = end + GRACE_MS;
@@ -143,7 +146,7 @@ export function applySubscription(sub: Stripe.Subscription) {
 	db.prepare(
 		`UPDATE accounts SET stripe_customer_id = ?, stripe_subscription_id = ?, plan_status = ?,
 		 plan_cancel_at_period_end = ?, active_until = ? WHERE id = ?`
-	).run(customer, sub.id, sub.status, sub.cancel_at_period_end ? 1 : 0, activeUntil, account.id);
+	).run(customer, sub.id, sub.status, ending ? 1 : 0, activeUntil, account.id);
 	notifyAccountChanged(account.id);
 }
 

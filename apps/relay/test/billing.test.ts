@@ -33,6 +33,7 @@ function subscription(
 		customer: 'cus_1',
 		status: 'active',
 		cancel_at_period_end: false,
+		cancel_at: null,
 		ended_at: null,
 		metadata: accountId ? { account_id: accountId } : {},
 		items: { object: 'list', data: [{ current_period_end: Math.floor(periodEnd / 1000) }], has_more: false, url: '' },
@@ -68,6 +69,15 @@ describe('plan state follows the subscription', () => {
 		billing.applySubscription(subscription({ periodEnd: Date.now() + 100 * DAY, cancel_at_period_end: true }));
 		expect(view().status).toBe('ending');
 		expect(accounts.toAccount(accounts.accountById(account.id)!).active).toBe(true);
+	});
+
+	it('shows "ending" when the portal cancels with cancel_at, until that date', () => {
+		const cancelAt = Date.now() + 30 * DAY;
+		billing.applySubscription(
+			subscription({ periodEnd: Date.now() + 100 * DAY, cancel_at: Math.floor(cancelAt / 1000) })
+		);
+		expect(view().status).toBe('ending');
+		expect(Math.abs(view().activeUntil! - cancelAt)).toBeLessThan(1000);
 	});
 
 	it('keeps links working during a failed renewal (past_due), then stops when cancelled', () => {
