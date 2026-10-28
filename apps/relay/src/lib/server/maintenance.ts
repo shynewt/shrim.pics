@@ -2,7 +2,7 @@
  * Daily housekeeping: a consistent copy of the database, and removing data
  * we promised not to keep (see the privacy page).
  */
-import { mkdirSync, readdirSync, rmSync, statSync } from 'node:fs';
+import { mkdirSync, readdirSync, renameSync, rmSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { config } from './config.ts';
 import { db } from './db.ts';
@@ -12,14 +12,28 @@ const KEEP_BACKUPS = 14;
 
 const backupDir = () => config.backupDir || join(config.dataDir, 'backups');
 
+const BACKUP = /^relay-\d{4}-\d\d-\d\d\.sqlite$/;
+const LEFTOVER = /^relay-\d{4}-\d\d-\d\d\.sqlite\.tmp$/;
+
 export function backup(): string {
 	const dir = backupDir();
 	mkdirSync(dir, { recursive: true });
 	const file = join(dir, `relay-${new Date().toISOString().slice(0, 10)}.sqlite`);
-	rmSync(file, { force: true });
-	db.exec(`VACUUM INTO '${file.replaceAll("'", "''")}'`);
-	const old = readdirSync(dir)
-		.filter((f) => /^relay-\d{4}-\d\d-\d\d\.sqlite$/.test(f))
+	// Copy under a temporary name, then rename it into place. Anything copying this folder never
+	// sees half a backup, and a failed copy leaves the previous one for today alone.
+	const tmp = `${file}.tmp`;
+	rmSync(tmp, { force: true });
+	try {
+		db.exec(`VACUUM INTO '${tmp.replaceAll("'", "''")}'`);
+		renameSync(tmp, file);
+	} finally {
+		rmSync(tmp, { force: true });
+	}
+	const names = readdirSync(dir);
+	// A crash mid-copy leaves a .tmp of an earlier day behind.
+	for (const f of names.filter((f) => LEFTOVER.test(f))) rmSync(join(dir, f), { force: true });
+	const old = names
+		.filter((f) => BACKUP.test(f))
 		.sort()
 		.slice(0, -KEEP_BACKUPS);
 	for (const f of old) rmSync(join(dir, f), { force: true });
@@ -29,7 +43,7 @@ export function backup(): string {
 export function lastBackup(): { at: number; size: number } | null {
 	try {
 		const newest = readdirSync(backupDir())
-			.filter((f) => /^relay-\d{4}-\d\d-\d\d\.sqlite$/.test(f))
+			.filter((f) => BACKUP.test(f))
 			.sort()
 			.at(-1);
 		if (!newest) return null;
