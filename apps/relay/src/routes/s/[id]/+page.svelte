@@ -321,6 +321,7 @@
 				{/if}
 				{#if counts}<p class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm text-subtle tabular">
 						<span>{counts}</span>{#if range}<span>{range}</span>{/if}
+						<span class="inline-flex items-center gap-1"><Icon name="lock" size={16} />Encrypted end to end</span>
 					</p>{/if}
 			</div>
 			{#if manifest.assets.length}
