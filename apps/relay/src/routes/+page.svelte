@@ -74,6 +74,10 @@
 			a: 'No. They open the link in any recent browser, on a phone or a computer.'
 		},
 		{
+			q: 'Can my family use it too?',
+			a: `Yes. Everyone with an account on your Immich server signs in to the agent with their own Immich account and shares their own albums.${hosted ? ' One plan covers the whole server.' : ''}`
+		},
+		{
 			q: 'Can I stop sharing?',
 			a: 'Yes, any time. Revoke the link in your agent and it stops working straight away. Deleting the share link in Immich does the same.'
 		},
@@ -170,7 +174,7 @@
 					</a>
 				{/if}
 			</div>
-			<HeroShots {host} />
+			<HeroShots {host} demo={data.demo} />
 		</section>
 
 		<section class={container} aria-label="At a glance">
@@ -282,6 +286,12 @@
 					<a class="mt-6 self-start text-sm link-muted" href="/privacy">Privacy policy</a>
 				</div>
 			</div>
+			{#if data.demo}
+				<p class="mt-6 text-sm text-muted">
+					Don't take our word for it: open the example album with your browser's network panel open. Only encrypted data
+					comes in. <a class="link-muted" href={data.demo} data-sveltekit-reload>Open the example album</a>
+				</p>
+			{/if}
 		</section>
 
 		{#if hosted}
@@ -292,6 +302,7 @@
 						<h3>shrim.pics</h3>
 						{@render price(data.price, 'a year')}
 						<ul class="mt-4 mb-6 grid flex-1 content-start gap-3" role="list">
+							{@render point('check', 'Everyone on your Immich server, one plan')}
 							{@render point('check', 'As many links and albums as you like')}
 							{@render point('check', 'Friends can add photos')}
 							{@render point('check', 'We run the server in the middle, you run the agent')}
