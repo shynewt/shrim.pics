@@ -7,10 +7,11 @@
 	let { data }: PageProps = $props();
 	const op = $derived(data.operator);
 	const host = $derived(page.url.host);
+	const paid = $derived(data.billing !== 'off');
 </script>
 
 <Prose title="Privacy">
-	<p class="text-sm leading-prose text-subtle">Last updated {op.termsDate}</p>
+	<p class="text-sm leading-prose text-subtle">Last updated <Fill value={op.termsDate} env="SHRIM_TERMS_DATE" /></p>
 
 	<p>
 		{host} is built so that we can't see what you share. This page explains, in plain words, the little we do see, why, how
@@ -20,7 +21,9 @@
 	<h2>The short version</h2>
 	<ul>
 		<li>Your photos, videos, album names, captions, dates and places are encrypted. We can't read them.</li>
-		<li>We keep what's needed to run your account: your email, your plan, and a few facts about each link.</li>
+		<li>
+			We keep what's needed to run your account: your email,{paid ? ' your plan,' : ''} and a few facts about each link.
+		</li>
 		<li>No ads, no trackers, no analytics, nothing loaded from other companies.</li>
 		<li>One cookie, only to keep you signed in.</li>
 		<li>You can download your data or delete your account from your dashboard at any time.</li>
@@ -54,8 +57,8 @@
 	<h3>Your account</h3>
 	<p>
 		Your email address, your password (stored scrambled with a one-way hash, so even we can't read it), when you signed
-		up, and the state of your plan. We need these to run your account and your plan (the contract between us). Kept
-		until you delete your account.
+		up{paid ? ', and the state of your plan' : ''}. We need these to run your account{paid ? ' and your plan' : ''} (the contract
+		between us). Kept until you delete your account.
 	</p>
 
 	<h3>Your agent</h3>
@@ -71,14 +74,16 @@
 		you how they're used, and to keep the service fair. Kept until you delete your account.
 	</p>
 
-	<h3>Payments</h3>
-	<p>
-		Payments are handled by Stripe. Your card details go straight to Stripe; we never see them. We only keep your Stripe
-		customer number and whether your plan is paid up. Stripe keeps invoices and payment records for as long as tax law
-		requires, and is responsible for that under its own <a href="https://stripe.com/privacy" rel="noreferrer"
-			>privacy policy</a
-		>.
-	</p>
+	{#if paid}
+		<h3>Payments</h3>
+		<p>
+			Payments are handled by Stripe. Your card details go straight to Stripe; we never see them. We only keep your
+			Stripe customer number and whether your plan is paid up. Stripe keeps invoices and payment records for as long as
+			tax law requires, and is responsible for that under its own <a href="https://stripe.com/privacy" rel="noreferrer"
+				>privacy policy</a
+			>.
+		</p>
+	{/if}
 
 	<h3>Reports</h3>
 	<p>
@@ -113,7 +118,10 @@
 
 	<h2>Who else is involved</h2>
 	<ul>
-		<li><strong>Hosting:</strong> <Fill value={op.hosting} env="SHRIM_HOSTING" />. Our servers are in the EU.</li>
+		<li>
+			<strong>Hosting:</strong>
+			<Fill value={op.hosting} env="SHRIM_HOSTING" />.{op.region ? ` Our servers are in ${op.region}.` : ''}
+		</li>
 		{#if data.mail}
 			<li>
 				<strong>Email:</strong>
@@ -121,10 +129,12 @@
 				address and the message, and nothing else.
 			</li>
 		{/if}
-		<li>
-			<strong>Payments:</strong> Stripe Payments Europe, Ltd., Ireland. Stripe may process some data in the United States,
-			protected by the EU–US Data Privacy Framework and the EU's standard contractual clauses.
-		</li>
+		{#if paid}
+			<li>
+				<strong>Payments:</strong> Stripe Payments Europe, Ltd., Ireland. Stripe may process some data in the United States,
+				protected by the EU–US Data Privacy Framework and the EU's standard contractual clauses.
+			</li>
+		{/if}
 	</ul>
 	<p>We don't sell your data and we don't share it with anyone else, unless the law requires us to.</p>
 

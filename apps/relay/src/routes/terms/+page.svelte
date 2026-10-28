@@ -7,10 +7,13 @@
 	let { data }: PageProps = $props();
 	const op = $derived(data.operator);
 	const host = $derived(page.url.host);
+	const paid = $derived(data.billing !== 'off');
+	/** Section numbers: without billing, the two sections on payment and refunds are left out. */
+	const n = (section: number) => (paid || section < 4 ? section : section - 2);
 </script>
 
 <Prose title="Terms">
-	<p class="text-sm leading-prose text-subtle">Last updated {op.termsDate}</p>
+	<p class="text-sm leading-prose text-subtle">Last updated <Fill value={op.termsDate} env="SHRIM_TERMS_DATE" /></p>
 
 	<p>
 		These terms are the agreement between you and us when you use {host}. We've kept them short and in plain words. If
@@ -39,41 +42,47 @@
 	<h2>3. Your account</h2>
 	<ul>
 		<li>You need to be at least 18 to open an account.</li>
-		<li>Use an email address you can read. We use it for important messages about your account and your plan.</li>
+		<li>
+			Use an email address you can read. We use it for important messages about your account{paid
+				? ' and your plan'
+				: ''}.
+		</li>
 		<li>
 			Keep your password and your agent's connection safe. Links made with your agent count as yours, so tell us
 			straight away if you think someone else got access.
 		</li>
 	</ul>
 
-	<h2>4. Price, payment and renewal</h2>
-	<ul>
-		<li>
-			The plan costs <strong>{data.price} a year</strong>, including VAT where it applies. You pay up front, through our
-			payment provider Stripe.
-		</li>
-		<li>
-			Your plan renews every year until you cancel. You'll get a reminder by email before each renewal, so it never
-			comes as a surprise.
-		</li>
-		<li>
-			You can cancel any time from your dashboard, under <strong>Manage billing</strong>. Your links keep working until
-			the end of the year you've paid for, and you won't be charged again.
-		</li>
-		<li>
-			If we ever change the price, we'll tell you at least 30 days before it applies to you. It only applies from your
-			next renewal, and you can cancel before then.
-		</li>
-	</ul>
+	{#if paid}
+		<h2>4. Price, payment and renewal</h2>
+		<ul>
+			<li>
+				The plan costs <strong>{data.price} a year</strong>, including VAT where it applies. You pay up front, through
+				our payment provider Stripe.
+			</li>
+			<li>
+				Your plan renews every year until you cancel. You'll get a reminder by email before each renewal, so it never
+				comes as a surprise.
+			</li>
+			<li>
+				You can cancel any time from your dashboard, under <strong>Manage billing</strong>. Your links keep working
+				until the end of the year you've paid for, and you won't be charged again.
+			</li>
+			<li>
+				If we ever change the price, we'll tell you at least 30 days before it applies to you. It only applies from your
+				next renewal, and you can cancel before then.
+			</li>
+		</ul>
 
-	<h2>5. Changed your mind? 14 days, full refund</h2>
-	<p>
-		If you're not happy, write to us within 14 days of paying, for your first year or a renewal, and we'll refund you in
-		full. No questions asked, and no need to give a reason. This covers your legal right to withdraw from the contract,
-		and goes a little further.
-	</p>
+		<h2>5. Changed your mind? 14 days, full refund</h2>
+		<p>
+			If you're not happy, write to us within 14 days of paying, for your first year or a renewal, and we'll refund you
+			in full. No questions asked, and no need to give a reason. This covers your legal right to withdraw from the
+			contract, and goes a little further.
+		</p>
+	{/if}
 
-	<h2>6. Your photos</h2>
+	<h2>{n(6)}. Your photos</h2>
 	<ul>
 		<li>Your photos stay yours. You don't give us any rights to them.</li>
 		<li>Only share what you have the right to share, and think about the people in your photos.</li>
@@ -85,7 +94,7 @@
 		<li>Your photos live on your server, not ours. Keep your own backups.</li>
 	</ul>
 
-	<h2>7. What's not allowed</h2>
+	<h2>{n(7)}. What's not allowed</h2>
 	<ul>
 		<li>Anything illegal, in your country or where people open your links.</li>
 		<li>Any sexual content involving minors. We report it to the authorities.</li>
@@ -95,7 +104,7 @@
 		<li>Trying to break, overload or get around the service, or reselling it.</li>
 	</ul>
 
-	<h2>8. Reports, and what we do about them</h2>
+	<h2>{n(8)}. Reports, and what we do about them</h2>
 	<p>
 		Anyone can report a link at <a href="/report">{host}/report</a>. We ask for the full link, so we can open that one
 		album and check what's going on before we act. Then we may:
@@ -111,55 +120,58 @@
 		authorities when the law requires it.
 	</p>
 
-	<h2>9. Keeping the service running</h2>
+	<h2>{n(9)}. Keeping the service running</h2>
 	<ul>
 		<li>Your links only work while your own server and agent are on and connected.</li>
 		<li>
 			We work hard to keep {host} running, but we can't promise it will never be down. We may need short breaks for maintenance.
 		</li>
 		<li>
-			We may improve or change features. If we ever close the service, we'll tell you at least 60 days ahead and refund
-			the unused part of your year.
+			We may improve or change features. If we ever close the service, we'll tell you at least 60 days ahead{paid
+				? ' and refund the unused part of your year'
+				: ''}.
 		</li>
 	</ul>
 
-	<h2>10. Open source</h2>
+	<h2>{n(10)}. Open source</h2>
 	<p>
 		The software is open source under the GNU AGPL 3.0 license, and you're free to <a href="/self-host"
 			>run your own copy</a
 		>. These terms only cover the service we run at {host}.
 	</p>
 
-	<h2>11. Responsibility</h2>
+	<h2>{n(11)}. Responsibility</h2>
 	<p>
 		We are responsible to you as the law says. Nothing in these terms limits our responsibility for intent or gross
 		negligence, for harm to life, body or health, or any right you have as a consumer that can't be waived.
 	</p>
 	<p>
 		Beyond that, if we're slightly negligent we're only responsible when we break an essential duty of this agreement,
-		only for damage that was foreseeable, and up to the amount you paid us in the 12 months before. We don't keep your
-		photos, so we can't be responsible for losing them.
+		only for damage that was foreseeable{paid ? ', and up to the amount you paid us in the 12 months before' : ''}. We
+		don't keep your photos, so we can't be responsible for losing them.
 	</p>
 
-	<h2>12. Ending the agreement</h2>
+	<h2>{n(12)}. Ending the agreement</h2>
 	<ul>
 		<li>
-			You can delete your account any time from your dashboard. That also cancels your plan. Apart from the 14-day
-			refund above, the rest of the year isn't refunded.
+			You can delete your account any time from your dashboard.{paid
+				? " That also cancels your plan. Apart from the 14-day refund above, the rest of the year isn't refunded."
+				: ''}
 		</li>
 		<li>
 			We can end the agreement straight away if you seriously or repeatedly break these terms. Otherwise we'll give you
-			30 days' notice and refund the unused part of your year.
+			30 days' notice{paid ? ' and refund the unused part of your year' : ''}.
 		</li>
 	</ul>
 
-	<h2>13. Changes to these terms</h2>
+	<h2>{n(13)}. Changes to these terms</h2>
 	<p>
-		If we change these terms in a way that matters, we'll email you at least 30 days before. If you don't agree, you can
-		cancel before the change applies and we'll refund the unused part of your year.
+		If we change these terms in a way that matters, we'll email you at least 30 days before. If you don't agree, you can {#if paid}cancel
+			before the change applies and we'll refund the unused part of your year{:else}delete your account before the
+			change applies{/if}.
 	</p>
 
-	<h2>14. Law and disputes</h2>
+	<h2>{n(14)}. Law and disputes</h2>
 	<p>
 		These terms are governed by the law of <Fill value={op.country} env="SHRIM_OPERATOR_COUNTRY" />. If you're a
 		consumer living elsewhere in the EU, you keep the protection of the laws of your own country that can't be set
@@ -170,7 +182,7 @@
 			If we can't sort it out together, you can turn to our consumer mediator for free: {op.mediator}.{/if}
 	</p>
 
-	<h2>15. Contact</h2>
+	<h2>{n(15)}. Contact</h2>
 	<p>
 		<Fill value={op.name} env="SHRIM_OPERATOR_NAME" />, <Fill value={op.address} env="SHRIM_OPERATOR_ADDRESS" />,
 		<Fill value={op.email} env="SHRIM_OPERATOR_EMAIL" />.
