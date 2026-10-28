@@ -73,6 +73,7 @@ export function cleanUp() {
 	db.prepare('DELETE FROM password_resets WHERE expires_at < ?').run(now);
 	db.prepare('DELETE FROM email_confirmations WHERE expires_at < ?').run(now);
 	db.prepare('DELETE FROM pairing_codes WHERE expires_at < ?').run(now - DAY);
+	db.prepare('DELETE FROM setup_tokens WHERE expires_at < ?').run(now);
 	// Resolved reports (they contain full links) are kept 12 months, then deleted.
 	db.prepare('DELETE FROM reports WHERE resolved_at IS NOT NULL AND resolved_at < ?').run(now - 365 * DAY);
 	db.prepare('DELETE FROM stripe_events WHERE received_at < ?').run(now - 90 * DAY);

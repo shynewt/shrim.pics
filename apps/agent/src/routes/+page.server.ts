@@ -33,12 +33,11 @@ import {
 	createRelayShare,
 	disableRelayShare,
 	disconnect,
-	fetchMe,
 	listRelayShares,
 	pairing,
+	setupTokenRejected,
 	refreshMe,
 	startPairing,
-	startRelay,
 	updateRelayShare
 } from '#lib/server/relay.ts';
 import { save, state, type StoredShare } from '#lib/server/state.ts';
@@ -123,6 +122,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			hasToken: !!state.agentToken
 		},
 		pairing: user.isAdmin ? pairing() : null,
+		setupRejected: user.isAdmin && setupTokenRejected(),
 		permissions: API_KEY_PERMISSIONS,
 		optionalPermissions: API_KEY_OPTIONAL,
 		keyCanUpdate: can(user.credential, 'update'),
@@ -409,32 +409,6 @@ export const actions: Actions = {
 		if (!locals.user.isAdmin) return adminOnly();
 		await disconnect();
 		return { disconnected: true };
-	},
-
-	/** Advanced: paste a token instead of pairing. */
-	connect: async ({ request, locals }) => {
-		if (!locals.user.isAdmin) return adminOnly();
-		const form = await request.formData();
-		const relayUrl = formText(form, 'relayUrl').trim().replace(/\/$/, '');
-		const token = formText(form, 'token').trim();
-		try {
-			const u = new URL(relayUrl);
-			if (u.protocol !== 'https:' && u.protocol !== 'http:') throw new Error();
-		} catch {
-			return fail(400, { connectError: 'url' as const, relayUrl });
-		}
-		cancelPairing();
-		state.relayUrl = relayUrl;
-		if (token) state.agentToken = token;
-		save();
-		startRelay(enqueue);
-		try {
-			await fetchMe();
-		} catch (e) {
-			const code = e instanceof RelayError && e.status === 401 ? 'token' : 'unreachable';
-			return fail(400, { connectError: code, relayUrl });
-		}
-		return { connected: true };
 	},
 
 	/** Signs this browser out. Once no browser is signed in as them, the agent forgets their key. */

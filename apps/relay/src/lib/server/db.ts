@@ -94,6 +94,15 @@ const MIGRATIONS = [
 	`
 	-- Agent tokens are made when the agent collects them now; none wait here in the clear.
 	UPDATE pairing_codes SET token = NULL;
+	`,
+	`
+	CREATE TABLE setup_tokens (
+		token_hash TEXT PRIMARY KEY,
+		account_id TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+		created_at INTEGER NOT NULL,
+		expires_at INTEGER NOT NULL
+	);
+	CREATE INDEX setup_tokens_account ON setup_tokens(account_id);
 	`
 ];
 

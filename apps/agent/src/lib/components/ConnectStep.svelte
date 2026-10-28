@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button, CodeDisplay, CopyButton, Field, Icon, Notice, Spinner } from '@shrim/ui';
 	import { onMount } from 'svelte';
-	import { enhance } from '$app/forms';
+	import { enhance, type SubmitFunction } from '$app/forms';
 	import { refreshAll } from '$app/navigation';
 
 	interface Pairing {
@@ -11,7 +11,12 @@
 		status: 'waiting' | 'expired' | 'denied' | 'error';
 	}
 
-	let { relayUrl, initial, relayStatus }: { relayUrl: string; initial: Pairing | null; relayStatus: string } = $props();
+	let {
+		relayUrl,
+		initial,
+		relayStatus,
+		setupRejected
+	}: { relayUrl: string; initial: Pairing | null; relayStatus: string; setupRejected: boolean } = $props();
 	const uid = $props.id();
 
 	let pairing = $state<Pairing | null>(null);
@@ -19,7 +24,7 @@
 	let failed = $state<'unreachable' | 'url' | null>(null);
 	let starting = $state(false);
 	let now = $state(Date.now());
-	let tokenError = $state<string | null>(null);
+	let rejectedNow = $state(false);
 	let startForm: HTMLFormElement | null = null;
 
 	const host = $derived.by(() => {
@@ -38,6 +43,18 @@
 		startForm?.requestSubmit();
 	}
 
+	const afterPair: SubmitFunction =
+		() =>
+		async ({ result }) => {
+			starting = false;
+			if (result.type === 'failure') failed = (result.data?.pairError as 'unreachable' | 'url') ?? 'unreachable';
+			else {
+				failed = null;
+				const res = await fetch('/api/connection');
+				if (res.ok) pairing = ((await res.json()) as { pairing: Pairing | null }).pairing;
+			}
+		};
+
 	onMount(() => {
 		if (!initial || initial.status !== 'waiting') start();
 		else pairing = initial;
@@ -46,7 +63,8 @@
 			now = Date.now();
 			const res = await fetch('/api/connection').catch(() => null);
 			if (!res?.ok) return;
-			const c = (await res.json()) as { status: string; pairing: Pairing | null };
+			const c = (await res.json()) as { status: string; pairing: Pairing | null; setupRejected: boolean };
+			rejectedNow = c.setupRejected;
 			// Any state with an accepted token means we're past this step (the plan may come later).
 			if (c.status !== 'not_configured' && c.status !== 'unauthorized') {
 				clearInterval(poll);
@@ -72,16 +90,7 @@
 		startForm = el;
 		return () => (startForm = null);
 	}}
-	use:enhance={() =>
-		async ({ result }) => {
-			starting = false;
-			if (result.type === 'failure') failed = (result.data?.pairError as 'unreachable' | 'url') ?? 'unreachable';
-			else {
-				failed = null;
-				const res = await fetch('/api/connection');
-				if (res.ok) pairing = ((await res.json()) as { pairing: Pairing | null }).pairing;
-			}
-		}}
+	use:enhance={afterPair}
 >
 	<input type="hidden" name="relayUrl" value={relayUrl} />
 </form>
@@ -93,6 +102,10 @@
 
 	{#if relayStatus === 'unauthorized'}
 		<Notice tone="warning">This agent was disconnected from its account. Connect it again with the code below.</Notice>
+	{:else if setupRejected || rejectedNow}
+		<Notice tone="warning">
+			The setup token in your compose file has expired or was already used. Connect with the code below instead.
+		</Notice>
 	{/if}
 
 	{#if failed}
@@ -161,45 +174,7 @@
 			class="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-sm text-sm font-medium text-muted transition-colors hover:text-text [&::-webkit-details-marker]:hidden"
 			><Icon name="chevron-right" size={16} class="transition-transform group-open:rotate-90" />Other ways to connect</summary
 		>
-		<form
-			class="mt-4 grid gap-5 rounded-lg border p-5"
-			method="POST"
-			action="?/connect"
-			use:enhance={() =>
-				async ({ result, update }) => {
-					if (result.type === 'failure') {
-						const code = result.data?.connectError;
-						tokenError =
-							code === 'token'
-								? "This token wasn't accepted. Create a new one on your dashboard, or use the code above."
-								: code === 'url'
-									? 'Enter an address like https://shrim.pics.'
-									: `Nothing answered at that address.`;
-					} else {
-						tokenError = null;
-						await update();
-					}
-				}}
-		>
-			<Field
-				id="{uid}-token"
-				label="Connection token"
-				help="If your dashboard gave you one, paste it here instead of using the code."
-				error={tokenError}
-			>
-				{#snippet children({ describedby, invalid })}
-					<input
-						id="{uid}-token"
-						name="token"
-						class="mono"
-						autocomplete="off"
-						spellcheck="false"
-						placeholder="shr_agent_…"
-						aria-describedby={describedby}
-						aria-invalid={invalid || undefined}
-					/>
-				{/snippet}
-			</Field>
+		<form class="mt-4 grid gap-5 rounded-lg border p-5" method="POST" action="?/pair" use:enhance={afterPair}>
 			<Field
 				id="{uid}-relay"
 				label="shrim.pics address"
@@ -219,7 +194,7 @@
 				{/snippet}
 			</Field>
 			<div>
-				<Button type="submit" icon="key-round">Connect with token</Button>
+				<Button type="submit">Get a code from this address</Button>
 			</div>
 		</form>
 	</details>

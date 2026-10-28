@@ -2,6 +2,7 @@
  * The agent's only link to the outside world. Every connection is outbound:
  * an SSE stream to receive requests, plain HTTP to answer them.
  */
+import { createHash } from 'node:crypto';
 import type { AgentMe, CreatedShare, RelayRequestEvent } from '@shrim/protocol';
 import { save, state } from './state.ts';
 
@@ -22,6 +23,7 @@ interface Runtime {
 	/** When `me` (the account, its plan) was last fetched (ms). */
 	meAt: number;
 	refreshing: Promise<void> | null;
+	setupRejected: boolean;
 }
 
 const g = globalThis as unknown as { __shrimRelay?: Runtime };
@@ -31,11 +33,13 @@ const rt: Runtime = (g.__shrimRelay ??= {
 	generation: 0,
 	onRequest: null,
 	meAt: 0,
-	refreshing: null
+	refreshing: null,
+	setupRejected: false
 });
 // Dev reloads keep the runtime: give an older copy the newer fields.
 rt.meAt ??= 0;
 rt.refreshing ??= null;
+rt.setupRejected ??= false;
 
 export const connection = (): Connection => rt.connection;
 
@@ -214,6 +218,45 @@ async function listen(signal: AbortSignal, onOpen: () => void) {
 	}
 	throw new Error('stream ended');
 }
+
+export async function redeemSetupToken(setupToken: string, onRequest: (e: RelayRequestEvent) => void) {
+	const hash = createHash('sha256').update(setupToken).digest('base64url');
+	if (!setupToken || state.agentToken || state.setupTokenUsed === hash) return;
+	const relayUrl = state.relayUrl;
+	for (let wait = 5_000; !state.agentToken; wait = Math.min(wait * 2, 60_000)) {
+		try {
+			const res = await fetch(`${relayUrl}/agent/v1/pair/setup`, {
+				method: 'POST',
+				headers: { 'content-type': 'application/json', 'user-agent': 'shrim-agent/0.1' },
+				body: JSON.stringify({ setupToken }),
+				signal: AbortSignal.timeout(15_000)
+			});
+			if (res.status !== 429 && res.status < 500) {
+				const result = res.ok ? ((await res.json()) as { status: string; token?: string }) : null;
+				state.setupTokenUsed = hash;
+				if (result?.status === 'approved' && result.token) {
+					state.agentToken = result.token;
+					save();
+					cancelPairing();
+					startRelay(onRequest);
+					return;
+				}
+				save();
+				if (result?.status === 'invalid') {
+					rt.setupRejected = true;
+					console.warn('[shrim] the setup token has expired or was already used: connect with a code instead');
+				} else
+					console.warn(`[shrim] ${relayUrl} doesn't take setup tokens (${res.status}): connect with a code instead`);
+				return;
+			}
+		} catch {
+			// the relay isn't reachable yet, e.g. the network is still coming up
+		}
+		await new Promise((r) => setTimeout(r, wait));
+	}
+}
+
+export const setupTokenRejected = (): boolean => rt.setupRejected && !state.agentToken;
 
 export function relayConfigured(): boolean {
 	return !!(state.agentToken && state.relayUrl);

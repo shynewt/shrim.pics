@@ -180,7 +180,12 @@
 {/snippet}
 
 {#snippet connectBody()}
-	<ConnectStep relayUrl={data.relay.url} initial={data.pairing} relayStatus={data.relay.status} />
+	<ConnectStep
+		relayUrl={data.relay.url}
+		initial={data.pairing}
+		relayStatus={data.relay.status}
+		setupRejected={data.setupRejected}
+	/>
 {/snippet}
 
 {#snippet askAdminBody()}
@@ -307,7 +312,12 @@
 	{:else}
 		{#if !connected && isAdmin}
 			<Panel title="Connect to {relayHost}">
-				<ConnectStep relayUrl={data.relay.url} initial={data.pairing} relayStatus={data.relay.status} />
+				<ConnectStep
+					relayUrl={data.relay.url}
+					initial={data.pairing}
+					relayStatus={data.relay.status}
+					setupRejected={data.setupRejected}
+				/>
 			</Panel>
 		{:else if !connected}
 			<Notice tone="warning">

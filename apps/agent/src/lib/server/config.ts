@@ -16,7 +16,8 @@ export const config = {
 	immichPublicUrl: (env.IMMICH_PUBLIC_URL ?? '').replace(/\/$/, ''),
 	/** Seeds the state on first start. Can be changed in the UI afterwards. */
 	relayUrl: (env.SHRIM_RELAY_URL ?? 'https://shrim.pics').replace(/\/$/, ''),
-	agentToken: env.SHRIM_AGENT_TOKEN ?? '',
+	/** One-time, from the dashboard's compose snippet: connects the agent on first start. */
+	setupToken: env.SHRIM_SETUP_TOKEN ?? '',
 	/**
 	 * `immich` (default): everyone signs in with their own Immich account.
 	 * `none`: no sign-in, for when something in front (a VPN, Authelia…) already checks who you are.

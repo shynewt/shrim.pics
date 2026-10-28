@@ -17,6 +17,7 @@
     environment:
       IMMICH_URL: http://immich-server:2283
       SHRIM_RELAY_URL: https://share.example.com
+      SHRIM_SETUP_TOKEN: shr_setup_…
     ports:
       - 127.0.0.1:2284:3000
     volumes:
@@ -43,15 +44,19 @@
 	</p>
 
 	<h2>2. Run the agent next to Immich</h2>
-	<p>Add this to the <code>docker-compose.yml</code> that runs Immich, then run <code>docker compose up -d</code>.</p>
+	<p>
+		Sign up on your relay and copy the snippet from its dashboard: it carries a one-time setup token, so the agent
+		connects to your account by itself. It looks like this. Add it to the <code>docker-compose.yml</code> that runs
+		Immich, then run <code>docker compose up -d</code>.
+	</p>
 	<CodeBlock code={agent} />
 
-	<h2>3. Connect the agent with a code</h2>
+	<h2>3. Sign in to the agent</h2>
 	<p>
 		Open <code>http://localhost:2284</code> in a browser on that machine and sign in as an Immich admin, with an Immich
 		API key or your single sign-on. The port is published on localhost only, so the agent isn't open to your whole
 		network. From another device, use an SSH tunnel (<code>ssh -L 2284:localhost:2284 &lt;that machine&gt;</code>) or
-		your reverse proxy. The agent shows a short code: approve it on your relay, signed in with your account. That's all.
+		your reverse proxy. Started it without the setup token? It shows a short code instead: approve it on your relay.
 	</p>
 	<p>
 		Everyone in your home can then sign in to the agent with their own Immich account and share their own albums. If you

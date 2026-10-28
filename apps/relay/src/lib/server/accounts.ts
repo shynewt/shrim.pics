@@ -261,6 +261,8 @@ export function rotateAgentToken(accountId: string): string {
 		`INSERT INTO agent_tokens (account_id, token_hash, created_at) VALUES (?, ?, ?)
 		 ON CONFLICT(account_id) DO UPDATE SET token_hash = excluded.token_hash, created_at = excluded.created_at`
 	).run(accountId, sha256(token), Date.now());
+	// A leftover setup token could otherwise replace this agent later.
+	db.prepare('DELETE FROM setup_tokens WHERE account_id = ?').run(accountId);
 	return token;
 }
 
@@ -659,9 +661,43 @@ export function pollPairing(deviceCode: string): PollResult {
 	return { status: 'pending' };
 }
 
+// The dashboard puts a setup token in the compose snippet; the agent trades it for its own
+// token on first start. Single use and short-lived, since compose files get shared.
+const SETUP_TOKEN_PREFIX = 'shr_setup_';
+const SETUP_HOURS = 24;
+// Every visit to the setup page makes one; a few stay valid so an earlier copy still works.
+const SETUP_KEEP = 5;
+
+export function createSetupToken(accountId: string): { token: string; expiresAt: number } {
+	const token = SETUP_TOKEN_PREFIX + randomToken(24);
+	const now = Date.now();
+	const expiresAt = now + SETUP_HOURS * 3_600_000;
+	db.prepare('INSERT INTO setup_tokens (token_hash, account_id, created_at, expires_at) VALUES (?, ?, ?, ?)').run(
+		sha256(token),
+		accountId,
+		now,
+		expiresAt
+	);
+	db.prepare(
+		`DELETE FROM setup_tokens WHERE account_id = ? AND token_hash NOT IN
+		 (SELECT token_hash FROM setup_tokens WHERE account_id = ? ORDER BY created_at DESC, rowid DESC LIMIT ?)`
+	).run(accountId, accountId, SETUP_KEEP);
+	return { token, expiresAt };
+}
+
+/** The agent's own token, or null if the setup token is unknown, used or expired. */
+export function redeemSetupToken(token: string): string | null {
+	if (!token.startsWith(SETUP_TOKEN_PREFIX)) return null;
+	const row = db
+		.prepare('DELETE FROM setup_tokens WHERE token_hash = ? AND expires_at > ? RETURNING account_id')
+		.get(sha256(token), Date.now()) as { account_id: string } | undefined;
+	return row ? rotateAgentToken(row.account_id) : null;
+}
+
 /** Forget the agent: its token stops working and it drops off. */
 export function removeAgentToken(accountId: string) {
 	db.prepare('DELETE FROM agent_tokens WHERE account_id = ?').run(accountId);
+	db.prepare('DELETE FROM setup_tokens WHERE account_id = ?').run(accountId);
 }
 
 /** Everything we hold about an account, for "Download my data". */

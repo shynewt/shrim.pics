@@ -37,6 +37,8 @@ const fresh = {
 	viewer: new RateLimiter(400, 60),
 	/** Sign-in, sign-up and reports per IP. */
 	auth: new RateLimiter(10, 0.2),
+	/** Setup tokens: made per account, redeemed per IP. */
+	setup: new RateLimiter(10, 0.2),
 	reports: new RateLimiter(5, 0.01),
 	/** "Forgot password" per IP: 5, then one every 2 minutes. */
 	forgot: new RateLimiter(5, 1 / 120),

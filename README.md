@@ -53,7 +53,7 @@ Friends can add photos too, if the Immich link allows it. Their photos are encry
 
 ## Run the agent
 
-Add it to the `docker-compose.yml` that runs Immich:
+Sign up on shrim.pics and copy the snippet from your dashboard: it carries a one-time setup token, so the agent connects to your account by itself. Or add this to the `docker-compose.yml` that runs Immich:
 
 ```yaml
 services:
@@ -69,7 +69,7 @@ services:
     restart: always
 ```
 
-Open `http://localhost:2284` on that machine and sign in with Immich. The agent shows a short code: approve it on shrim.pics and it connects by itself. Then pick an album and send the link, or show its QR code.
+Run `docker compose up -d`, open `http://localhost:2284` on that machine and sign in with Immich. Without a setup token, the agent shows a short code to approve on shrim.pics. Then pick an album and send the link, or show its QR code.
 
 The port is published on localhost only, so the agent isn't open to your whole network. From another device, use an SSH tunnel (`ssh -L 2284:localhost:2284 <your-server>`, then open `http://localhost:2284`) or your reverse proxy (with `SHRIM_AUTH=none`, add its name to `SHRIM_ALLOWED_HOSTS`). To open it straight from your LAN, publish `2284:3000` instead.
 
@@ -96,7 +96,7 @@ Already have your own sign-in in front of the agent, like Authelia or Tailscale?
 | `SHRIM_AUTH`          | `immich`                    | `immich`: everyone signs in with Immich. `none`: no sign-in, only behind your own |
 | `IMMICH_API_KEY`      | none                        | Only with `SHRIM_AUTH=none`: the key for the album list                           |
 | `SHRIM_ALLOWED_HOSTS` | none                        | Names to answer on besides IP addresses, e.g. `nas.home.arpa,.ts.net`             |
-| `SHRIM_AGENT_TOKEN`   | none                        | Connect with a token instead of a code                                            |
+| `SHRIM_SETUP_TOKEN`   | none                        | One-time token from your dashboard: connects on first start, no code needed       |
 | `SHRIM_MAX_UPLOAD_MB` | `4096`                      | Largest file friends can add                                                      |
 | `DATA_DIR`            | `/data`                     | Holds your share keys and everyone's API keys. Back it up and keep it private.    |
 

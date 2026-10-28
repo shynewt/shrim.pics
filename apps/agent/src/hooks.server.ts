@@ -5,10 +5,11 @@ import { config } from '#lib/server/config.ts';
 import { refuseLargeBody } from '#lib/server/form.ts';
 import { hostAllowed } from '#lib/server/hosts.ts';
 import { enqueue } from '#lib/server/handler.ts';
-import { startRelay } from '#lib/server/relay.ts';
+import { redeemSetupToken, startRelay } from '#lib/server/relay.ts';
 
 export async function init() {
 	startRelay(enqueue);
+	void redeemSetupToken(config.setupToken, enqueue);
 }
 
 const PUBLIC = new Set(['/login', '/login/sso', '/login/sso/start']);

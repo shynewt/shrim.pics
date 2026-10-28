@@ -8,7 +8,6 @@ import {
 	extendPlan,
 	pairingJustApproved,
 	removeAgentToken,
-	rotateAgentToken,
 	shareById,
 	shareState,
 	sharesForAccount,
@@ -123,12 +122,6 @@ export const actions: Actions = {
 		extendPlan(locals.account.id);
 		notifyAccountChanged(locals.account.id);
 		return { activated: true };
-	},
-	token: ({ locals }) => {
-		if (!locals.account) redirect(303, '/login');
-		const token = rotateAgentToken(locals.account.id);
-		disconnectAgent(locals.account.id);
-		return { token };
 	},
 	disconnectAgent: ({ locals }) => {
 		if (!locals.account) redirect(303, '/login');

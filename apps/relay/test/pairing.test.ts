@@ -35,6 +35,57 @@ describe('pairing', () => {
 	});
 });
 
+describe('setup tokens', async () => {
+	const { db } = await import('../src/lib/server/db.ts');
+	const count = (accountId: string) =>
+		(db.prepare('SELECT COUNT(*) AS n FROM setup_tokens WHERE account_id = ?').get(accountId) as { n: number }).n;
+
+	it('give the agent its own token once, and the other setup tokens stop working', async () => {
+		const owner = await accounts.createAccount('setup@shrim.test', 'a-long-enough-password');
+		const first = accounts.createSetupToken(owner.id);
+		const second = accounts.createSetupToken(owner.id);
+		expect(first.token).toMatch(/^shr_setup_/);
+
+		const token = accounts.redeemSetupToken(second.token);
+		expect(accounts.accountForAgentToken(`Bearer ${token}`)?.id).toBe(owner.id);
+		expect(accounts.redeemSetupToken(second.token)).toBeNull();
+		expect(accounts.redeemSetupToken(first.token)).toBeNull();
+		expect(count(owner.id)).toBe(0);
+	});
+
+	it('refuse expired, unknown and malformed tokens', async () => {
+		const owner = await accounts.createAccount('setup-old@shrim.test', 'a-long-enough-password');
+		const { token } = accounts.createSetupToken(owner.id);
+		db.prepare('UPDATE setup_tokens SET expires_at = ? WHERE account_id = ?').run(Date.now() - 1, owner.id);
+		expect(accounts.redeemSetupToken(token)).toBeNull();
+		expect(accounts.redeemSetupToken('shr_setup_made-up')).toBeNull();
+		expect(accounts.redeemSetupToken('')).toBeNull();
+		expect(accounts.agentTokenInfo(owner.id)).toBeNull();
+	});
+
+	it('stop working once an agent connects another way, or is disconnected', async () => {
+		const owner = await accounts.createAccount('setup-code@shrim.test', 'a-long-enough-password');
+		const leaked = accounts.createSetupToken(owner.id).token;
+		const { deviceCode, userCode } = accounts.startPairing();
+		accounts.approvePairing(userCode, owner.id);
+		const paired = accounts.pollPairing(deviceCode) as { token: string };
+		expect(accounts.redeemSetupToken(leaked)).toBeNull();
+		expect(accounts.accountForAgentToken(`Bearer ${paired.token}`)?.id).toBe(owner.id);
+
+		const later = accounts.createSetupToken(owner.id).token;
+		accounts.removeAgentToken(owner.id);
+		expect(accounts.redeemSetupToken(later)).toBeNull();
+	});
+
+	it('keep only the newest few per account', async () => {
+		const owner = await accounts.createAccount('setup-many@shrim.test', 'a-long-enough-password');
+		const tokens = Array.from({ length: 7 }, () => accounts.createSetupToken(owner.id).token);
+		expect(count(owner.id)).toBe(5);
+		expect(accounts.redeemSetupToken(tokens[0])).toBeNull();
+		expect(accounts.redeemSetupToken(tokens[6])).not.toBeNull();
+	});
+});
+
 describe('next redirects stay on this site', () => {
 	it.each([
 		['/pair?code=ABCD-EFGH', '/pair?code=ABCD-EFGH'],

@@ -3,18 +3,17 @@
 		Badge,
 		Button,
 		CodeBlock,
-		CopyField,
 		Dialog,
 		EasyId,
 		EmptyState,
 		Field,
-		Icon,
 		IconTile,
 		MetaList,
 		Notice,
 		Panel,
 		SettingRow,
 		SettingsList,
+		Spinner,
 		StatTile,
 		Steps,
 		TopBar,
@@ -50,8 +49,12 @@
 	);
 	// First run only: once there are links, a disconnected agent shows on the normal dashboard.
 	const setup = $derived((!data.agent.everSeen && !data.agent.connecting && data.shares.length === 0) || !planOk);
-	const newToken = $derived(form && 'token' in form ? (form.token as string) : null);
 	const live = $derived(data.shares.filter((s) => s.state === 'live').length);
+
+	// Made once per visit: the page refreshes while it waits, and the snippet mustn't change under a copy.
+	let setupToken = $state<string | null>(null);
+	let setupTokenFailed = $state(false);
+	let setupTokenAsked = false;
 
 	const compose = $derived(
 		[
@@ -61,6 +64,7 @@
 			'    environment:',
 			'      IMMICH_URL: http://immich-server:2283',
 			...(data.ownRelay ? [`      SHRIM_RELAY_URL: ${data.relayUrl}`] : []),
+			...(setupToken ? [`      SHRIM_SETUP_TOKEN: ${setupToken}`] : []),
 			'    ports:',
 			'      - 127.0.0.1:2284:3000',
 			'    volumes:',
@@ -89,6 +93,15 @@
 			}, 2000);
 			return () => clearInterval(t);
 		}
+	});
+
+	$effect(() => {
+		if (!setup || data.agent.everSeen || setupTokenAsked) return;
+		setupTokenAsked = true;
+		fetch('/dashboard/setup-token', { method: 'POST' })
+			.then((res) => (res.ok ? (res.json() as Promise<{ token: string }>) : Promise.reject(new Error())))
+			.then((r) => (setupToken = r.token))
+			.catch(() => (setupTokenFailed = true));
 	});
 
 	$effect(() => {
@@ -130,9 +143,21 @@
 
 {#snippet addAgent()}
 	<div class={stepBody}>
-		<p>Add this to the <code>docker-compose.yml</code> that runs Immich, then run <code>docker compose up -d</code>.</p>
-		<CodeBlock code={compose} />
+		<p>
+			Add this to the <code>docker-compose.yml</code> that runs Immich, then run <code>docker compose up -d</code>. The
+			agent connects to your account by itself.
+		</p>
+		{#if setupToken || setupTokenFailed}
+			<CodeBlock code={compose} />
+		{:else}
+			<p class="flex items-center gap-2 text-sm text-muted"><Spinner size={16} />Preparing your snippet…</p>
+		{/if}
 		<p class="text-sm text-muted">
+			{#if setupToken}
+				The setup token works once, within 24 hours. Reload this page for a new one.
+			{:else if setupTokenFailed}
+				We couldn't make a setup token, so connect with a code in the next step.
+			{/if}
 			Change <code>IMMICH_URL</code> if your Immich service has another name.{#if data.ownRelay}
 				<code>SHRIM_RELAY_URL</code> points the agent at this server.{/if}
 		</p>
@@ -141,9 +166,10 @@
 
 {#snippet connectAgent()}
 	<div class={stepBody}>
-		<p>
-			Open <code>http://localhost:2284</code> in a browser on that machine (it listens on localhost only) and sign in as an
-			Immich admin, with an Immich API key or single sign-on. It shows a code. Approve it there, or type it here.
+		<p class="flex items-center gap-2 text-muted" role="status"><Spinner size={16} />Waiting for your agent…</p>
+		<p class="text-sm text-muted">
+			Started it without the setup token? Open <code>http://localhost:2284</code> on that machine, sign in as an Immich admin
+			and enter the code it shows:
 		</p>
 		{@render codeForm(false)}
 	</div>
@@ -448,32 +474,6 @@
 					{/if}
 				{/snippet}
 			</SettingRow>
-			{#if !data.agent.connected || newToken}
-				<SettingRow icon="key-round" title="Connection token">
-					{#snippet description()}
-						Instead of a code, you can put a token in your compose file as <code>SHRIM_AGENT_TOKEN</code>.
-					{/snippet}
-					{#snippet trailing()}
-						{#if !newToken}
-							<form method="POST" action="?/token" use:enhance>
-								<Button type="submit" size="sm" icon="key-round">Create token</Button>
-							</form>
-						{/if}
-					{/snippet}
-					{#if newToken}
-						<div class="grid w-full gap-2">
-							<CopyField value={newToken} id="token" />
-							<p class="flex items-start gap-1.5 text-sm text-warning">
-								<Icon name="triangle-alert" size={16} class="mt-0.5" />
-								<span>
-									Here's your new token. Put it in your compose file as <code>SHRIM_AGENT_TOKEN</code> now. We only show it
-									once.
-								</span>
-							</p>
-						</div>
-					{/if}
-				</SettingRow>
-			{/if}
 			<SettingRow icon="download" title="Your data" description="Everything we keep about your account, as a file.">
 				{#snippet trailing()}<Button href="/dashboard/export" size="sm" download>Download</Button>{/snippet}
 			</SettingRow>

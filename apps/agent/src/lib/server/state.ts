@@ -74,6 +74,8 @@ export interface StoredSession {
 export interface AgentState {
 	relayUrl: string;
 	agentToken: string;
+	/** sha256 of the setup token the relay already answered, so a restart doesn't send it again. */
+	setupTokenUsed?: string;
 	/** SHRIM_AUTH=none only: an Immich API key with a few permissions, for the album picker. */
 	immichApiKey: string;
 	immichApiKeySavedAt?: string;
@@ -102,7 +104,8 @@ export function upgrade(raw: unknown): AgentState {
 	const s = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
 	return {
 		relayUrl: str(s.relayUrl) || config.relayUrl,
-		agentToken: str(s.agentToken) || config.agentToken,
+		agentToken: str(s.agentToken),
+		setupTokenUsed: str(s.setupTokenUsed) || undefined,
 		immichApiKey: config.immichApiKey || str(s.immichApiKey),
 		immichApiKeySavedAt: typeof s.immichApiKeySavedAt === 'string' ? s.immichApiKeySavedAt : undefined,
 		immichKeyCanDelete: s.immichKeyCanDelete === true,
