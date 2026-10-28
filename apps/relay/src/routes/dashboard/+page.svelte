@@ -36,6 +36,10 @@
 		rate: 'Too many attempts. Wait a minute and try again.',
 		billing: "We couldn't cancel your plan with Stripe, so nothing was deleted. Try again in a moment."
 	};
+	const REFUND_ERRORS = {
+		not_eligible: "This plan can't be refunded from here anymore.",
+		stripe: "Stripe didn't answer. Try again in a moment."
+	};
 
 	let activating = $state(false);
 	let confirmDisconnect = $state(false);
@@ -43,6 +47,8 @@
 	let disabling = $state(false);
 	let confirmDelete = $state(false);
 	let deleting = $state(false);
+	let confirmRefund = $state(false);
+	let refunding = $state(false);
 
 	const hosted = $derived(data.billing !== 'off');
 	const planOk = $derived(
@@ -243,6 +249,7 @@
 		<Panel flush>
 			<Steps steps={setupSteps} />
 		</Panel>
+		{@render refundNote('mt-4')}
 	{:else}
 		<h1 class="mb-2">Dashboard</h1>
 		{#if data.plan.status === 'past_due'}
@@ -274,18 +281,22 @@
 			{@render agentFact()}
 			{@render linksFact()}
 		</dl>
-		{#if data.refundUntil && data.supportEmail}
-			<p class="-mt-2 mb-6 text-sm text-muted">
-				Changed your mind? You can get a full refund until {formatDate(data.refundUntil)}.
-				<a href="mailto:{data.supportEmail}?subject=Refund">Ask for a refund</a>
-			</p>
-		{/if}
+		{@render refundNote('-mt-2 mb-6')}
 		<div class="grid gap-6">
 			{@render sharesPanel()}
 			{@render accountPanel()}
 		</div>
 	{/if}
 </Page>
+
+{#snippet refundNote(spacing: string)}
+	{#if data.plan.refundUntil}
+		<p class={[spacing, 'text-sm text-muted']}>
+			Changed your mind? You can get a full refund until {formatDate(data.plan.refundUntil)}.
+			<button type="button" class="link-accent" onclick={() => (confirmRefund = true)}>Cancel and refund</button>
+		</p>
+	{/if}
+{/snippet}
 
 {#snippet planFact()}
 	{@const s = data.plan.status}
@@ -569,5 +580,37 @@
 	{#snippet footer()}
 		<Button onclick={() => (confirmDelete = false)} autofocus>Cancel</Button>
 		<Button type="submit" form="delete-form" variant="danger" loading={deleting}>Delete account</Button>
+	{/snippet}
+</Dialog>
+
+<Dialog bind:open={confirmRefund} title="Cancel and get a refund?">
+	<p>
+		We refund your {data.price} in full and end your plan now, so your links stop working. Your photos stay on your server.
+		The money is usually back on your card within 10 days.
+	</p>
+	{#if form && 'refundError' in form && form.refundError}
+		<Notice tone="danger">
+			{REFUND_ERRORS[form.refundError]}{data.supportEmail ? ` You can also email ${data.supportEmail}.` : ''}
+		</Notice>
+	{/if}
+	{#snippet footer()}
+		<Button onclick={() => (confirmRefund = false)} autofocus>Keep my plan</Button>
+		<form
+			method="POST"
+			action="?/refund"
+			use:enhance={() => {
+				refunding = true;
+				return async ({ result, update }) => {
+					await update();
+					refunding = false;
+					if (result.type === 'success') {
+						confirmRefund = false;
+						toast('Plan cancelled and refunded');
+					}
+				};
+			}}
+		>
+			<Button type="submit" variant="danger" loading={refunding}>Cancel and refund</Button>
+		</form>
 	{/snippet}
 </Dialog>

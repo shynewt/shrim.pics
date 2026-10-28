@@ -18,16 +18,16 @@ import {
 	checkoutUrl,
 	planView,
 	portalUrl,
+	refundAndCancel,
 	stripeEnabled,
-	syncCheckout
+	syncCheckout,
+	type PlanView
 } from '#lib/server/billing.ts';
 import { config } from '#lib/server/config.ts';
 import { agentOnline, disconnectAgent, notifyAccountChanged } from '#lib/server/router.ts';
 import { formText } from '#lib/server/http.ts';
 import { limits } from '#lib/server/limits.ts';
 import type { Actions, PageServerLoad } from './$types';
-
-const DAY = 86_400_000;
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const account = locals.account;
@@ -54,30 +54,23 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		}))
 		.sort((a, b) => order[a.state] - order[b.state] || b.createdAt - a.createdAt);
 
-	let plan: {
-		status: 'none' | 'active' | 'ending' | 'past_due' | 'ended';
-		activeUntil: number | null;
-		manageable: boolean;
-	};
+	let plan: PlanView;
 	if (stripeEnabled()) plan = planView(account);
 	else {
 		const until = account.activeUntil;
 		plan = {
 			status: account.active ? 'active' : until ? 'ended' : 'none',
 			activeUntil: until,
-			manageable: false
+			manageable: false,
+			refundUntil: null
 		};
 	}
-	// Yearly plans: the refund window is the first 14 days of the paid year.
-	const periodStart = plan.activeUntil ? plan.activeUntil - 365 * DAY : null;
-	const refundUntil = periodStart && plan.status === 'active' ? periodStart + 14 * DAY : null;
 
 	const relayUrl = config.publicOrigin ?? url.origin;
 	return {
 		email: account.email,
 		billing: config.billing,
 		plan,
-		refundUntil: refundUntil && refundUntil > Date.now() ? refundUntil : null,
 		paid: url.searchParams.get('paid') === '1',
 		pending: url.searchParams.get('pending') === '1',
 		cancelled: url.searchParams.get('checkout') === 'cancelled',
@@ -115,6 +108,16 @@ export const actions: Actions = {
 		if (!locals.account) redirect(303, '/login');
 		if (!stripeEnabled()) return fail(400, { error: 'billing' });
 		redirect(303, await portalUrl(locals.account, config.publicOrigin ?? url.origin), TO_STRIPE);
+	},
+	refund: async ({ locals }) => {
+		if (!locals.account) redirect(303, '/login');
+		if (!stripeEnabled()) return fail(400, { refundError: 'not_eligible' as const });
+		try {
+			const result = await refundAndCancel(locals.account.id);
+			return result === 'refunded' ? { refunded: true } : fail(400, { refundError: result });
+		} catch {
+			return fail(502, { refundError: 'stripe' as const });
+		}
 	},
 	activate: ({ locals }) => {
 		if (!locals.account) redirect(303, '/login');

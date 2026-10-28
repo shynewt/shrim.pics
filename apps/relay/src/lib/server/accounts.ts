@@ -111,6 +111,8 @@ export async function createAccount(email: string, password: string): Promise<Ac
 		stripe_subscription_id: null,
 		plan_status: null,
 		plan_cancel_at_period_end: 0,
+		plan_period_start: null,
+		refunded_at: null,
 		email_confirmed_at: null
 	};
 	db.prepare(
@@ -711,6 +713,7 @@ export function exportAccount(accountId: string) {
 			createdAt: new Date(a.created_at).toISOString(),
 			planActiveUntil: a.active_until ? new Date(a.active_until).toISOString() : null,
 			planStatus: a.plan_status,
+			refundedAt: a.refunded_at ? new Date(a.refunded_at).toISOString() : null,
 			stripeCustomerId: a.stripe_customer_id
 		},
 		agent: agentTokenInfo(accountId),

@@ -36,7 +36,17 @@ function subscription(
 		cancel_at: null,
 		ended_at: null,
 		metadata: accountId ? { account_id: accountId } : {},
-		items: { object: 'list', data: [{ current_period_end: Math.floor(periodEnd / 1000) }], has_more: false, url: '' },
+		items: {
+			object: 'list',
+			data: [
+				{
+					current_period_start: Math.floor((periodEnd - 365 * DAY) / 1000),
+					current_period_end: Math.floor(periodEnd / 1000)
+				}
+			],
+			has_more: false,
+			url: ''
+		},
 		...rest
 	} as unknown as Stripe.Subscription;
 }
@@ -90,6 +100,51 @@ describe('plan state follows the subscription', () => {
 		);
 		expect(view().status).toBe('ended');
 		expect(accounts.toAccount(accounts.accountById(account.id)!).active).toBe(false);
+	});
+});
+
+describe('cancel and refund', () => {
+	const paidInvoice = (paidAt: number, over: Record<string, unknown> = {}) => ({
+		id: 'in_1',
+		status: 'paid',
+		amount_paid: 2400,
+		status_transitions: { paid_at: Math.floor(paidAt / 1000) },
+		payments: { data: [{ status: 'paid', payment: { type: 'payment_intent', payment_intent: 'pi_1' } }] },
+		...over
+	});
+	const withInvoice = (invoice: object, status: Stripe.Subscription.Status = 'active') =>
+		subscription({ periodEnd: Date.now() + 360 * DAY, status, latest_invoice: invoice as Stripe.Invoice });
+
+	it('refunds a payment made in the last 14 days', () => {
+		expect(billing.refundablePayment(withInvoice(paidInvoice(Date.now() - 3 * DAY)))).toEqual({
+			invoiceId: 'in_1',
+			paymentIntent: 'pi_1'
+		});
+	});
+
+	it('refuses old, unpaid, free and already cancelled ones', () => {
+		expect(billing.refundablePayment(withInvoice(paidInvoice(Date.now() - 15 * DAY)))).toBeNull();
+		expect(billing.refundablePayment(withInvoice(paidInvoice(Date.now(), { status: 'open' })))).toBeNull();
+		expect(billing.refundablePayment(withInvoice(paidInvoice(Date.now(), { amount_paid: 0 })))).toBeNull();
+		expect(billing.refundablePayment(withInvoice(paidInvoice(Date.now()), 'canceled'))).toBeNull();
+		expect(billing.refundablePayment(withInvoice(paidInvoice(Date.now(), { payments: { data: [] } })))).toBeNull();
+	});
+
+	it('offers it on the dashboard for the first 14 days of the year, once per account', async () => {
+		const owner = await accounts.createAccount('refund@shrim.test', 'a-long-enough-password');
+		const sub = (start: number) =>
+			subscription({ id: 'sub_refund', customer: 'cus_refund', accountId: owner.id, periodEnd: start + 365 * DAY });
+		const refundUntil = () => billing.planView(accounts.toAccount(accounts.accountById(owner.id)!)).refundUntil;
+
+		billing.applySubscription(sub(Date.now() - 2 * DAY));
+		expect(refundUntil()).toBeGreaterThan(Date.now() + 11 * DAY);
+		billing.applySubscription(sub(Date.now() - 20 * DAY));
+		expect(refundUntil()).toBeNull();
+
+		billing.applySubscription(sub(Date.now() - 2 * DAY));
+		db.prepare('UPDATE accounts SET refunded_at = ? WHERE id = ?').run(Date.now(), owner.id);
+		expect(refundUntil()).toBeNull();
+		expect(await billing.refundAndCancel(owner.id)).toBe('not_eligible');
 	});
 });
 

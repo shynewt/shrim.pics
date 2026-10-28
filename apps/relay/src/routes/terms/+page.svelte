@@ -76,9 +76,9 @@
 
 		<h2>5. Changed your mind? 14 days, full refund</h2>
 		<p>
-			If you're not happy, write to us within 14 days of paying, for your first year or a renewal, and we'll refund you
-			in full. No questions asked, and no need to give a reason. This covers your legal right to withdraw from the
-			contract, and goes a little further.
+			If you're not happy, cancel within 14 days of paying, for your first year or a renewal, and we'll refund you in
+			full. Use "Cancel and refund" on your dashboard or write to us. No questions asked, and no need to give a reason.
+			This covers your legal right to withdraw from the contract, and goes a little further.
 		</p>
 	{/if}
 

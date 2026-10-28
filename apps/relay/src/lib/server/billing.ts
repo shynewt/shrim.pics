@@ -12,6 +12,8 @@ import { notifyAccountChanged } from './router.ts';
 const GRACE_MS = 3 * 86_400_000;
 /** While Stripe retries a failed renewal, links keep working this long. */
 const RETRY_GRACE_MS = 14 * 86_400_000;
+/** The promise at Checkout: a full refund within 14 days of paying. */
+const REFUND_MS = 14 * 86_400_000;
 
 let client: Stripe | null = null;
 
@@ -59,6 +61,8 @@ export interface PlanView {
 	status: 'none' | 'active' | 'ending' | 'past_due' | 'ended';
 	activeUntil: number | null;
 	manageable: boolean;
+	/** Until when the owner can cancel and get their money back from the dashboard. */
+	refundUntil: number | null;
 }
 
 export function planView(account: Account): PlanView {
@@ -73,7 +77,10 @@ export function planView(account: Account): PlanView {
 	// Show the real period end, not the grace we add on top.
 	const grace = r.plan_status === 'past_due' ? RETRY_GRACE_MS : GRACE_MS;
 	const shown = until !== null && r.stripe_subscription_id ? until - grace : until;
-	return { status, activeUntil: shown, manageable: !!r.stripe_customer_id };
+	const refundEnd = r.plan_period_start === null ? null : r.plan_period_start + REFUND_MS;
+	const refundable =
+		(status === 'active' || status === 'ending') && r.refunded_at === null && !!refundEnd && refundEnd > Date.now();
+	return { status, activeUntil: shown, manageable: !!r.stripe_customer_id, refundUntil: refundable ? refundEnd : null };
 }
 
 export async function checkoutUrl(account: Account, origin: string): Promise<string> {
@@ -117,6 +124,11 @@ function periodEnd(sub: Stripe.Subscription): number | null {
 	return ends.length ? Math.max(...ends) * 1000 : null;
 }
 
+function periodStart(sub: Stripe.Subscription): number | null {
+	const starts = sub.items.data.map((i) => i.current_period_start).filter((n): n is number => typeof n === 'number');
+	return starts.length ? Math.min(...starts) * 1000 : null;
+}
+
 function accountFor(sub: Stripe.Subscription): AccountRow | undefined {
 	const customer = typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
 	const byCustomer = db.prepare('SELECT * FROM accounts WHERE stripe_customer_id = ?').get(customer) as
@@ -145,8 +157,8 @@ export function applySubscription(sub: Stripe.Subscription) {
 
 	db.prepare(
 		`UPDATE accounts SET stripe_customer_id = ?, stripe_subscription_id = ?, plan_status = ?,
-		 plan_cancel_at_period_end = ?, active_until = ? WHERE id = ?`
-	).run(customer, sub.id, sub.status, ending ? 1 : 0, activeUntil, account.id);
+		 plan_cancel_at_period_end = ?, plan_period_start = ?, active_until = ? WHERE id = ?`
+	).run(customer, sub.id, sub.status, ending ? 1 : 0, periodStart(sub), activeUntil, account.id);
 	notifyAccountChanged(account.id);
 }
 
@@ -214,6 +226,42 @@ export async function handleEvent(event: Stripe.Event) {
 	}
 	// Only remember it once it worked, so Stripe's retries get another go.
 	db.prepare('INSERT OR IGNORE INTO stripe_events (id, received_at) VALUES (?, ?)').run(event.id, Date.now());
+}
+
+/** The latest invoice's payment, if it was paid recently enough to refund. Expects `latest_invoice.payments` expanded. */
+export function refundablePayment(sub: Stripe.Subscription, now = Date.now()) {
+	const invoice = sub.latest_invoice;
+	if (!LIVE.has(sub.status) || !invoice || typeof invoice === 'string') return null;
+	if (invoice.status !== 'paid' || invoice.amount_paid <= 0) return null;
+	const paidAt = invoice.status_transitions.paid_at;
+	if (!paidAt || paidAt * 1000 + REFUND_MS < now) return null;
+	const pi = invoice.payments?.data.find((p) => p.status === 'paid')?.payment.payment_intent;
+	if (!pi) return null;
+	return { invoiceId: invoice.id, paymentIntent: typeof pi === 'string' ? pi : pi.id };
+}
+
+/** Refunds the latest payment in full and ends the plan now. Once per account. */
+export async function refundAndCancel(accountId: string): Promise<'refunded' | 'not_eligible'> {
+	const r = row(accountId);
+	if (!r.stripe_subscription_id || r.refunded_at !== null) return 'not_eligible';
+	const sub = await stripe().subscriptions.retrieve(r.stripe_subscription_id, { expand: ['latest_invoice.payments'] });
+	const payment = refundablePayment(sub);
+	if (!payment) return 'not_eligible';
+
+	// Claimed before calling Stripe, so a double submit can't refund twice.
+	const claim = db.prepare('UPDATE accounts SET refunded_at = ? WHERE id = ? AND refunded_at IS NULL');
+	if (claim.run(Date.now(), accountId).changes === 0) return 'not_eligible';
+	try {
+		await stripe().refunds.create(
+			{ payment_intent: payment.paymentIntent, metadata: { account_id: accountId } },
+			{ idempotencyKey: `refund-${payment.invoiceId}` }
+		);
+	} catch (e) {
+		db.prepare('UPDATE accounts SET refunded_at = NULL WHERE id = ?').run(accountId);
+		throw e;
+	}
+	applySubscription(await stripe().subscriptions.cancel(sub.id));
+	return 'refunded';
 }
 
 export async function cancelForDeletion(accountId: string) {
