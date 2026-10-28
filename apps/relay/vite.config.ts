@@ -33,7 +33,8 @@ export default defineConfig({
 					'font-src': ['self'],
 					'object-src': ['none'],
 					'base-uri': ['none'],
-					'form-action': ['self'],
+					// Subscribe and Manage billing post here, then go on to Stripe's own pages.
+					'form-action': ['self', 'https://checkout.stripe.com', 'https://billing.stripe.com'],
 					'frame-ancestors': ['none']
 				}
 			}

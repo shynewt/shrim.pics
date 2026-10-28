@@ -5,6 +5,7 @@
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { isRedirect } from '@sveltejs/kit';
 import Stripe from 'stripe';
 import { beforeAll, describe, expect, it } from 'vitest';
 
@@ -112,5 +113,35 @@ describe('checkout and portal (stripe-mock)', () => {
 		billing.applySubscription(subscription({ periodEnd: Date.now() + 300 * DAY }));
 		const url = await billing.portalUrl(accounts.toAccount(accounts.accountById(account.id)!), 'https://shrim.pics');
 		expect(url).toMatch(/^https:\/\//);
+	});
+
+	it('lets the dashboard redirect to Checkout and the billing portal', async () => {
+		const { actions } = await import('../src/routes/dashboard/+page.server.ts');
+		const target = async (action: 'checkout' | 'portal', id: string) => {
+			const event = {
+				locals: { account: accounts.toAccount(accounts.accountById(id)!) },
+				url: new URL('https://shrim.pics/dashboard')
+			};
+			try {
+				await actions[action](event as never);
+			} catch (e) {
+				if (isRedirect(e)) return e.location;
+				throw e;
+			}
+			throw new Error(`${action} did not redirect`);
+		};
+		const fresh = await accounts.createAccount('redirect@shrim.test', 'a-long-enough-password');
+		expect(await target('checkout', fresh.id)).toMatch(/^https:\/\//);
+
+		const subscribed = await accounts.createAccount('redirect-paid@shrim.test', 'a-long-enough-password');
+		billing.applySubscription(
+			subscription({
+				id: 'sub_redirect',
+				customer: 'cus_redirect',
+				accountId: subscribed.id,
+				periodEnd: Date.now() + 300 * DAY
+			})
+		);
+		expect(await target('portal', subscribed.id)).toMatch(/^https:\/\//);
 	});
 });

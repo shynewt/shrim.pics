@@ -99,17 +99,23 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	};
 };
 
+/**
+ * Checkout and the billing portal are Stripe's pages. Their URL comes from Stripe's API, never from the
+ * request. The CSP's form-action is what limits where these posts may lead.
+ */
+const TO_STRIPE = { external: true };
+
 export const actions: Actions = {
 	/** Native form post: the browser follows the redirect to Stripe. */
 	checkout: async ({ locals, url }) => {
 		if (!locals.account) redirect(303, '/login');
 		if (!stripeEnabled()) return fail(400, { error: 'billing' });
-		redirect(303, await checkoutUrl(locals.account, config.publicOrigin ?? url.origin));
+		redirect(303, await checkoutUrl(locals.account, config.publicOrigin ?? url.origin), TO_STRIPE);
 	},
 	portal: async ({ locals, url }) => {
 		if (!locals.account) redirect(303, '/login');
 		if (!stripeEnabled()) return fail(400, { error: 'billing' });
-		redirect(303, await portalUrl(locals.account, config.publicOrigin ?? url.origin));
+		redirect(303, await portalUrl(locals.account, config.publicOrigin ?? url.origin), TO_STRIPE);
 	},
 	activate: ({ locals }) => {
 		if (!locals.account) redirect(303, '/login');
