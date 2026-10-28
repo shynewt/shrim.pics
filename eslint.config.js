@@ -105,7 +105,7 @@ export default ts.config(
 					ignore: [
 						'^(btn|primary|secondary|ghost|ghost-danger|danger|sm|md|lg|full|icon-only|plain|nav|panel|label)$',
 						// relay pages: scoped CSS that stays (layout maths) and e2e selectors
-						'^(hero|glance|narrow|phone|link|notes|note|key-note|bracket|share|id)$',
+						'^(hero|narrow|phone|share|id|reveal|key-line)$',
 						// viewer: scoped CSS (grid maths, lightbox layout, animations) and e2e selectors
 						'^(tile|shown|sharp|lightbox|stage|media|counter|slide-progress|row|badge|drop|files|add-more|header-actions|mini|state)$',
 						// agent: scoped CSS targets and e2e selectors

@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { Button, Icon, IconTile, TopBar, toast, type IconName } from '@shrim/ui';
+	import { Button, Icon, TopBar, toast, type IconName } from '@shrim/ui';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import BrandMark from '#lib/components/BrandMark.svelte';
 	import HeroShots from '#lib/components/HeroShots.svelte';
-	import LinkAnatomy from '#lib/components/LinkAnatomy.svelte';
+	import ConnectionDiagram from '#lib/components/ConnectionDiagram.svelte';
+	import NoiseReveal from '#lib/components/NoiseReveal.svelte';
+	import displayFont from '@shrim/ui/assets/fonts/familjen-grotesk.woff2?url';
 	import SiteFooter from '#lib/components/SiteFooter.svelte';
 	import type { PageProps } from './$types';
 
@@ -22,47 +23,43 @@
 		}
 	});
 
-	const why: { icon: IconName; title: string; body: string }[] = [
+	const why: { title: string; body: string }[] = [
 		{
-			icon: 'map-pin',
-			title: 'For the people you just met',
-			body: 'Back from a trip with a great group? Send them the whole album, not the address of your server.'
+			title: 'Share an album with anyone',
+			body: "Send friends and family a link. They see the photos, but never your server's address or domain."
 		},
 		{
-			icon: 'users',
-			title: "Everyone's photos, one album",
-			body: 'After a wedding or a weekend away, friends add their shots. They land straight in your Immich.'
+			title: 'No ports to open',
+			body: "Works even if Immich is only reachable at home or over a VPN. The agent connects out, so there's nothing to forward or expose."
 		},
 		{
-			icon: 'shield',
-			title: 'Nothing to open on your router',
-			body: 'The agent dials out, like your browser does. No port forwarding, no reverse proxy, no VPN for guests.'
+			title: 'Encrypted end to end',
+			body: "Photos are encrypted on your server and only unlocked in your friends' browsers. We can't see them."
 		},
 		{
-			icon: 'eye-off',
-			title: 'Your domain stays yours',
-			body: "An Immich link shows your server's address to everyone it's forwarded to. A shrim.pics link doesn't."
+			title: 'Nothing to install for friends',
+			body: 'The link opens in any browser, on a phone or a computer. No app, no account.'
 		},
 		{
-			icon: 'cloud-off',
-			title: 'No big cloud in between',
-			body: 'Nothing gets copied to Google Photos or iCloud. Photos stream from your server, encrypted.'
+			title: 'Friends can add their photos',
+			body: 'If you allow it, friends upload their photos from a wedding or a trip straight into your Immich album.'
 		},
 		{
-			icon: 'link',
-			title: 'Friends just tap the link',
-			body: 'No app, no account. It opens in any browser, on a phone or a computer.'
+			title: 'You stay in control',
+			body: 'Your photos stay on your server. Set an expiry date, or turn a link off at any time.'
 		}
 	];
 
-	const glance = $derived<{ icon: IconName; text: string; href?: string }[]>([
-		{ icon: 'lock', text: 'End-to-end encrypted' },
-		{ icon: 'shield', text: 'No open ports' },
-		{ icon: 'link', text: 'No app for friends' },
-		{ icon: 'eye-off', text: 'No trackers' },
-		{ icon: 'server', text: 'Open source, self-hostable', href: data.sourceUrl ?? '/self-host' },
-		...(data.operator.region ? [{ icon: 'map-pin' as const, text: `Hosted in ${data.operator.region}` }] : [])
-	]);
+	const seville = [
+		['plaza-de-espana', 'Plaza de España, with its canal and bridges'],
+		['tapas', 'A plate of tapas'],
+		['las-setas', 'The Metropol Parasol'],
+		['tiled-steps', 'Steps faced with blue and white tiles'],
+		['guadalquivir', 'The Guadalquivir river'],
+		['plaza-bridge', 'A tiled bridge at Plaza de España'],
+		['orange-trees', 'The orange tree courtyard of the cathedral'],
+		['cafe-street', 'A red bike outside a café']
+	].map(([name, alt]) => ({ src: `/landing/seville/${name}.webp`, alt }));
 
 	const faq = $derived([
 		{
@@ -114,12 +111,12 @@
 	// Wider than Page's column.
 	const container = 'mx-auto w-full max-w-wide px-(--gutter)';
 	const section = [container, 'mt-16 md:mt-24'];
-	const card = 'flex flex-col rounded-lg border bg-surface p-6';
 	const media = 'relative mb-5 aspect-16/10 overflow-hidden rounded-lg border bg-surface-sunken';
 </script>
 
 <svelte:head>
 	<title>shrim.pics – Share Immich albums with a private link</title>
+	<link rel="preload" href={displayFont} as="font" type="font/woff2" crossorigin="anonymous" />
 	<meta
 		name="description"
 		content="Share an Immich album with a link. Friends see the photos, never your server's address. Encrypted end to end."
@@ -128,7 +125,7 @@
 	<meta property="og:title" content="shrim.pics – Share Immich albums with a private link" />
 	<meta
 		property="og:description"
-		content="Friends open one link and see the album. They never see your server's address, and we can't see your photos."
+		content="No public domain, no open ports, nothing exposed to the internet. Friends just open a link, and only they can see the photos."
 	/>
 	<meta property="og:url" content={page.url.origin} />
 	<meta property="og:image" content="{page.url.origin}/og.png" />
@@ -140,6 +137,7 @@
 
 <div class="flex min-h-dvh flex-col">
 	<TopBar border={false}>
+		{#if hosted}<a class="nav max-xs:hidden" href="#pricing">Pricing</a>{/if}
 		<a class="nav max-xs:hidden" href="/self-host">Self-host</a>
 		{#if data.account}
 			<Button href="/dashboard" variant="primary" size="sm">Dashboard</Button>
@@ -152,12 +150,12 @@
 	<main class="pb-24">
 		<section class={[container, 'hero grid items-center gap-12 pt-12 md:pt-20 lg:gap-16']}>
 			<div>
-				<h1 class="max-w-headline text-hero tracking-tighter">
-					Share Immich albums with a link. Keep your server to yourself.
+				<h1 class="max-w-headline font-display text-hero tracking-tighter">
+					Share Immich albums with a link. Keep your server private.
 				</h1>
 				<p class="mt-5 max-w-lead text-lg text-muted">
-					Friends open one link and see the album. They can add their own photos too. They never see your server's
-					address, and we can't see your photos.
+					No public domain, no open ports, nothing exposed to the internet. Friends just open a link, and only they can
+					see the photos.
 				</p>
 				<div class="mt-8 flex flex-wrap gap-3">
 					<Button href={start} variant="primary" size="lg" class="max-xs:w-full">Get started</Button>
@@ -177,36 +175,57 @@
 			<HeroShots {host} demo={data.demo} />
 		</section>
 
-		<section class={container} aria-label="At a glance">
-			<ul
-				class="glance mt-12 grid gap-x-3 gap-y-4 rounded-lg border bg-surface p-5 lg:justify-between lg:px-6 lg:py-4"
-				role="list"
-			>
-				{#each glance as g (g.text)}
-					<!-- Top-aligned: on phones a fact can take two lines. -->
-					<li class="flex items-start gap-2 text-sm font-medium text-text">
-						<Icon name={g.icon} size={16} class="mt-0.5 text-accent-text" />
-						{#if g.href}<a class="text-inherit" href={g.href}>{g.text}</a>{:else}<span>{g.text}</span>{/if}
-					</li>
-				{/each}
-			</ul>
-		</section>
-
 		<section class={section} aria-labelledby="why">
-			<h2 class="text-3xl tracking-tighter" id="why">Why people use it</h2>
-			<div class="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+			<h2 class="font-display text-3xl tracking-tighter" id="why">Why people use it</h2>
+			<dl class="mt-10 grid gap-x-12 gap-y-9 md:grid-cols-2 lg:grid-cols-3">
 				{#each why as w (w.title)}
-					<div class="rounded-lg border bg-surface p-6">
-						<IconTile icon={w.icon} tone="accent" />
-						<h3 class="mt-5 text-lg">{w.title}</h3>
-						<p class="mt-1 text-muted">{w.body}</p>
+					<div class="max-w-measure">
+						<dt class="text-lg font-semibold">{w.title}</dt>
+						<dd class="mt-2 text-muted">{w.body}</dd>
 					</div>
 				{/each}
+			</dl>
+		</section>
+
+		<section class={section} aria-labelledby="noise">
+			<h2 class="font-display text-3xl tracking-tighter" id="noise">We see noise. Your friends see the photos.</h2>
+			<p class="mt-3 max-w-lead text-muted">
+				Your photos are encrypted before they leave your server, so {host} only ever gets encrypted data.
+			</p>
+			<div class="mt-6">
+				<NoiseReveal photos={seville} keyText="#k8Fz2pQwR7" />
+				<div class="mt-3 flex justify-between gap-4 text-sm text-muted">
+					<span>What reaches {host}</span>
+					<span class="text-right">What your friends see</span>
+				</div>
 			</div>
+			<p class="mt-10 mono text-xl wrap-anywhere lg:text-2xl">
+				<span class="visually-hidden">Example share link: </span><span class="text-subtle">https://</span
+				>{host}/s/Xk3f9QaPz2<wbr /><span class="text-accent-text">#k8Fz2pQwR7vLm3xY</span>
+			</p>
+			<p class="mt-4 max-w-lead text-lg">
+				Everything after the <span class="text-accent-text">#</span> is the key. Browsers never send it to a server, so we
+				can't see your photos, album names or file details, even if we wanted to.
+			</p>
+			<p class="mt-4 max-w-lead text-sm text-subtle">
+				We only see that a link exists, when it's opened and how much data passes through. {#if data.demo}Check it
+					yourself: open the <a href={data.demo} data-sveltekit-reload>example album</a> with your browser's network panel
+					open.{/if}
+				The <a href="/privacy">privacy policy</a> has the details.
+			</p>
+		</section>
+
+		<section class={section} aria-labelledby="ports">
+			<h2 class="font-display text-3xl tracking-tighter" id="ports">No ports to open</h2>
+			<p class="mt-3 max-w-lead text-muted">
+				The agent connects out to {host}, like your browser does. No port forwarding, no reverse proxy, and your home
+				address stays private.
+			</p>
+			<div class="mt-8"><ConnectionDiagram {host} /></div>
 		</section>
 
 		<section class={section} aria-labelledby="how">
-			<h2 class="text-3xl tracking-tighter" id="how">How it works</h2>
+			<h2 class="font-display text-3xl tracking-tighter" id="how">Set it up in three steps</h2>
 			<ol class="mt-8 grid gap-6 md:grid-cols-3 md:gap-8" role="list">
 				<li>
 					<!-- Three narrow columns (md only): smaller type keeps the commands on one line each. -->
@@ -220,21 +239,15 @@
 					<p class="mt-2 text-muted">A small container that runs beside Immich and dials out to us.</p>
 				</li>
 				<li>
-					<div class={[media, 'grid place-items-center p-4']}>
-						<picture>
-							<source media="(prefers-color-scheme: dark)" srcset="/landing/step-code-dark.webp" />
-							<img
-								class="w-full"
-								src="/landing/step-code-light.webp"
-								width="806"
-								height="224"
-								loading="lazy"
-								alt="The agent showing a pairing code, waiting for approval."
-							/>
-						</picture>
+					<div class={[media, 'grid content-center p-6 md:max-lg:p-4']} aria-hidden="true">
+						<pre
+							class="border-0 bg-transparent p-0 mono text-sm leading-md text-text md:max-lg:text-xs">SHRIM_SETUP_TOKEN: <span
+								class="text-accent-text">shr_setup_7Kq…</span
+							>
+<span class="text-success">●</span> Connected to shrim.pics</pre>
 					</div>
-					{@render stepTitle(2, 'Connect it with a code')}
-					<p class="mt-2 text-muted">Approve the short code it shows, and you're connected.</p>
+					{@render stepTitle(2, 'It connects to your account')}
+					<p class="mt-2 text-muted">The snippet from your dashboard carries a one-time token. No code to type.</p>
 				</li>
 				<li>
 					<div class={media}>
@@ -262,43 +275,11 @@
 			</p>
 		</section>
 
-		<section class={section} aria-labelledby="privacy">
-			<h2 class="text-3xl tracking-tighter" id="privacy">Private by design</h2>
-			<div class="mt-8"><LinkAnatomy {host} /></div>
-			<div class="mt-6 grid gap-6 md:grid-cols-2">
-				<div class={card}>
-					<h3>We can't see</h3>
-					<ul class="mt-4 grid gap-3" role="list">
-						{@render point('lock', 'Your photos and videos')}
-						{@render point('lock', 'Album names and descriptions')}
-						{@render point('lock', 'File names, dates and places')}
-						{@render point('lock', "Your server's address")}
-					</ul>
-				</div>
-				<div class={card}>
-					<h3>We can see</h3>
-					<ul class="mt-4 grid gap-3" role="list">
-						{@render point('eye', "That a link exists, and when it's opened")}
-						{@render point('eye', 'How many files pass through, and how big')}
-						{@render point('eye', 'When your agent is online')}
-						{@render point('eye', 'Your email address and payment status')}
-					</ul>
-					<a class="mt-6 self-start text-sm link-muted" href="/privacy">Privacy policy</a>
-				</div>
-			</div>
-			{#if data.demo}
-				<p class="mt-6 text-sm text-muted">
-					Don't take our word for it: open the example album with your browser's network panel open. Only encrypted data
-					comes in. <a class="link-muted" href={data.demo} data-sveltekit-reload>Open the example album</a>
-				</p>
-			{/if}
-		</section>
-
 		{#if hosted}
 			<section class={section} aria-labelledby="pricing">
-				<h2 class="text-3xl tracking-tighter" id="pricing">Pricing</h2>
-				<div class="mt-8 grid gap-6 md:grid-cols-2">
-					<div class={card}>
+				<h2 class="font-display text-3xl tracking-tighter" id="pricing">Pricing</h2>
+				<div class="mt-10 grid gap-x-12 gap-y-12 md:grid-cols-2">
+					<div class="flex flex-col">
 						<h3>shrim.pics</h3>
 						{@render price(data.price, 'a year')}
 						<ul class="mt-4 mb-6 grid flex-1 content-start gap-3" role="list">
@@ -308,9 +289,9 @@
 							{@render point('check', 'We run the server in the middle, you run the agent')}
 							{@render point('check', 'Cancel any time, full refund within 14 days')}
 						</ul>
-						<Button href={start} variant="primary" full>Get started</Button>
+						<Button href={start} variant="primary" class="self-start">Get started</Button>
 					</div>
-					<div class={card}>
+					<div class="flex flex-col md:border-l md:pl-12">
 						<h3>On your own server</h3>
 						{@render price('Free', 'forever')}
 						<ul class="mt-4 mb-6 grid flex-1 content-start gap-3" role="list">
@@ -318,7 +299,7 @@
 							{@render point('check', 'Use your own domain')}
 							{@render point('check', 'The same apps and the same encryption')}
 						</ul>
-						<Button href="/self-host" variant="secondary" full>Read the self-host guide</Button>
+						<Button href="/self-host" variant="secondary" class="self-start">Read the self-host guide</Button>
 					</div>
 				</div>
 			</section>
@@ -332,7 +313,7 @@
 		{/if}
 
 		<section class={section} aria-labelledby="faq">
-			<h2 class="text-3xl tracking-tighter" id="faq">Questions</h2>
+			<h2 class="font-display text-3xl tracking-tighter" id="faq">Questions</h2>
 			<div class="mt-8 max-w-measure border-t">
 				{#each faq as item (item.q)}
 					<details class="group border-b">
@@ -350,17 +331,14 @@
 			</div>
 		</section>
 
-		<section class={section}>
-			<div class="grid justify-items-center gap-3 rounded-xl border bg-surface px-6 py-12 text-center">
-				<BrandMark size="lg" />
-				<h2 class="mt-2 text-3xl tracking-tighter">Ready to share an album?</h2>
-				<p class="text-muted">
-					Setup takes about ten minutes. {hosted ? `${data.price} a year, or free on your own server.` : ''}
-				</p>
-				<div class="mt-4 flex flex-wrap justify-center gap-3 max-xs:w-full">
-					<Button href={start} variant="primary" size="lg" class="max-xs:w-full">Get started</Button>
-					<Button href="/self-host" size="lg" class="max-xs:w-full">Self-host for free</Button>
-				</div>
+		<section class={section} aria-labelledby="start">
+			<h2 class="font-display text-4xl tracking-tighter" id="start">Try it with one album.</h2>
+			<p class="mt-3 max-w-lead text-lg text-muted">
+				Setup takes about ten minutes. Friends need nothing but the link.
+			</p>
+			<div class="mt-8 flex flex-wrap gap-3">
+				<Button href={start} variant="primary" size="lg" class="max-xs:w-full">Get started</Button>
+				<Button href="/self-host" size="lg" class="max-xs:w-full">Self-host for free</Button>
 			</div>
 		</section>
 	</main>
@@ -383,29 +361,15 @@
 
 <!-- The price line keeps the big figure's line height: the small unit sits on its baseline. -->
 {#snippet price(amount: string, unit: string)}
-	<p class="mt-2 flex items-baseline gap-2 text-3xl font-semibold tracking-tighter">
-		{amount}<span class="text-md leading-3xl font-regular tracking-normal text-muted">{unit}</span>
+	<p class="mt-2 flex items-baseline gap-2 font-display text-3xl font-semibold tracking-tighter">
+		{amount}<span class="font-sans text-md leading-3xl font-regular tracking-normal text-muted">{unit}</span>
 	</p>
 {/snippet}
 
 <style>
-	.glance {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-
-	@media (min-width: 640px) {
-		.glance {
-			grid-template-columns: repeat(3, minmax(0, 1fr));
-		}
-	}
-
 	@media (min-width: 1024px) {
 		.hero {
 			grid-template-columns: 5fr 6fr;
-		}
-
-		.glance {
-			grid-template-columns: repeat(6, auto);
 		}
 	}
 </style>

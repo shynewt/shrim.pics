@@ -152,7 +152,7 @@ test.afterAll(async () => {
 test('landing page explains the product', async ({ page }) => {
 	await open(page, RELAY);
 	await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-		'Share Immich albums with a link. Keep your server to yourself.'
+		'Share Immich albums with a link. Keep your server private.'
 	);
 	await expect(page.getByRole('heading', { name: 'Why people use it' })).toBeVisible();
 	await page.getByText('Do my friends need an account or an app?').click();

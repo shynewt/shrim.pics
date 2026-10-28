@@ -1,7 +1,8 @@
-The screenshots in this folder (viewer-*, phone-*, lightbox, step-*) and ../og.png are of the real
+The screenshots in this folder (viewer-*, lightbox, step-*) and ../og.png are of the real
 apps, showing a demo album, "Spring in Seville", made of these photos. All are public domain
 (CC0 1.0, https://creativecommons.org/publicdomain/zero/1.0/) on Wikimedia Commons; credited here
 anyway, with thanks. Columns: file name in the demo album, author, licence, source page.
+seville/ holds plain thumbnails of eight of them, for the landing page's "We see noise" section.
 
 plaza-de-espana   Zarateman                                       CC0  https://commons.wikimedia.org/wiki/File:Sevilla_-_Plaza_de_Espa%C3%B1a_08.jpg
 giralda           Jebulon                                         CC0  https://commons.wikimedia.org/wiki/File:Giralda_depuis_patio_des_orangers_S%C3%A9ville_Espagne.jpg
