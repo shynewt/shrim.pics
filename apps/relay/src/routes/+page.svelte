@@ -61,7 +61,7 @@
 		{ icon: 'link', text: 'No app for friends' },
 		{ icon: 'eye-off', text: 'No trackers' },
 		{ icon: 'server', text: 'Open source, self-hostable', href: data.sourceUrl ?? '/self-host' },
-		{ icon: 'map-pin', text: `Hosted in ${data.operator.region}` }
+		...(data.operator.region ? [{ icon: 'map-pin' as const, text: `Hosted in ${data.operator.region}` }] : [])
 	]);
 
 	const faq = $derived([

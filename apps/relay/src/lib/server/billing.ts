@@ -35,12 +35,15 @@ function stripe(): Stripe {
 /** Fails fast at startup if billing is on but not configured. */
 export function checkBillingConfig() {
 	if (!stripeEnabled()) return;
-	const missing = (['secretKey', 'webhookSecret', 'priceId'] as const).filter((k) => !config.stripe[k]);
-	if (missing.length) {
-		throw new Error(
-			`SHRIM_BILLING=stripe needs ${missing.map((k) => ({ secretKey: 'STRIPE_SECRET_KEY', webhookSecret: 'STRIPE_WEBHOOK_SECRET', priceId: 'STRIPE_PRICE_ID' })[k]).join(', ')}`
-		);
-	}
+	const required = {
+		STRIPE_SECRET_KEY: config.stripe.secretKey,
+		STRIPE_WEBHOOK_SECRET: config.stripe.webhookSecret,
+		STRIPE_PRICE_ID: config.stripe.priceId,
+		// Shown on the landing page, the dashboard and in the terms.
+		SHRIM_PRICE: config.price
+	};
+	const missing = Object.keys(required).filter((k) => !required[k as keyof typeof required]);
+	if (missing.length) throw new Error(`SHRIM_BILLING=stripe needs ${missing.join(', ')}`);
 }
 
 function row(accountId: string): AccountRow {
