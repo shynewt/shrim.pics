@@ -1,7 +1,6 @@
 <!-- A radio group drawn as cards. -->
 <script lang="ts">
 	import Icon, { type IconName } from './Icon.svelte';
-	import IconTile from './IconTile.svelte';
 
 	let {
 		name,
@@ -27,7 +26,7 @@
 			]}
 		>
 			<input class="visually-hidden" type="radio" {name} value={o.value} bind:group={value} />
-			{#if o.icon}<span class="mb-2"><IconTile icon={o.icon} tone={selected ? 'accent' : 'neutral'} /></span>{/if}
+			{#if o.icon}<Icon name={o.icon} size={20} class="mb-2 {selected ? 'text-accent-text' : 'text-muted'}" />{/if}
 			<span class="text-md font-medium text-text">{o.title}</span>
 			<span class="text-sm text-muted">{o.body}</span>
 			{#if selected}<span class="absolute top-4 right-4 text-text"><Icon name="check" size={16} /></span>{/if}

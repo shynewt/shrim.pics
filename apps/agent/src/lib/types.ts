@@ -34,18 +34,15 @@ export function dateRange(start: string | null, end: string | null): string {
 	return `${months[a.getMonth()]} ${a.getFullYear()} – ${months[b.getMonth()]} ${b.getFullYear()}`;
 }
 
-import type { IconName } from '@shrim/ui';
-
 export interface MetaItem {
 	text: string;
-	icon: IconName;
 }
 
 export function whatFriendsCanDo(l: Pick<ReadyLink, 'allowUpload' | 'allowDownload' | 'showMetadata'>): MetaItem[] {
 	const out: MetaItem[] = [];
-	if (l.allowUpload) out.push({ text: 'Friends can add photos', icon: 'upload' });
-	if (l.allowDownload === true) out.push({ text: 'Downloads on', icon: 'download' });
-	else if (l.allowDownload === false && l.allowUpload) out.push({ text: 'Downloads off', icon: 'download' });
-	if (l.showMetadata === false) out.push({ text: 'Photo details hidden', icon: 'eye-off' });
+	if (l.allowUpload) out.push({ text: 'Friends can add photos' });
+	if (l.allowDownload === true) out.push({ text: 'Downloads on' });
+	else if (l.allowDownload === false && l.allowUpload) out.push({ text: 'Downloads off' });
+	if (l.showMetadata === false) out.push({ text: 'Photo details hidden' });
 	return out;
 }

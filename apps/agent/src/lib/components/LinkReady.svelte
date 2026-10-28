@@ -16,7 +16,7 @@
 	const hash = $derived(shown.indexOf('#'));
 	const meta = $derived([
 		...whatFriendsCanDo(link),
-		{ text: link.expiresAt ? `Expires ${formatDate(link.expiresAt)}` : 'No expiry', icon: 'clock' as const }
+		{ text: link.expiresAt ? `Expires ${formatDate(link.expiresAt)}` : 'No expiry' }
 	]);
 
 	onMount(() => {
@@ -68,7 +68,7 @@
 					field = el;
 					return () => (field = null);
 				}}
-				>{#if hash >= 0}{shown.slice(0, hash)}<span class="text-subtle">{shown.slice(hash)}</span
+				>{#if hash >= 0}{shown.slice(0, hash)}<span class="text-accent-text">{shown.slice(hash)}</span
 					>{:else}{shown}{/if}</span
 			>
 			<Button

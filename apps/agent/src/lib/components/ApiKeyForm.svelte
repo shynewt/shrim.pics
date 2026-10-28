@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { Badge, Button, Field, Icon } from '@shrim/ui';
+	import { Badge, Button, Field, Icon, SecretInput } from '@shrim/ui';
 	import { applyAction, enhance } from '$app/forms';
-	import SecretInput from './SecretInput.svelte';
 
 	let {
 		immichUrl,

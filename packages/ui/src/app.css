@@ -10,6 +10,14 @@
 @import './tokens.css' layer(theme);
 @import './base.css';
 
+@font-face {
+	font-family: 'Familjen Grotesk';
+	font-style: normal;
+	font-weight: 400 700;
+	font-display: swap;
+	src: url('./assets/fonts/familjen-grotesk.woff2') format('woff2');
+}
+
 /* Where class names are used. Both apps share this file, so both are scanned. */
 @source './';
 @source '../../../apps/relay/src';

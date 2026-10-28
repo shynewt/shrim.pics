@@ -119,7 +119,7 @@
 		</Notice>
 	{:else}
 		<div class="grid justify-items-center gap-3 rounded-lg bg-surface-sunken px-4 pt-6 pb-5 text-center">
-			<p class="caps-label">Your code</p>
+			<p class="text-sm text-muted">Your code</p>
 			{#if current && (current.status === 'waiting' || current.status === 'denied')}
 				<!-- The copy button hangs off the right, so the code itself stays centred. -->
 				<div class="code-row relative flex justify-center max-xs:flex-col max-xs:items-center max-xs:gap-2">

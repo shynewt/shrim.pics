@@ -106,6 +106,7 @@
 	}
 
 	h1 {
+		font-family: var(--font-display);
 		font-size: var(--text-2xl);
 		line-height: var(--leading-2xl);
 		letter-spacing: var(--tracking-tight);

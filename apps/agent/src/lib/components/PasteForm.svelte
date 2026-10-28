@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Field, Icon, IconTile, Notice, Spinner, plural } from '@shrim/ui';
+	import { Button, Field, Icon, Notice, Spinner, plural } from '@shrim/ui';
 	import { enhance } from '$app/forms';
 	import { createError } from '#lib/errors.ts';
 	import type { ReadyLink } from '#lib/types.ts';
@@ -113,7 +113,7 @@
 
 	{#if resolved}
 		<div class="-mt-2 flex items-center gap-3 rounded-md border bg-surface-sunken p-3" role="status">
-			<IconTile icon="image" />
+			<Icon name="image" size={20} class="text-muted" />
 			<div class="grid min-w-0 flex-1">
 				<span class="truncate font-medium">{resolved.albumName ?? 'Selected photos'}</span>
 				<span class="text-sm text-muted tabular">{plural(resolved.count, 'item', 'items')}</span>

@@ -1,10 +1,9 @@
 <script lang="ts">
-	import { Button, Field, IconTile, TopBar, toast } from '@shrim/ui';
+	import { Button, Field, IconTile, SecretInput, toast, TopBar } from '@shrim/ui';
 	import { enhance } from '$app/forms';
 	import BrandMark from '#lib/components/BrandMark.svelte';
 	import FormError from '#lib/components/FormError.svelte';
 	import Page from '#lib/components/Page.svelte';
-	import PasswordInput from '#lib/components/PasswordInput.svelte';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
@@ -66,7 +65,7 @@
 					error={form?.error === 'password' ? 'Use at least 10 characters.' : null}
 				>
 					{#snippet children({ describedby, invalid })}
-						<PasswordInput id="password" name="password" autocomplete="new-password" {describedby} {invalid} />
+						<SecretInput id="password" name="password" autocomplete="new-password" {describedby} {invalid} />
 					{/snippet}
 				</Field>
 				<Button type="submit" variant="primary" size="lg" full loading={busy}>

@@ -8,6 +8,8 @@ export default defineConfig({
 	ssr: { noExternal: ['@shrim/protocol', '@shrim/ui'] },
 	// One Svelte runtime for the app and the shared components, or their events go nowhere.
 	resolve: { dedupe: ['svelte'] },
+	// In dev, SvelteKit serves only this app's folders; the shared font lives in packages/ui.
+	server: { fs: { allow: ['../../packages'] } },
 	plugins: [
 		// Utilities from our own tokens only: packages/ui/src/app.css.
 		tailwindcss(),

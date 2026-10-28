@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Icon, IconTile, Notice, plural } from '@shrim/ui';
+	import { Button, Icon, Notice, plural } from '@shrim/ui';
 	import { onMount } from 'svelte';
 	import { applyAction, enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
@@ -105,7 +105,7 @@
 							disabled={!album.canShare}
 							title={album.canShare ? undefined : `Only the album's owner and editors can share it`}
 						>
-							<IconTile icon={album.sharedBy ? 'users' : 'image'} />
+							<Icon name={album.sharedBy ? 'users' : 'image'} size={20} />
 							<span class="grid min-w-0 flex-1 gap-0.5">
 								<span class={['font-medium', album.canShare ? 'text-text' : 'text-subtle']}>{album.name}</span>
 								{@render meta(album, true)}
@@ -145,16 +145,16 @@
 	>
 		<input type="hidden" name="albumId" value={chosen.id} />
 		<div class="flex items-center gap-3 border-b pb-4">
-			<button
-				type="button"
-				class="relative -ml-2 grid size-8 flex-none place-items-center rounded-sm text-muted transition-colors hover:bg-surface-sunken hover:text-text max-xs:touch-target"
+			<Button
+				class="-ml-2"
+				variant="ghost"
+				size="sm"
+				icon="chevron-left"
+				iconOnly
+				label="Back to albums"
 				onclick={() => (chosen = null)}
-				aria-label="Back to albums"
-				title="Back to albums"
-			>
-				<Icon name="chevron-left" size={20} />
-			</button>
-			<IconTile icon="image" />
+			/>
+			<Icon name="image" size={20} class="text-muted" />
 			<span class="grid min-w-0">
 				<span class="font-medium text-text">{chosen.name}</span>
 				{@render meta(chosen, false)}

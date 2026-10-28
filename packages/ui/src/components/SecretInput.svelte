@@ -1,5 +1,6 @@
+<!-- A password or key field with a show/hide button. -->
 <script lang="ts">
-	import { Icon } from '@shrim/ui';
+	import Icon from './Icon.svelte';
 
 	let {
 		id,
@@ -12,7 +13,7 @@
 	}: {
 		id: string;
 		name: string;
-		autocomplete?: 'current-password' | 'off';
+		autocomplete?: 'new-password' | 'current-password' | 'off';
 		mono?: boolean;
 		/** Used in the show/hide button's label. */
 		what?: string;

@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { Button, Field, TopBar } from '@shrim/ui';
+	import { Button, Field, SecretInput, TopBar } from '@shrim/ui';
 	import { enhance } from '$app/forms';
 	import { page } from '$app/state';
 	import BrandMark from '#lib/components/BrandMark.svelte';
 	import FormError from '#lib/components/FormError.svelte';
 	import Page from '#lib/components/Page.svelte';
-	import PasswordInput from '#lib/components/PasswordInput.svelte';
 	import type { PageProps } from './$types';
 
 	let { form }: PageProps = $props();
@@ -59,7 +58,7 @@
 			<Field id="password" label="Password">
 				{#snippet aside()}<a class="text-sm" href="/forgot">Forgot password?</a>{/snippet}
 				{#snippet children({ describedby })}
-					<PasswordInput id="password" name="password" autocomplete="current-password" {describedby} />
+					<SecretInput id="password" name="password" autocomplete="current-password" {describedby} />
 				{/snippet}
 			</Field>
 			<Button type="submit" variant="primary" size="lg" full loading={busy}>

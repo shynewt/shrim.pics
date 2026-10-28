@@ -1,5 +1,15 @@
 <script lang="ts">
-	import { Button, CodeDisplay, EmptyState, Field, IconTile, TopBar, formatRelative, type IconName } from '@shrim/ui';
+	import {
+		Button,
+		CodeDisplay,
+		CodeInput,
+		EmptyState,
+		Field,
+		IconTile,
+		TopBar,
+		formatRelative,
+		type IconName
+	} from '@shrim/ui';
 	import { enhance } from '$app/forms';
 	import FormError from '#lib/components/FormError.svelte';
 	import BrandMark from '#lib/components/BrandMark.svelte';
@@ -116,7 +126,7 @@
 
 			{#if pending}
 				<div class="grid justify-items-center gap-3 text-center">
-					<span class="caps-label">Code</span>
+					<span class="text-sm text-muted">Code</span>
 					<CodeDisplay code={data.code} />
 					<p class="text-sm text-muted">Check it matches the one on your agent's page.</p>
 				</div>
@@ -157,18 +167,7 @@
 				<form method="POST" action="?/lookup" class="grid gap-5">
 					<Field id="code" label="Code" help="Your agent's page shows it, under Connect to shrim.pics.">
 						{#snippet children({ describedby })}
-							<input
-								id="code"
-								name="code"
-								class="text-center mono text-xl leading-md tracking-code uppercase"
-								required
-								autocomplete="one-time-code"
-								autocapitalize="characters"
-								spellcheck="false"
-								placeholder="____-____"
-								maxlength="9"
-								aria-describedby={describedby}
-							/>
+							<CodeInput id="code" size="lg" {describedby} />
 						{/snippet}
 					</Field>
 					<Button type="submit" variant="primary" size="lg" full>Continue</Button>

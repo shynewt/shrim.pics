@@ -1,32 +1,33 @@
 <script lang="ts">
 	import {
-		Badge,
 		Button,
 		CodeBlock,
+		CodeInput,
 		Dialog,
 		EasyId,
 		EmptyState,
 		Field,
+		formatDate,
+		formatRelative,
+		Icon,
 		IconTile,
 		MetaList,
 		Notice,
 		Panel,
+		SecretInput,
 		SettingRow,
 		SettingsList,
 		Spinner,
-		StatTile,
 		Steps,
-		TopBar,
-		formatDate,
-		formatRelative,
 		toast,
+		TopBar,
+		type IconName,
 		type Step
 	} from '@shrim/ui';
-	import { onMount } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { goto, refreshAll } from '$app/navigation';
 	import Page from '#lib/components/Page.svelte';
-	import PasswordInput from '#lib/components/PasswordInput.svelte';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
@@ -179,17 +180,7 @@
 {#snippet codeForm(stretch: boolean)}
 	<form class={['flex gap-2', stretch && 'w-full sm:w-auto']} method="POST" action="/connect?/lookup">
 		<label class="visually-hidden" for="code">Code</label>
-		<input
-			id="code"
-			name="code"
-			class={['flex-none mono text-md tracking-code uppercase', stretch && 'max-sm:min-w-0 max-sm:flex-1']}
-			placeholder="____-____"
-			autocomplete="one-time-code"
-			autocapitalize="characters"
-			spellcheck="false"
-			maxlength="9"
-			required
-		/>
+		<CodeInput id="code" class={[stretch && 'max-sm:min-w-0 max-sm:flex-1']} />
 		<Button type="submit">Connect</Button>
 	</form>
 {/snippet}
@@ -278,11 +269,11 @@
 				{@render codeForm(true)}
 			</section>
 		{/if}
-		<div class="my-6 grid gap-4 sm:auto-cols-fr sm:grid-flow-col">
-			{#if hosted}{@render planTile()}{/if}
-			{@render agentTile()}
-			{@render linksTile()}
-		</div>
+		<dl class="my-8 grid gap-6 border-y py-6 sm:auto-cols-fr sm:grid-flow-col">
+			{#if hosted}{@render planFact()}{/if}
+			{@render agentFact()}
+			{@render linksFact()}
+		</dl>
 		{#if data.refundUntil && data.supportEmail}
 			<p class="-mt-2 mb-6 text-sm text-muted">
 				Changed your mind? You can get a full refund until {formatDate(data.refundUntil)}.
@@ -296,20 +287,20 @@
 	{/if}
 </Page>
 
-{#snippet planTile()}
+{#snippet planFact()}
 	{@const s = data.plan.status}
-	<StatTile
-		icon="credit-card"
-		tone={s === 'active' ? 'success' : s === 'past_due' ? 'danger' : 'warning'}
-		label="Plan"
-		value={s === 'active'
+	{@const acts = (s === 'active' && data.plan.manageable) || s === 'ending' || s === 'none' || s === 'ended'}
+	{@render fact(
+		'Plan',
+		'credit-card',
+		s === 'active'
 			? 'Active'
 			: s === 'ending'
 				? `Ends ${formatDate(data.plan.activeUntil ?? Date.now())}`
 				: s === 'past_due'
 					? 'Payment failed'
-					: 'Not active'}
-		detail={s === 'active'
+					: 'Not active',
+		s === 'active'
 			? `${data.billing === 'dev' ? 'Active until' : 'Renews'} ${formatDate(data.plan.activeUntil ?? Date.now())}`
 			: s === 'ending'
 				? "Won't renew. Links stop after that."
@@ -317,24 +308,26 @@
 					? 'Update your card to keep links working.'
 					: s === 'ended'
 						? `Ended ${formatDate(data.plan.activeUntil ?? Date.now())}. Links don't open.`
-						: "Links don't open until you subscribe."}
-	>
-		{#snippet action()}
-			{#if s === 'active' && data.plan.manageable}
-				{@render portalButton('Manage billing', 'secondary')}
-			{:else if s === 'ending'}
-				{@render portalButton('Keep my plan', 'primary')}
-			{:else if s === 'none' || s === 'ended'}
-				{#if data.billing === 'dev'}
-					{@render activateForm('primary')}
-				{:else}
-					<form method="POST" action="?/checkout">
-						<Button type="submit" variant="primary" size="sm">Subscribe, {data.price} a year</Button>
-					</form>
-				{/if}
-			{/if}
-		{/snippet}
-	</StatTile>
+						: "Links don't open until you subscribe.",
+		acts ? planAction : undefined
+	)}
+{/snippet}
+
+{#snippet planAction()}
+	{@const s = data.plan.status}
+	{#if s === 'active' && data.plan.manageable}
+		{@render portalButton('Manage billing', 'secondary')}
+	{:else if s === 'ending'}
+		{@render portalButton('Keep my plan', 'primary')}
+	{:else if s === 'none' || s === 'ended'}
+		{#if data.billing === 'dev'}
+			{@render activateForm('primary')}
+		{:else}
+			<form method="POST" action="?/checkout">
+				<Button type="submit" variant="primary" size="sm">Subscribe, {data.price} a year</Button>
+			</form>
+		{/if}
+	{/if}
 {/snippet}
 
 {#snippet portalButton(label: string, variant: 'primary' | 'secondary')}
@@ -343,46 +336,56 @@
 	</form>
 {/snippet}
 
-{#snippet agentTile()}
-	<StatTile
-		icon="server"
-		tone={data.agent.online ? 'success' : data.agent.connecting ? 'neutral' : 'warning'}
-		label="Agent"
-		value={data.agent.online
+{#snippet agentFact()}
+	{@render fact(
+		'Agent',
+		'server',
+		data.agent.online
 			? 'Online'
 			: data.agent.connecting
 				? 'Connecting…'
 				: data.agent.connected
 					? 'Offline'
-					: 'Not connected'}
-		detail={data.agent.online
+					: 'Not connected',
+		data.agent.online
 			? `Connected ${formatDate(data.agent.connectedAt ?? Date.now())}`
 			: data.agent.connecting
 				? 'Approved. Your agent picks it up in a few seconds.'
 				: data.agent.connected
 					? `Last seen ${formatRelative(data.agent.seenAt ?? Date.now())}. Links won't open.`
-					: "Links won't open until it's connected."}
-	>
-		{#snippet status()}
-			<span
-				class={[
-					'm-1 block size-2.5 rounded-full',
-					data.agent.online ? 'bg-status-online ring-3 ring-success-soft' : 'bg-status-connecting'
-				]}
-				aria-hidden="true"
-			></span>
-		{/snippet}
-	</StatTile>
+					: "Links won't open until it's connected.",
+		undefined,
+		agentDot
+	)}
 {/snippet}
 
-{#snippet linksTile()}
-	{@const views = data.shares.reduce((n, s) => n + s.views, 0)}
-	<StatTile
-		icon="link"
-		label="Share links"
-		value={live === 1 ? '1 active' : `${live} active`}
-		detail={views === 0 ? 'Not opened yet' : views === 1 ? 'Opened once in total' : `Opened ${views} times in total`}
-	/>
+{#snippet agentDot()}
+	<span
+		class={[
+			'block size-2 flex-none rounded-full',
+			data.agent.online ? 'bg-status-online ring-3 ring-success-soft' : 'bg-status-connecting'
+		]}
+		aria-hidden="true"
+	></span>
+{/snippet}
+
+{#snippet linksFact()}
+	{@const views = data.shares.reduce((n, sh) => n + sh.views, 0)}
+	{@render fact(
+		'Share links',
+		'link',
+		`${live} live`,
+		views === 0 ? 'Not opened yet' : views === 1 ? 'Opened once in total' : `Opened ${views} times in total`
+	)}
+{/snippet}
+
+{#snippet fact(label: string, icon: IconName, value: string, detail: string, action?: Snippet, status?: Snippet)}
+	<div class="grid content-start gap-1">
+		<dt class="flex items-center gap-1.5 text-sm text-muted"><Icon name={icon} size={16} />{label}</dt>
+		<dd class="flex items-center gap-2 font-display text-xl font-semibold">{@render status?.()}{value}</dd>
+		<dd class="text-sm text-muted">{detail}</dd>
+		{#if action}<dd class="mt-2">{@render action()}</dd>{/if}
+	</div>
 {/snippet}
 
 {#snippet sharesPanel()}
@@ -406,24 +409,23 @@
 					>
 						<EasyId id={share.id} />
 						<div class="grid min-w-0 flex-1 gap-0.5">
-							<span class={['id mono font-medium', share.state !== 'live' && 'text-subtle']}>{share.id}</span>
+							<span class={['font-medium', share.state !== 'live' && 'text-muted']}>
+								{share.state === 'disabled'
+									? `Disabled on ${formatDate(share.disabledAt ?? Date.now())}`
+									: share.state === 'expired'
+										? `Expired on ${formatDate(share.expiresAt ?? Date.now())}`
+										: share.expiresAt
+											? `Live until ${formatDate(share.expiresAt)}`
+											: 'Live, no expiry'}
+							</span>
 							<MetaList
 								items={[
-									{ text: `Made ${formatDate(share.createdAt)}`, icon: 'plus' },
-									share.state === 'disabled'
-										? { text: `Turned off ${formatDate(share.disabledAt ?? Date.now())}`, icon: 'ban' }
-										: share.expiresAt
-											? {
-													text: `${share.state === 'expired' ? 'Expired' : 'Expires'} ${formatDate(share.expiresAt)}`,
-													icon: 'clock'
-												}
-											: { text: 'No expiry', icon: 'clock' },
-									{ text: opened(share.views), icon: 'eye' },
-									...(share.allowUpload && share.state === 'live'
-										? [{ text: 'Friends can add photos', icon: 'upload' as const }]
-										: [])
+									{ text: `Made ${formatDate(share.createdAt)}` },
+									{ text: opened(share.views) },
+									...(share.allowUpload && share.state === 'live' ? [{ text: 'Friends can add photos' }] : [])
 								]}
 							/>
+							<span class="id mono text-xs text-subtle">{share.id}</span>
 						</div>
 						<!-- Phones: under the text, lined up with it (52px Easy ID + gap). -->
 						<div class="max-sm:w-full max-sm:pl-17">
@@ -435,8 +437,6 @@
 									icon="ban"
 									onclick={() => (disableId = share.id)}>Disable</Button
 								>
-							{:else}
-								<Badge>{share.state === 'expired' ? 'Expired' : 'Disabled'}</Badge>
 							{/if}
 						</div>
 					</li>
@@ -562,7 +562,7 @@
 			error={form && 'deleteError' in form && form.deleteError ? DELETE_ERRORS[form.deleteError] : null}
 		>
 			{#snippet children({ describedby, invalid })}
-				<PasswordInput id="delete-password" name="password" autocomplete="current-password" {describedby} {invalid} />
+				<SecretInput id="delete-password" name="password" autocomplete="current-password" {describedby} {invalid} />
 			{/snippet}
 		</Field>
 	</form>
@@ -571,10 +571,3 @@
 		<Button type="submit" form="delete-form" variant="danger" loading={deleting}>Delete account</Button>
 	{/snippet}
 </Dialog>
-
-<style>
-	/* Exactly wide enough for XXXX-XXXX: nine characters, their spacing, padding and border. */
-	input[name='code'] {
-		width: calc(9ch + 9 * var(--tracking-code) + 2 * var(--space-3) + 2 * var(--border-width) + 2px);
-	}
-</style>

@@ -1,11 +1,11 @@
 <!--
 	One row: icon, title, a line of description, and whatever goes on the right.
+	The icon is plain, in the tone's colour: it helps people find a row, it isn't decoration.
 	With `control`, the whole row is a label for it (switches, checkboxes).
 -->
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { type IconName } from './Icon.svelte';
-	import IconTile from './IconTile.svelte';
+	import Icon, { type IconName } from './Icon.svelte';
 
 	let {
 		icon,
@@ -29,10 +29,18 @@
 		/** Keep `trailing` on the right on phones too (badges, small toggles). */
 		compact?: boolean;
 	} = $props();
+
+	const toneText = {
+		neutral: 'text-muted',
+		accent: 'text-accent-text',
+		success: 'text-success',
+		warning: 'text-warning',
+		danger: 'text-danger'
+	};
 </script>
 
 {#snippet body()}
-	{#if icon}<IconTile {icon} {tone} />{/if}
+	{#if icon}<Icon name={icon} size={20} class="mt-0.5 self-start {toneText[tone]}" />{/if}
 	<span class="grid min-w-0 flex-1 gap-0.5">
 		<span class={['text-md font-medium', tone === 'danger' ? 'text-danger' : 'text-text']}>{title}</span>
 		{#if description}
@@ -50,19 +58,17 @@
 			<span class="flex flex-none items-center gap-2">{@render control()}</span>
 		</label>
 	{:else}
-		<!-- Phones: the trailing actions drop under the text, lined up with it (past the 36px tile and its gap). -->
+		<!-- Phones: the trailing actions drop under the text, lined up with it (past the 20px icon and its gap). -->
 		<div class={['flex min-w-0 items-center gap-4 font-regular', !compact && 'max-xs:flex-wrap']}>
 			{@render body()}
 			{#if trailing}
-				<span
-					class={['flex flex-none items-center gap-2', !compact && ['wraps max-xs:w-full', icon && 'max-xs:pl-13']]}
-				>
+				<span class={['flex flex-none items-center gap-2', !compact && ['wraps max-xs:w-full', icon && 'max-xs:pl-9']]}>
 					{@render trailing()}
 				</span>
 			{/if}
 		</div>
 	{/if}
-	{#if children}<div class={['mt-4', icon && 'xs:pl-13']}>{@render children()}</div>{/if}
+	{#if children}<div class={['mt-4', icon && 'xs:pl-9']}>{@render children()}</div>{/if}
 </li>
 
 <style>

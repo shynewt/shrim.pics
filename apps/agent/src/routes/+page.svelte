@@ -85,13 +85,13 @@
 	const rowMeta = (s: Share) => [
 		...(isInactive(s) ? [] : whatFriendsCanDo(s)),
 		s.disabledByOperator
-			? { text: `Turned off by ${relayHost}`, icon: 'ban' as const }
+			? { text: `Turned off by ${relayHost}` }
 			: s.unknown
-				? { text: 'Made with another account', icon: 'unplug' as const }
+				? { text: 'Made with another account' }
 				: s.expired
-					? { text: `Expired ${s.expiresAt ? formatDate(s.expiresAt) : ''}`, icon: 'clock' as const }
-					: { text: s.expiresAt ? `Expires ${formatDate(s.expiresAt)}` : 'No expiry', icon: 'clock' as const },
-		...(!isInactive(s) && opened(s.views) ? [{ text: opened(s.views)!, icon: 'eye' as const }] : [])
+					? { text: `Expired ${s.expiresAt ? formatDate(s.expiresAt) : ''}` }
+					: { text: s.expiresAt ? `Expires ${formatDate(s.expiresAt)}` : 'No expiry' },
+		...(!isInactive(s) && opened(s.views) ? [{ text: opened(s.views)! }] : [])
 	];
 
 	function openCreate() {
