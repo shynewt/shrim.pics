@@ -84,7 +84,7 @@
 		},
 		{
 			q: 'What if I lose the link?',
-			a: 'Open your agent and copy it again. If you think the wrong people have it, revoke it and make a new one. We can’t recover a link for you, because we never see the key.'
+			a: 'Copy it again from your agent, or from the share link’s description in Immich. If you think the wrong people have it, revoke it and make a new one. We can’t recover a link for you, because we never see the key.'
 		},
 		{
 			q: 'Who makes shrim.pics?',
@@ -263,9 +263,9 @@
 							/>
 						</picture>
 					</div>
-					{@render stepTitle(3, 'Pick an album and send the link')}
+					{@render stepTitle(3, 'Share an album')}
 					<p class="mt-2 text-muted">
-						Choose what friends can do, then send the link.
+						Pick an album in the agent, or share it in Immich as usual: the link to send shows up in its description.
 						{#if data.demo}<a class="link-muted" href={data.demo} data-sveltekit-reload>See what friends get</a>{/if}
 					</p>
 				</li>

@@ -421,7 +421,11 @@
 		description="Album names stay on your server. The emoji match the ones in your agent, so you can tell links apart."
 	>
 		{#if data.shares.length === 0}
-			<EmptyState icon="link" title="No share links yet" body="Make one from your agent. It will show up here." />
+			<EmptyState
+				icon="link"
+				title="No share links yet"
+				body="Make one from your agent, or share an album in Immich. It will show up here."
+			/>
 		{:else}
 			<ul class="border-t" role="list">
 				{#each data.shares as share (share.id)}
