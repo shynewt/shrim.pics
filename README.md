@@ -27,6 +27,12 @@
 <br>
 
 <p align="center">
+  <img src=".github/assets/demo.gif" alt="Sharing an album in Immich as usual. Immich's own link only works at home, but seconds later the link's description shows its shrim.pics link. A friend opens it on their phone and browses the photos, with no app and no account." width="800">
+</p>
+
+<br>
+
+<p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/assets/link-dark.svg">
     <img src=".github/assets/link.svg" alt="A shrim.pics link: the part before the # goes to shrim.pics and says which album to open. The part after the # stays in your browser: it is the key that decrypts the photos." width="720">
