@@ -225,6 +225,9 @@ export async function handleEvent(event: Stripe.Event) {
 			// Fetch the latest state: events can arrive out of order.
 			applySubscription(await stripe().subscriptions.retrieve(event.data.object.id));
 			break;
+		case 'charge.refunded':
+			await endRefundedPlan(event.data.object);
+			break;
 		case 'invoice.paid':
 		case 'invoice.payment_failed': {
 			const parent = event.data.object.parent;
@@ -273,8 +276,50 @@ export async function refundAndCancel(accountId: string): Promise<'refunded' | '
 		db.prepare('UPDATE accounts SET refunded_at = NULL WHERE id = ?').run(accountId);
 		throw e;
 	}
-	applySubscription(await stripe().subscriptions.cancel(sub.id));
+	await cancelNow(sub.id);
 	return 'refunded';
+}
+
+/** Ends a subscription now. The refund webhook and the dashboard can race to it; losing is fine. */
+async function cancelNow(subscriptionId: string) {
+	try {
+		applySubscription(await stripe().subscriptions.cancel(subscriptionId));
+	} catch (e) {
+		const sub = await stripe().subscriptions.retrieve(subscriptionId);
+		if (LIVE.has(sub.status)) throw e;
+		applySubscription(sub);
+	}
+}
+
+/** A full refund of the latest payment ends the plan, wherever it was made (here, or in Stripe's dashboard). */
+async function endRefundedPlan(charge: Stripe.Charge) {
+	// partial refunds are goodwill, the plan carries on
+	if (!charge.refunded) return;
+	const paymentIntent = typeof charge.payment_intent === 'string' ? charge.payment_intent : charge.payment_intent?.id;
+	if (!paymentIntent) return;
+	const payments = await stripe().invoicePayments.list({
+		payment: { type: 'payment_intent', payment_intent: paymentIntent },
+		status: 'paid'
+	});
+	for (const payment of payments.data) {
+		const invoiceId = typeof payment.invoice === 'string' ? payment.invoice : payment.invoice.id;
+		if (!invoiceId) continue;
+		const invoice = await stripe().invoices.retrieve(invoiceId);
+		const subId = invoice.parent?.subscription_details?.subscription;
+		const id = typeof subId === 'string' ? subId : subId?.id;
+		if (!id) continue;
+		const sub = await stripe().subscriptions.retrieve(id);
+		const latest = typeof sub.latest_invoice === 'string' ? sub.latest_invoice : sub.latest_invoice?.id;
+		// refunding an earlier year doesn't take away the one they're in
+		if (latest !== invoiceId || !LIVE.has(sub.status)) continue;
+		const account = accountFor(sub);
+		if (account)
+			db.prepare('UPDATE accounts SET refunded_at = ? WHERE id = ? AND refunded_at IS NULL').run(
+				Date.now(),
+				account.id
+			);
+		await cancelNow(sub.id);
+	}
 }
 
 export async function cancelForDeletion(accountId: string) {
