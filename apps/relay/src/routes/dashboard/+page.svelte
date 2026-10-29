@@ -138,7 +138,7 @@
 			steps.push({
 				title: 'Subscribe',
 				state: planOk ? 'done' : 'current',
-				summary: planOk ? `Plan active until ${formatDate(data.plan.activeUntil ?? Date.now())}.` : undefined,
+				summary: planOk ? subscribed : undefined,
 				body: subscribe
 			});
 		}
@@ -206,6 +206,20 @@
 			</form>
 		{/if}
 	</div>
+{/snippet}
+
+{#snippet subscribed()}
+	{@const until = formatDate(data.plan.activeUntil ?? Date.now())}
+	{data.plan.status === 'ending'
+		? `Plan ends ${until}.`
+		: data.plan.status === 'past_due'
+			? "We couldn't charge your card."
+			: `Plan active until ${until}.`}
+	{#if data.plan.manageable}
+		<form method="POST" action="?/portal" class="inline">
+			<button type="submit" class="link-accent">Manage billing</button>
+		</form>
+	{/if}
 {/snippet}
 
 {#snippet activateForm(variant: 'primary' | 'secondary')}
