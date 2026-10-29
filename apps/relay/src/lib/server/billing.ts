@@ -105,10 +105,16 @@ export async function checkoutUrl(account: Account, origin: string): Promise<str
 		billing_address_collection: automaticTax ? 'required' : 'auto',
 		...(requireTerms ? { consent_collection: { terms_of_service: 'required' as const } } : {}),
 		custom_text: {
-			submit: { message: 'Cancel any time. Changed your mind? Ask for a full refund within 14 days.' }
+			submit: { message: 'Cancel any time. Changed your mind? Get a full refund from your dashboard within 14 days.' }
 		}
 	});
 	if (!session.url) throw new Error('Stripe returned no checkout URL');
+	// One open Checkout per account: paying in two tabs would make two subscriptions.
+	if (r.checkout_session_id)
+		await stripe()
+			.checkout.sessions.expire(r.checkout_session_id)
+			.catch(() => {});
+	db.prepare('UPDATE accounts SET checkout_session_id = ? WHERE id = ?').run(session.id, account.id);
 	return session.url;
 }
 
@@ -144,6 +150,13 @@ export function applySubscription(sub: Stripe.Subscription) {
 		console.warn(`[billing] no account for subscription ${sub.id}`);
 		return;
 	}
+	// Stripe doesn't promise order: a late event for a replaced subscription mustn't end the new one.
+	const replaced = account.stripe_subscription_id !== null && account.stripe_subscription_id !== sub.id;
+	if (replaced && !LIVE.has(sub.status) && LIVE.has(account.plan_status ?? '')) return;
+	if (replaced && LIVE.has(sub.status) && LIVE.has(account.plan_status ?? ''))
+		console.warn(
+			`[billing] account ${account.id} has two live subscriptions: ${account.stripe_subscription_id}, ${sub.id}`
+		);
 	const customer = typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
 	// newer API versions (and the portal) cancel by setting cancel_at, not cancel_at_period_end
 	const ending = sub.cancel_at_period_end || sub.cancel_at !== null;

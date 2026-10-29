@@ -103,6 +103,35 @@ describe('plan state follows the subscription', () => {
 	});
 });
 
+describe('late events', () => {
+	it("an old subscription's late event doesn't end the new one", async () => {
+		const owner = await accounts.createAccount('late@shrim.test', 'a-long-enough-password');
+		const base = { customer: 'cus_late', accountId: owner.id };
+		billing.applySubscription(
+			subscription({
+				...base,
+				id: 'sub_old',
+				status: 'canceled',
+				ended_at: Math.floor(Date.now() / 1000) - 60,
+				periodEnd: Date.now()
+			})
+		);
+		billing.applySubscription(subscription({ ...base, id: 'sub_new', periodEnd: Date.now() + 365 * DAY }));
+		billing.applySubscription(
+			subscription({
+				...base,
+				id: 'sub_old',
+				status: 'canceled',
+				ended_at: Math.floor(Date.now() / 1000) - 60,
+				periodEnd: Date.now()
+			})
+		);
+		const row = accounts.accountById(owner.id)!;
+		expect(row.stripe_subscription_id).toBe('sub_new');
+		expect(accounts.toAccount(row).active).toBe(true);
+	});
+});
+
 describe('cancel and refund', () => {
 	const paidInvoice = (paidAt: number, over: Record<string, unknown> = {}) => ({
 		id: 'in_1',

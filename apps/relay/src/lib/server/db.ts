@@ -107,6 +107,9 @@ const MIGRATIONS = [
 	`
 	ALTER TABLE accounts ADD COLUMN plan_period_start INTEGER;
 	ALTER TABLE accounts ADD COLUMN refunded_at INTEGER;
+	`,
+	`
+	ALTER TABLE accounts ADD COLUMN checkout_session_id TEXT;
 	`
 ];
 
@@ -147,6 +150,8 @@ export interface AccountRow {
 	plan_period_start: number | null;
 	/** Set once the owner used the self-serve refund; there's only one per account. */
 	refunded_at: number | null;
+	/** The latest Checkout we opened, expired when a newer one starts. */
+	checkout_session_id: string | null;
 	/** When the owner proved the address is theirs (a confirmation link, or a password reset). */
 	email_confirmed_at: number | null;
 }
