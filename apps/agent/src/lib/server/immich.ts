@@ -154,7 +154,7 @@ export async function manifest(ref: ImmichLinkRef): Promise<Manifest> {
 	}
 	return {
 		title: link.album?.albumName ?? '',
-		description: link.album?.description || link.description || '',
+		description: link.album?.description || ownText(link.description),
 		allowUpload: link.allowUpload,
 		allowDownload: link.allowDownload,
 		showMetadata: link.showMetadata,
@@ -514,6 +514,12 @@ export async function listAlbums(cred: Credential, userId?: string): Promise<Alb
 
 /** The description of Immich links the agent makes itself. */
 export const AGENT_MADE = 'Made by the shrim.pics agent';
+
+/** What the person wrote, without the shrim.pics link put in front of it (SHRIM_AUTO_LINKS) or the agent's own note. */
+export function ownText(description: string | null): string {
+	const text = (description ?? '').replace(/^https?:\/\/\S+\/s\/[\w-]+#[\w-]+[ \t]*(\r?\n|$)/, '').trim();
+	return text === AGENT_MADE ? '' : text;
+}
 
 export async function createAlbumLink(
 	cred: Credential,

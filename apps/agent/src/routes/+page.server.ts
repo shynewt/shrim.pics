@@ -86,6 +86,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 			apiKeysUrl: apiKeysPage(immichPublicUrl(null))
 		},
 		autoLinks: !['unavailable', 'off', 'noRead'].includes(autoLinkStatus(user.id)),
+		// on, but their key is missing a permission: say so here, not only in Settings
+		autoLinksIssue: (['noRead', 'noUpdate'] as const).find((s) => s === autoLinkStatus(user.id)) ?? null,
 		setupSeen: authEnabled() ? state.setupSeenBy.includes(user.id) : !!state.setupSeen,
 		relay: {
 			url: state.relayUrl,

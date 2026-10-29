@@ -141,6 +141,8 @@ test('a link shared in Immich gets a shrim.pics link, and follows Immich', async
 	const friend = await (await browser.newContext()).newPage();
 	await friend.goto(link);
 	await expect(friend.getByRole('heading', { level: 1, name: ALBUM })).toBeVisible({ timeout: 30_000 });
+	// friends see what was written, not the link they already have
+	await expect(friend.getByText(`${RELAY}/s/`)).toHaveCount(0);
 
 	// An expiry set in Immich carries over.
 	const expires = new Date(Date.now() + 3 * 86_400_000);

@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 process.env.DATA_DIR = mkdtempSync(join(tmpdir(), 'shrim-agent-auto-'));
 const { wanted, withLink } = await import('../src/lib/server/auto-links.ts');
-const { AGENT_MADE } = await import('../src/lib/server/immich.ts');
+const { AGENT_MADE, ownText } = await import('../src/lib/server/immich.ts');
 
 const since = '2026-10-29T10:00:00.000Z';
 const link = (over: Record<string, unknown> = {}) => ({
@@ -48,5 +48,19 @@ describe('the description', () => {
 		expect(withLink('https://shrim.pics/s/a#k', 'for the neighbours')).toBe(
 			'https://shrim.pics/s/a#k\nfor the neighbours'
 		);
+	});
+});
+
+describe('what friends see as the description', () => {
+	it('leaves out the link the agent put in front, and its own note', () => {
+		expect(ownText('https://shrim.pics/s/aRL1oNrr4K#AxzKk3Bo-tz_0j\nfor the neighbours')).toBe('for the neighbours');
+		expect(ownText('https://share.example.com/s/abc#k')).toBe('');
+		expect(ownText(AGENT_MADE)).toBe('');
+		expect(ownText(null)).toBe('');
+	});
+
+	it('keeps links people wrote themselves', () => {
+		expect(ownText('Photos from https://example.com/party')).toBe('Photos from https://example.com/party');
+		expect(ownText('Our trip\nhttps://shrim.pics/s/a#k')).toBe('Our trip\nhttps://shrim.pics/s/a#k');
 	});
 });

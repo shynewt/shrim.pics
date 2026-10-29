@@ -12,6 +12,7 @@ import {
 	ImmichError,
 	ImmichSignedOut,
 	listSharedLinks,
+	ownText,
 	setSharedLinkDescription,
 	sharedLink,
 	type OwnSharedLink
@@ -68,6 +69,12 @@ async function follow(share: StoredShare, link: OwnSharedLink) {
 	const patch: { allowUpload?: boolean; expiresAt?: string | null } = {};
 	if (link.allowUpload !== share.allowUpload) patch.allowUpload = link.allowUpload;
 	if (link.expiresAt !== auto.expiresAt) patch.expiresAt = link.expiresAt;
+	// edited in Immich since: revoking puts back what they have now
+	const text = ownText(link.description) || null;
+	if (text !== auto.description) {
+		auto.description = text;
+		save();
+	}
 	const local = link.allowDownload !== share.allowDownload || link.showMetadata !== share.showMetadata;
 	if (!Object.keys(patch).length && !local) return;
 	if (Object.keys(patch).length) await updateRelayShare(share.id, patch);

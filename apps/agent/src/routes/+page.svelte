@@ -285,6 +285,21 @@
 		</Notice>
 	{/if}
 
+	{#if data.autoLinksIssue}
+		<Notice tone="warning">
+			{#if data.autoLinksIssue === 'noRead'}
+				Sharing from Immich doesn't work for you yet: your Immich key can't see your share links.
+				{data.me.via === 'sso'
+					? 'Sign out and in again so the agent can make a new key.'
+					: 'Add sharedLink.read to your key in Immich.'}
+			{:else}
+				Links you share in Immich get a shrim.pics link here, but your key can't write it into Immich (it needs
+				sharedLink.update).
+			{/if}
+			{#snippet action()}<Button href="/settings" size="sm" variant="ghost">Settings</Button>{/snippet}
+		</Notice>
+	{/if}
+
 	{#if !openNoteHidden}
 		<Notice tone="warning">
 			Sign-in is off (<code>SHRIM_AUTH=none</code>). Anyone who can open this page can make public links to your albums.
