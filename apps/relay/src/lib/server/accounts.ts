@@ -409,6 +409,8 @@ export function operatorOverview(now = Date.now()) {
 		(db.prepare(sql).get(...args) as { n: number | null }).n ?? 0;
 	const month = now - 30 * DAY;
 	const billing = config.billing !== 'off';
+	// a 100% off code makes the latest invoice €0; older accounts don't know theirs, so count them as paying
+	const paying = 'active_until > ? AND suspended_at IS NULL AND (plan_paid IS NULL OR plan_paid > 0)';
 	return {
 		accounts: {
 			total: one('SELECT COUNT(*) AS n FROM accounts'),
@@ -418,13 +420,11 @@ export function operatorOverview(now = Date.now()) {
 		},
 		plans: billing
 			? {
-					paying: one('SELECT COUNT(*) AS n FROM accounts WHERE active_until > ? AND suspended_at IS NULL', now),
-					ending: one(
-						'SELECT COUNT(*) AS n FROM accounts WHERE active_until > ? AND suspended_at IS NULL AND plan_cancel_at_period_end = 1',
-						now
-					),
-					pastDue: one(
-						"SELECT COUNT(*) AS n FROM accounts WHERE active_until > ? AND suspended_at IS NULL AND plan_status = 'past_due'",
+					paying: one(`SELECT COUNT(*) AS n FROM accounts WHERE ${paying}`, now),
+					ending: one(`SELECT COUNT(*) AS n FROM accounts WHERE ${paying} AND plan_cancel_at_period_end = 1`, now),
+					pastDue: one(`SELECT COUNT(*) AS n FROM accounts WHERE ${paying} AND plan_status = 'past_due'`, now),
+					free: one(
+						'SELECT COUNT(*) AS n FROM accounts WHERE active_until > ? AND suspended_at IS NULL AND plan_paid = 0',
 						now
 					),
 					lapsed: one('SELECT COUNT(*) AS n FROM accounts WHERE active_until <= ?', now),

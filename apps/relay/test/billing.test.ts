@@ -183,6 +183,20 @@ describe('cancel and refund', () => {
 	});
 });
 
+describe('operator overview', () => {
+	it('counts free plans apart from paying ones', async () => {
+		const before = accounts.operatorOverview().plans!;
+		const paid = await accounts.createAccount('overview-paid@shrim.test', 'a-long-enough-password');
+		const free = await accounts.createAccount('overview-free@shrim.test', 'a-long-enough-password');
+		const until = Date.now() + 365 * DAY;
+		db.prepare('UPDATE accounts SET active_until = ?, plan_paid = 2400 WHERE id = ?').run(until, paid.id);
+		db.prepare('UPDATE accounts SET active_until = ?, plan_paid = 0 WHERE id = ?').run(until, free.id);
+		const after = accounts.operatorOverview().plans!;
+		expect(after.paying - before.paying).toBe(1);
+		expect(after.free - before.free).toBe(1);
+	});
+});
+
 describe('webhooks', () => {
 	it('accepts a correctly signed event and rejects a forged one', () => {
 		const payload = JSON.stringify({ id: 'evt_1', object: 'event', type: 'ping', data: { object: {} } });

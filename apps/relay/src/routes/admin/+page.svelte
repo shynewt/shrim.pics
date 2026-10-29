@@ -85,6 +85,7 @@
 					)}
 					that renew.{/if}
 				{#if o.plans.ending}{n(o.plans.ending)} cancelled and ending.{/if}
+				{#if o.plans.free}{plural(o.plans.free, 'free plan', 'free plans')} on top.{/if}
 				{#if o.plans.pastDue}<span class="text-warning"
 						>{plural(o.plans.pastDue, 'card problem', 'card problems')}.</span
 					>{/if}
@@ -132,6 +133,7 @@
 						{@render stat('Paying, renewing', n(o.plans.paying - o.plans.ending - o.plans.pastDue))}
 						{@render stat('Paying, card problem', n(o.plans.pastDue))}
 						{@render stat('Paying, cancelled', n(o.plans.ending))}
+						{@render stat('Free (100% off code)', n(o.plans.free))}
 						{@render stat('Plan ended', n(o.plans.lapsed))}
 						{@render stat('Never paid', n(o.plans.never))}
 						{@render stat('Suspended', n(o.accounts.suspended))}
