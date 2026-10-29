@@ -110,6 +110,9 @@ const MIGRATIONS = [
 	`,
 	`
 	ALTER TABLE accounts ADD COLUMN checkout_session_id TEXT;
+	`,
+	`
+	ALTER TABLE accounts ADD COLUMN plan_paid INTEGER;
 	`
 ];
 
@@ -152,6 +155,8 @@ export interface AccountRow {
 	refunded_at: number | null;
 	/** The latest Checkout we opened, expired when a newer one starts. */
 	checkout_session_id: string | null;
+	/** What the latest invoice cost, in cents: a free code (0) has nothing to refund. Unknown on older accounts. */
+	plan_paid: number | null;
 	/** When the owner proved the address is theirs (a confirmation link, or a password reset). */
 	email_confirmed_at: number | null;
 }

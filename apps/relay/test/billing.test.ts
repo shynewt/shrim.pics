@@ -170,6 +170,12 @@ describe('cancel and refund', () => {
 		billing.applySubscription(sub(Date.now() - 20 * DAY));
 		expect(refundUntil()).toBeNull();
 
+		// a free code: nothing was paid, so nothing to refund
+		db.prepare('UPDATE accounts SET plan_paid = 0 WHERE id = ?').run(owner.id);
+		billing.applySubscription(sub(Date.now() - 2 * DAY));
+		expect(refundUntil()).toBeNull();
+		db.prepare('UPDATE accounts SET plan_paid = 2400 WHERE id = ?').run(owner.id);
+
 		billing.applySubscription(sub(Date.now() - 2 * DAY));
 		db.prepare('UPDATE accounts SET refunded_at = ? WHERE id = ?').run(Date.now(), owner.id);
 		expect(refundUntil()).toBeNull();

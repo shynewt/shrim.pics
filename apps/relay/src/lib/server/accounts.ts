@@ -114,6 +114,7 @@ export async function createAccount(email: string, password: string): Promise<Ac
 		plan_period_start: null,
 		refunded_at: null,
 		checkout_session_id: null,
+		plan_paid: null,
 		email_confirmed_at: null
 	};
 	db.prepare(

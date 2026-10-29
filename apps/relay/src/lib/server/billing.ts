@@ -79,7 +79,11 @@ export function planView(account: Account): PlanView {
 	const shown = until !== null && r.stripe_subscription_id ? until - grace : until;
 	const refundEnd = r.plan_period_start === null ? null : r.plan_period_start + REFUND_MS;
 	const refundable =
-		(status === 'active' || status === 'ending') && r.refunded_at === null && !!refundEnd && refundEnd > Date.now();
+		(status === 'active' || status === 'ending') &&
+		r.refunded_at === null &&
+		r.plan_paid !== 0 &&
+		!!refundEnd &&
+		refundEnd > Date.now();
 	return { status, activeUntil: shown, manageable: !!r.stripe_customer_id, refundUntil: refundable ? refundEnd : null };
 }
 
@@ -101,6 +105,8 @@ export async function checkoutUrl(account: Account, origin: string): Promise<str
 		success_url: `${origin}/dashboard?checkout={CHECKOUT_SESSION_ID}`,
 		cancel_url: `${origin}/dashboard?checkout=cancelled`,
 		allow_promotion_codes: true,
+		// a 100% off code shouldn't need a card
+		payment_method_collection: 'if_required',
 		automatic_tax: { enabled: automaticTax },
 		billing_address_collection: automaticTax ? 'required' : 'auto',
 		...(requireTerms ? { consent_collection: { terms_of_service: 'required' as const } } : {}),
@@ -190,7 +196,16 @@ export async function syncCheckout(sessionId: string, accountId: string): Promis
 		);
 	}
 	applySubscription(sub);
+	notePaid(sub, session.amount_total);
 	return LIVE.has(sub.status);
+}
+
+/** Remembers what the subscription's latest invoice cost. */
+function notePaid(sub: Stripe.Subscription, amount: number | null, invoiceId?: string) {
+	const latest = typeof sub.latest_invoice === 'string' ? sub.latest_invoice : sub.latest_invoice?.id;
+	if (amount === null || (invoiceId && invoiceId !== latest)) return;
+	const account = accountFor(sub);
+	if (account) db.prepare('UPDATE accounts SET plan_paid = ? WHERE id = ?').run(amount, account.id);
 }
 
 export function verifyWebhook(payload: string, signature: string | null): Stripe.Event {
@@ -233,7 +248,10 @@ export async function handleEvent(event: Stripe.Event) {
 			const parent = event.data.object.parent;
 			const subId = parent?.subscription_details?.subscription;
 			const id = typeof subId === 'string' ? subId : subId?.id;
-			if (id) applySubscription(await stripe().subscriptions.retrieve(id));
+			if (!id) break;
+			const sub = await stripe().subscriptions.retrieve(id);
+			applySubscription(sub);
+			if (event.type === 'invoice.paid') notePaid(sub, event.data.object.amount_paid, event.data.object.id);
 			break;
 		}
 		default:
