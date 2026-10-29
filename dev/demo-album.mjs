@@ -1,8 +1,8 @@
 // Builds the relay's example album ("Spring in Seville") into apps/relay/demo, sized like Immich's
 // thumbnails and previews. The relay answers /s/<demo id> with these, encrypted, like an agent would.
 //
-// Usage: node dev/demo-album.mjs <dir with plaza-de-espana.jpg, giralda.jpg, …>
-// The sources are the public domain photos listed in apps/relay/demo/CREDITS.txt.
+// Usage: node dev/demo-album.mjs <dir with plaza-de-espana.jpg, plaza-tower.jpg, …>
+// The sources are the Unsplash photos listed in apps/relay/demo/CREDITS.txt.
 // Needs ImageMagick 7: `magick` if it's installed, otherwise it runs in podman (or docker).
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -19,34 +19,30 @@ const out = resolve(import.meta.dirname, '../apps/relay/demo');
 const require = createRequire(join(import.meta.dirname, '../apps/relay/package.json'));
 const { rgbaToThumbHash } = await import(require.resolve('thumbhash'));
 
-/** Real camera details from each photo's page on Wikimedia Commons, where it had any. */
-const sony = 'SONY DSLR-A550';
+/** Three days, newest first in the album like Immich shows it. */
 /** @type {Record<string, [name: string, camera?: string | null, exposure?: string | null][]>} */
 const DAYS = {
 	18: [
 		['plaza-de-espana'],
-		['giralda', sony, 'f/8 · 1/125 s · 28 mm · ISO 200'],
-		['tapas', null, 'f/1.85 · 1/522 s · 6.81 mm · ISO 43'],
-		['las-setas'],
-		['alcazar-fountain', 'SONY DSC-RX100M3', 'f/5.6 · 1/400 s · 8.8 mm · ISO 125'],
-		['triana', sony, 'f/11 · 1/125 s · 18 mm · ISO 200'],
-		['tiled-steps', sony, 'f/13 · 1/40 s · 45 mm · ISO 200'],
-		['flamenco']
+		['plaza-tower'],
+		['plaza-arches'],
+		['plaza-tiles'],
+		['plaza-canal'],
+		['gallery'],
+		['flamenco'],
+		['tapas']
 	],
 	17: [
-		['plaza-bridge', 'NIKON CORPORATION NIKON D70', 'f/8 · 1/80 s · 31 mm'],
-		['santa-cruz', 'Apple iPhone SE (2nd generation)', 'f/1.8 · 1/121 s · 3.99 mm · ISO 25'],
-		['orange-trees', sony, 'f/11 · 1/100 s · 30 mm · ISO 200'],
-		['cafe-street', 'NIKON CORPORATION NIKON D5500', 'f/3.5 · 1/100 s · 35 mm · ISO 160'],
-		['tapas-board']
+		['cathedral-arch'],
+		['cathedral-tram'],
+		['sierpes'],
+		['santa-cruz'],
+		['orange-trees'],
+		['jamon'],
+		['jamon-plate'],
+		['dinner']
 	],
-	16: [
-		['plaza-tower'],
-		['cathedral', sony, 'f/8 · 1/160 s · 35 mm · ISO 200'],
-		['puerta-del-leon', sony, 'f/8 · 1/125 s · 30 mm · ISO 200'],
-		['patio-doncellas', 'NIKON CORPORATION NIKON D5100', 'f/8 · 1/250 s · 18 mm · ISO 200'],
-		['guadalquivir', 'SONY DSC-RX100M3', 'f/5.6 · 1/400 s · 25.7 mm · ISO 125']
-	]
+	16: [['triana'], ['market'], ['olives'], ['peacock'], ['salmorejo']]
 };
 
 /** @param {string[]} args */
@@ -137,7 +133,7 @@ for (const [day, photos] of Object.entries(DAYS).sort(([a], [b]) => Number(b) - 
 
 const album = {
 	title: 'Spring in Seville',
-	description: 'Orange blossom, tiled courtyards, tapas and a lot of walking.',
+	description: 'Orange trees, tiled plazas, tapas and a lot of walking.',
 	place: 'Seville, Spain',
 	assets
 };

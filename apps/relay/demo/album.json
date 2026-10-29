@@ -1,6 +1,6 @@
 {
 	"title": "Spring in Seville",
-	"description": "Orange blossom, tiled courtyards, tapas and a lot of walking.",
+	"description": "Orange trees, tiled plazas, tapas and a lot of walking.",
 	"place": "Seville, Spain",
 	"assets": [
 		{
@@ -8,169 +8,168 @@
 			"name": "plaza-de-espana",
 			"takenAt": "2026-04-18T18:50:00",
 			"width": 1440,
-			"height": 1080,
-			"thumbhash": "Z+cFPYpTJ1jodJcfptj7cYaAUgkY"
-		},
-		{
-			"id": "2518cd17-379c-470c-b6d8-2218668982b9",
-			"name": "giralda",
-			"takenAt": "2026-04-18T17:46:00",
-			"width": 1047,
-			"height": 1440,
-			"thumbhash": "ZecJNQanZl+IaFiYiHaIeFaAagSY",
-			"camera": "SONY DSLR-A550",
-			"exposure": "f/8 · 1/125 s · 28 mm · ISO 200"
-		},
-		{
-			"id": "598fc12f-3544-4ad8-a0f7-df2dd9120ff3",
-			"name": "tapas",
-			"takenAt": "2026-04-18T16:42:00",
-			"width": 1440,
-			"height": 917,
-			"thumbhash": "ZloGJIS4x8tvh5etd5ood3BSCA==",
-			"exposure": "f/1.85 · 1/522 s · 6.81 mm · ISO 43"
-		},
-		{
-			"id": "72aa381e-e6d9-4fca-bad9-a2374c9abf1b",
-			"name": "las-setas",
-			"takenAt": "2026-04-18T15:38:00",
-			"width": 1440,
-			"height": 1080,
-			"thumbhash": "ZggOHYSniWl8aHePlbd4Wld6cHUH"
-		},
-		{
-			"id": "1e1dfbd0-7565-4116-9ab6-9ec1c1b6895f",
-			"name": "alcazar-fountain",
-			"takenAt": "2026-04-18T14:34:00",
-			"width": 960,
-			"height": 1440,
-			"thumbhash": "ntcFRQZ6d2+qmGYJeYT3WWiAhgd4",
-			"camera": "SONY DSC-RX100M3",
-			"exposure": "f/5.6 · 1/400 s · 8.8 mm · ISO 125"
-		},
-		{
-			"id": "618b384d-a84c-4d90-9f36-8261b97f1247",
-			"name": "triana",
-			"takenAt": "2026-04-18T13:30:00",
-			"width": 1440,
-			"height": 959,
-			"thumbhash": "4PcJHYSHd3ePd3iFh3h4h3lwgmcH",
-			"camera": "SONY DSLR-A550",
-			"exposure": "f/11 · 1/125 s · 18 mm · ISO 200"
-		},
-		{
-			"id": "d3ae7d3f-1ec8-4204-b566-4ce88a1a8cdb",
-			"name": "tiled-steps",
-			"takenAt": "2026-04-18T12:26:00",
-			"width": 1440,
-			"height": 959,
-			"thumbhash": "3xgKJYT82KeEiXiIh4eHiPeJd494",
-			"camera": "SONY DSLR-A550",
-			"exposure": "f/13 · 1/40 s · 45 mm · ISO 200"
-		},
-		{
-			"id": "00cbdf89-a675-4298-aea7-a7031f9f4116",
-			"name": "flamenco",
-			"takenAt": "2026-04-18T11:22:00",
-			"width": 1440,
-			"height": 1081,
-			"thumbhash": "D2YGHYRop2dliodCePdndXuH/0Um"
-		},
-		{
-			"id": "89060264-b8e9-454c-8355-44b179cf0121",
-			"name": "plaza-bridge",
-			"takenAt": "2026-04-17T18:50:00",
-			"width": 1440,
-			"height": 958,
-			"thumbhash": "lwgKDYKyWFifhHiWZ2mXiPm9ifx7",
-			"camera": "NIKON CORPORATION NIKON D70",
-			"exposure": "f/8 · 1/80 s · 31 mm"
-		},
-		{
-			"id": "f5f5f846-32bc-40d3-9089-28c399a1bc32",
-			"name": "santa-cruz",
-			"takenAt": "2026-04-17T17:46:00",
-			"width": 1080,
-			"height": 1440,
-			"thumbhash": "IggKFQIxqX+JuGo4iHl3hzDZKlqv",
-			"camera": "Apple iPhone SE (2nd generation)",
-			"exposure": "f/1.8 · 1/121 s · 3.99 mm · ISO 25"
-		},
-		{
-			"id": "0f0bc409-c666-42c6-917f-bb7e3de819d9",
-			"name": "orange-trees",
-			"takenAt": "2026-04-17T16:42:00",
-			"width": 1440,
-			"height": 1046,
-			"thumbhash": "HBkKDYJQqZiLaHZXmIh3eADJJPqW",
-			"camera": "SONY DSLR-A550",
-			"exposure": "f/11 · 1/100 s · 30 mm · ISO 200"
-		},
-		{
-			"id": "933c9586-99fc-4156-a0fc-51d6386a20b1",
-			"name": "cafe-street",
-			"takenAt": "2026-04-17T15:38:00",
-			"width": 1440,
-			"height": 960,
-			"thumbhash": "XRgKDYRAmnRHd2iXZ1d2ivK+BjpX",
-			"camera": "NIKON CORPORATION NIKON D5500",
-			"exposure": "f/3.5 · 1/100 s · 35 mm · ISO 160"
-		},
-		{
-			"id": "e5a4dd85-4761-4295-883d-bb617bd05551",
-			"name": "tapas-board",
-			"takenAt": "2026-04-17T14:34:00",
-			"width": 1440,
-			"height": 1080,
-			"thumbhash": "V1kGDYTXhYOKdnh/dWRXeQDlrnn4"
+			"height": 954,
+			"thumbhash": "phgOJYZJaHhvd3ibdpiYdHtw4wg1"
 		},
 		{
 			"id": "02692a6f-04cc-462d-ad99-83e6784b7c4d",
 			"name": "plaza-tower",
-			"takenAt": "2026-04-16T18:50:00",
-			"width": 1440,
-			"height": 1003,
-			"thumbhash": "owcKXYoveYheiYhlaUeJiodweAmH"
+			"takenAt": "2026-04-18T17:46:00",
+			"width": 960,
+			"height": 1440,
+			"thumbhash": "IggKTQqnVo+IN1ZIeYtodmeAZwZ4"
 		},
 		{
-			"id": "e711d5cb-05ee-402f-8a96-702fecd8f1dc",
-			"name": "cathedral",
-			"takenAt": "2026-04-16T17:46:00",
+			"id": "f842defa-c393-4257-8b3f-684dbef2e628",
+			"name": "plaza-arches",
+			"takenAt": "2026-04-18T16:42:00",
 			"width": 1440,
-			"height": 1174,
-			"thumbhash": "XecFNoi0Ch66dmpxeIl3V4iZpGBICnY=",
-			"camera": "SONY DSLR-A550",
-			"exposure": "f/8 · 1/160 s · 35 mm · ISO 200"
+			"height": 956,
+			"thumbhash": "mSgKDYJvmamzeZhTmGeGiBYBOjDV"
 		},
 		{
-			"id": "fad0ec9e-ca24-44e2-9afc-1a086d007af9",
-			"name": "puerta-del-leon",
-			"takenAt": "2026-04-16T16:42:00",
-			"width": 1440,
-			"height": 1143,
-			"thumbhash": "YCgOLoh/iIlrlXh4h4eHeIiId1BTBkY=",
-			"camera": "SONY DSLR-A550",
-			"exposure": "f/8 · 1/125 s · 30 mm · ISO 200"
-		},
-		{
-			"id": "5556b6d6-d999-4952-aac6-a22aa7485205",
-			"name": "patio-doncellas",
-			"takenAt": "2026-04-16T15:38:00",
-			"width": 1440,
-			"height": 954,
-			"thumbhash": "FwgSDYA+ZIe/Z3d2mneIiA9pQfMp",
-			"camera": "NIKON CORPORATION NIKON D5100",
-			"exposure": "f/8 · 1/250 s · 18 mm · ISO 200"
-		},
-		{
-			"id": "cf89eb9d-5d4a-451b-aedc-11cd6a2abc3a",
-			"name": "guadalquivir",
-			"takenAt": "2026-04-16T14:34:00",
+			"id": "ea96a6a8-7a5d-4cdb-a795-96bd6a4e39dc",
+			"name": "plaza-tiles",
+			"takenAt": "2026-04-18T15:38:00",
 			"width": 1440,
 			"height": 960,
-			"thumbhash": "KMcJFYISdYiPh4i/m+eHdqZ/kPoX",
-			"camera": "SONY DSC-RX100M3",
-			"exposure": "f/5.6 · 1/400 s · 25.7 mm · ISO 125"
+			"thumbhash": "FhgGFYKfuaaKU3lIhsi6eVqv1vWM"
+		},
+		{
+			"id": "25f58dad-14f7-45e7-8010-64683122418c",
+			"name": "plaza-canal",
+			"takenAt": "2026-04-18T14:34:00",
+			"width": 960,
+			"height": 1440,
+			"thumbhash": "3PcJJQRMaWuEB3eIeXWYh4pwswoH"
+		},
+		{
+			"id": "ddc12017-98eb-4358-aaaf-28c53cfa7776",
+			"name": "gallery",
+			"takenAt": "2026-04-18T13:30:00",
+			"width": 1080,
+			"height": 1440,
+			"thumbhash": "nEkKFQSoZqCJKHmIVnh3d3CQIQV3"
+		},
+		{
+			"id": "00cbdf89-a675-4298-aea7-a7031f9f4116",
+			"name": "flamenco",
+			"takenAt": "2026-04-18T12:26:00",
+			"width": 960,
+			"height": 1440,
+			"thumbhash": "3RgOHQQGWWh3Kok4mXd6h4l/o/g4"
+		},
+		{
+			"id": "598fc12f-3544-4ad8-a0f7-df2dd9120ff3",
+			"name": "tapas",
+			"takenAt": "2026-04-18T11:22:00",
+			"width": 1080,
+			"height": 1440,
+			"thumbhash": "mlkGDQLVfniHiIBcyKZmhUBgbZb+"
+		},
+		{
+			"id": "5555fc80-49df-4f25-9a8f-d20fb19d4439",
+			"name": "cathedral-arch",
+			"takenAt": "2026-04-17T18:50:00",
+			"width": 1440,
+			"height": 1440,
+			"thumbhash": "zigKDwIzeIuGiHiQimh4dniIuPKVjF8G"
+		},
+		{
+			"id": "393bf778-8751-4a43-b30a-ec003935cb19",
+			"name": "cathedral-tram",
+			"takenAt": "2026-04-17T17:46:00",
+			"width": 984,
+			"height": 1440,
+			"thumbhash": "rBgOHQSMZo94mHZodol4d2B0ATUX"
+		},
+		{
+			"id": "af67af1a-6d24-441c-8d02-32af02d0cbc8",
+			"name": "sierpes",
+			"takenAt": "2026-04-17T16:42:00",
+			"width": 1080,
+			"height": 1440,
+			"thumbhash": "HggKFQIEy261mXd5dnSYl/drZJ81"
+		},
+		{
+			"id": "f5f5f846-32bc-40d3-9089-28c399a1bc32",
+			"name": "santa-cruz",
+			"takenAt": "2026-04-17T15:38:00",
+			"width": 1080,
+			"height": 1440,
+			"thumbhash": "IzkKFQYOiI6YlYd5eJd4h+VAVA5U"
+		},
+		{
+			"id": "0f0bc409-c666-42c6-917f-bb7e3de819d9",
+			"name": "orange-trees",
+			"takenAt": "2026-04-17T14:34:00",
+			"width": 1440,
+			"height": 1084,
+			"thumbhash": "mQgOPYiPdoeJaJlbh5iIeEZghQRn"
+		},
+		{
+			"id": "77a43a53-75a6-4559-b2e9-6e954a40eade",
+			"name": "jamon",
+			"takenAt": "2026-04-17T13:30:00",
+			"width": 960,
+			"height": 1440,
+			"thumbhash": "TSgKDQJXh312V2d4eIBKV2iEgPUI"
+		},
+		{
+			"id": "431000e0-087f-4d13-8792-ccc51c639101",
+			"name": "jamon-plate",
+			"takenAt": "2026-04-17T12:26:00",
+			"width": 960,
+			"height": 1440,
+			"thumbhash": "4ZkGHQatXjPHKKUYWLAkeYmLUCYJ"
+		},
+		{
+			"id": "0dd11580-7b50-45c2-9004-9aecdc080355",
+			"name": "dinner",
+			"takenAt": "2026-04-17T11:22:00",
+			"width": 960,
+			"height": 1440,
+			"thumbhash": "1xgGDQIGRTZGZoWqp4WHmgRaN9Cl"
+		},
+		{
+			"id": "618b384d-a84c-4d90-9f36-8261b97f1247",
+			"name": "triana",
+			"takenAt": "2026-04-16T18:50:00",
+			"width": 1440,
+			"height": 954,
+			"thumbhash": "GwgGFYJZScy7iWV2Zwlomj+x5QiK"
+		},
+		{
+			"id": "4ef6902c-cbab-4b27-9f79-0a582b1540fa",
+			"name": "market",
+			"takenAt": "2026-04-16T17:46:00",
+			"width": 1080,
+			"height": 1440,
+			"thumbhash": "WwgGDQSLsZ/pm4RHiqZZeIsD+4V1"
+		},
+		{
+			"id": "5258e700-45e0-4863-a2ab-88514b5897f5",
+			"name": "olives",
+			"takenAt": "2026-04-16T16:42:00",
+			"width": 960,
+			"height": 1440,
+			"thumbhash": "0CgOHQJod4CJWIdod3l3eWaQVQY4"
+		},
+		{
+			"id": "f404187c-a2e0-4738-93e7-20446deae47b",
+			"name": "peacock",
+			"takenAt": "2026-04-16T15:38:00",
+			"width": 960,
+			"height": 1440,
+			"thumbhash": "lxkKDQS9iEB4OGkoeWmXuK9R+geF"
+		},
+		{
+			"id": "8309a61a-7c86-43e5-829e-c5c67b9a7227",
+			"name": "salmorejo",
+			"takenAt": "2026-04-16T14:34:00",
+			"width": 1440,
+			"height": 1046,
+			"thumbhash": "qUkKFYb8VImjlnfFi1ioaQFYKECH"
 		}
 	]
 }

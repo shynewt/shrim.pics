@@ -24,23 +24,22 @@ test('the landing page opens the example album, end to end encrypted', async ({ 
 	const link = page.url();
 
 	await expect(page.getByRole('heading', { name: 'Spring in Seville' })).toBeVisible();
-	await expect(page.getByText('18 photos')).toBeVisible();
-	const tiles = page.getByRole('button', { name: /^Photo \d+ of 18/ });
-	await expect(tiles).toHaveCount(18);
+	await expect(page.getByText('21 photos')).toBeVisible();
+	const tiles = page.getByRole('button', { name: /^Photo \d+ of 21/ });
+	await expect(tiles).toHaveCount(21);
 	await expect(tiles.first().locator('img.shown')).toBeVisible();
 
 	// Lightbox: the preview, its details, a download.
 	await tiles.nth(1).click();
 	const box = page.getByRole('dialog', { name: 'Photo viewer' });
 	await expect(box).toBeVisible();
-	await expect(box.getByText('2 of 18')).toBeVisible();
+	await expect(box.getByText('2 of 21')).toBeVisible();
 	await expect(box.locator('img.full.shown')).toBeVisible();
 	await page.keyboard.press('i');
-	await expect(box.getByText('SONY DSLR-A550')).toBeVisible();
 	await expect(box.getByText('Seville, Spain')).toBeVisible();
 	const download = page.waitForEvent('download');
 	await box.getByRole('button', { name: 'Download' }).click();
-	expect((await download).suggestedFilename()).toBe('giralda.webp');
+	expect((await download).suggestedFilename()).toBe('plaza-tower.webp');
 	await page.keyboard.press('Escape'); // details
 	await page.keyboard.press('Escape'); // lightbox
 	await expect(box).toBeHidden();

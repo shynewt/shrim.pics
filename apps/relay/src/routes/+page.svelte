@@ -51,14 +51,14 @@
 	];
 
 	const seville = [
-		['plaza-de-espana', 'Plaza de España, with its canal and bridges'],
-		['tapas', 'A plate of tapas'],
-		['las-setas', 'The Metropol Parasol'],
-		['tiled-steps', 'Steps faced with blue and white tiles'],
-		['guadalquivir', 'The Guadalquivir river'],
-		['plaza-bridge', 'A tiled bridge at Plaza de España'],
-		['orange-trees', 'The orange tree courtyard of the cathedral'],
-		['cafe-street', 'A red bike outside a café']
+		['plaza-de-espana', 'Plaza de España, with its canal and towers'],
+		['tapas', 'Tapas on a bar counter'],
+		['plaza-tiles', 'Tiled benches at Plaza de España'],
+		['orange-trees', 'An orange tree in front of a yellow building'],
+		['triana', 'Houses with balconies, painted white and yellow'],
+		['cathedral-arch', 'The cathedral through a Moorish arch'],
+		['market', 'A market stall with oranges'],
+		['plaza-arches', 'Arches framing the tower of Plaza de España']
 	].map(([name, alt]) => ({ src: `/landing/seville/${name}.webp`, alt }));
 
 	const faq = $derived([

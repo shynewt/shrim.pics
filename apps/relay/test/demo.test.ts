@@ -45,7 +45,7 @@ describe('example album', () => {
 		expect(r.head.status).toBe(200);
 		const m = JSON.parse(fromUtf8(r.body)) as Manifest;
 		expect(m.title).toBe('Spring in Seville');
-		expect(m.assets).toHaveLength(18);
+		expect(m.assets).toHaveLength(21);
 		expect(m).toMatchObject({ allowUpload: true, allowDownload: true, showMetadata: true, expiresAt: null });
 		for (const a of m.assets) {
 			expect(a.thumbhash).toBeTruthy();
@@ -74,7 +74,7 @@ describe('example album', () => {
 		expect((await ask({ op: 'original', asset }))!.head.filename).toBe('plaza-de-espana.webp');
 
 		const info = JSON.parse(fromUtf8((await ask({ op: 'info', asset: m.assets[1].id }))!.body)) as AssetInfo;
-		expect(info).toMatchObject({ filename: 'giralda.webp', camera: 'SONY DSLR-A550', place: 'Seville, Spain' });
+		expect(info).toMatchObject({ filename: 'plaza-tower.webp', place: 'Seville, Spain' });
 	});
 
 	it('refuses uploads, and has nothing sharper and no videos', async () => {

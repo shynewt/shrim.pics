@@ -1,24 +1,26 @@
 The example album, "Spring in Seville", that the relay serves at its demo link (SHRIM_DEMO).
-All photos are public domain (CC0 1.0, https://creativecommons.org/publicdomain/zero/1.0/) on
-Wikimedia Commons; credited here anyway, with thanks. They are resized (previews, thumbnails) by
-dev/demo-album.mjs. Camera details are the ones on Commons; dates and places are made up for the
-example. Columns: file name, author, licence, source page.
+The photos are from Unsplash, free to use under the Unsplash License (https://unsplash.com/license);
+credited here anyway, with thanks. They are resized (previews, thumbnails) by dev/demo-album.mjs.
+Dates are made up for the example. Columns: file name, author, licence, source page.
 
-plaza-de-espana   Zarateman                                       CC0  https://commons.wikimedia.org/wiki/File:Sevilla_-_Plaza_de_Espa%C3%B1a_08.jpg
-giralda           Jebulon                                         CC0  https://commons.wikimedia.org/wiki/File:Giralda_depuis_patio_des_orangers_S%C3%A9ville_Espagne.jpg
-tapas             Daderot                                         CC0  https://commons.wikimedia.org/wiki/File:Tapas_-_Christchurch,_New_Zealand.jpg
-las-setas         Zarateman                                       CC0  https://commons.wikimedia.org/wiki/File:Sevilla_-_Metropol_Parasol_(Setas_de_Sevilla)_8.jpg
-alcazar-fountain  Daderot                                         CC0  https://commons.wikimedia.org/wiki/File:Fountain_-_Alc%C3%A1zar_of_Seville,_Spain_-_DSC07515.JPG
-triana            Jebulon                                         CC0  https://commons.wikimedia.org/wiki/File:Triana_embankment_Seville_Spain.jpg
-tiled-steps       Jebulon                                         CC0  https://commons.wikimedia.org/wiki/File:Escalier_Castille_Leon_Alcazar_Seville_Spain.jpg
-flamenco          Gerda Arendt                                    CC0  https://commons.wikimedia.org/wiki/File:Flamenco,_Caf%C3%A9_Ziryab,_Madrid.jpg
-plaza-bridge      Stefano Vigorelli                               CC0  https://commons.wikimedia.org/wiki/File:Plaza_de_Espa%C3%B1a,_Sevilla_SP(9).jpg
-santa-cruz        JakobHosp                                       CC0  https://commons.wikimedia.org/wiki/File:Sevilla_Andalucia_Spain_10_06_37_221000.jpeg
-orange-trees      Jebulon                                         CC0  https://commons.wikimedia.org/wiki/File:Orange_trees_courtyard_cathedral_from_Giralda_Seville_Spain.jpg
-cafe-street       Johan Mouchet johanmouchet                      CC0  https://commons.wikimedia.org/wiki/File:The_red_bike_(Unsplash).jpg
-tapas-board       Gerda Arendt                                    CC0  https://commons.wikimedia.org/wiki/File:International_tapas,_Idstein.jpg
-plaza-tower       Zarateman                                       CC0  https://commons.wikimedia.org/wiki/File:Sevilla_-_Plaza_de_Espa%C3%B1a_01.jpg
-cathedral         Jebulon                                         CC0  https://commons.wikimedia.org/wiki/File:Giralda_cath%C3%A9drale_tour_Seville_Espagne.jpg
-puerta-del-leon   Jebulon                                         CC0  https://commons.wikimedia.org/wiki/File:Puerta_del_Leon_murailles_Alcazar_Seville_Spain.jpg
-patio-doncellas   Benoît Prieur                                   CC0  https://commons.wikimedia.org/wiki/File:Alc%C3%A1zar_of_Seville_2014_(22).JPG
-guadalquivir      Daderot                                         CC0  https://commons.wikimedia.org/wiki/File:Kayaks_on_the_Guadalquivir,_Sevilla,_Spain_-_DSC07671.JPG
+plaza-de-espana   Taisia Karaseva      Unsplash License  https://unsplash.com/photos/3purECWQ47I
+plaza-tower       David Borovic        Unsplash License  https://unsplash.com/photos/yTn9IH2Vpj0
+plaza-arches      Tania Mousinho       Unsplash License  https://unsplash.com/photos/dMi3pqiqhsw
+plaza-tiles       Eleni Afiontzi       Unsplash License  https://unsplash.com/photos/abEW1Vlf9mE
+plaza-canal       Tommaso Nava         Unsplash License  https://unsplash.com/photos/dudPBk8P93A
+gallery           Despina Galani       Unsplash License  https://unsplash.com/photos/8rgdwPG2hWw
+flamenco          Matthew Waring       Unsplash License  https://unsplash.com/photos/zp295I3rJJ8
+tapas             Culinarissimo        Unsplash License  https://unsplash.com/photos/aC8Fi1mLsx8
+cathedral-arch    Jacek Ulinski        Unsplash License  https://unsplash.com/photos/nGbTqCqZFiQ
+cathedral-tram    Francis Nie          Unsplash License  https://unsplash.com/photos/LjcPG3QMxzs
+sierpes           Talat Munshi         Unsplash License  https://unsplash.com/photos/LDEqZzC-VTQ
+santa-cruz        Grant Ritchie        Unsplash License  https://unsplash.com/photos/Oeqa9kzCisA
+orange-trees      Sebastian Oliveira   Unsplash License  https://unsplash.com/photos/dlyxs8XOQyE
+jamon             Richard Melick       Unsplash License  https://unsplash.com/photos/zJwg14ud-mg
+jamon-plate       Tommao Wang          Unsplash License  https://unsplash.com/photos/QI6SHbTXjE8
+dinner            Joyce Romero         Unsplash License  https://unsplash.com/photos/LmMAILyz_Vw
+triana            Lothar Boris Piltz   Unsplash License  https://unsplash.com/photos/xZryP0nulzM
+market            Margot H             Unsplash License  https://unsplash.com/photos/vUgi_j43hFU
+olives            Lisha Riabinina      Unsplash License  https://unsplash.com/photos/M0-pAwTLYQQ
+peacock           Rumman Amin          Unsplash License  https://unsplash.com/photos/YUpAWkl8qpI
+salmorejo         Farhad Ibrahimzade   Unsplash License  https://unsplash.com/photos/3KHFUgr9Ckw
