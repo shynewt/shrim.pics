@@ -11,6 +11,8 @@ export const load: LayoutServerLoad = ({ locals }) => ({
 		: null,
 	billing: config.billing,
 	price: config.price,
+	// Stripe adds VAT inside the price: say so wherever it's shown
+	vatIncluded: config.billing === 'stripe' && config.stripe.automaticTax,
 	sourceUrl: process.env.SHRIM_SOURCE_URL || null,
 	operator: config.operator
 });

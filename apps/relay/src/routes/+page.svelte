@@ -281,7 +281,7 @@
 				<div class="mt-10 grid gap-x-12 gap-y-12 md:grid-cols-2">
 					<div class="flex flex-col">
 						<h3>shrim.pics</h3>
-						{@render price(data.price, 'a year')}
+						{@render price(data.price, data.vatIncluded ? 'a year, incl. VAT' : 'a year')}
 						<ul class="mt-4 mb-6 grid flex-1 content-start gap-3" role="list">
 							{@render point('check', 'Everyone on your Immich server, one plan')}
 							{@render point('check', 'As many links and albums as you like')}

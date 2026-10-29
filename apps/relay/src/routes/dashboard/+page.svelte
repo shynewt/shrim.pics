@@ -197,7 +197,9 @@
 			<p>Test mode: no payment is taken.</p>
 			{@render activateForm(data.agent.everSeen ? 'primary' : 'secondary')}
 		{:else}
-			<p>{data.price} a year. Cancel any time. Full refund within 14 days.</p>
+			<p>
+				{data.price} a year{data.vatIncluded ? ', incl. VAT' : ''}. Cancel any time. Full refund within 14 days.
+			</p>
 			{#if data.cancelled}<p class="text-sm text-muted">Checkout was cancelled. Nothing was charged.</p>{/if}
 			<form method="POST" action="?/checkout">
 				<Button type="submit" variant={data.agent.everSeen ? 'primary' : 'secondary'}
