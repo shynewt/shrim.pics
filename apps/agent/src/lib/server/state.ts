@@ -22,6 +22,17 @@ export interface StoredShare {
 	/** Who made it (their Immich user). Missing with SHRIM_AUTH=none. */
 	ownerId?: string;
 	ownerName?: string;
+	/** Made by itself for a link someone created in Immich (SHRIM_AUTO_LINKS). */
+	auto?: AutoLink;
+}
+
+export interface AutoLink {
+	/** The Immich link it follows: deleting or changing that one deletes or changes this one. */
+	immichLinkId: string;
+	/** The description before ours went in front, to put back if the link is revoked here. */
+	description: string | null;
+	/** Immich's expiry when we last looked: only a change there is copied over. */
+	expiresAt: string | null;
 }
 
 /** A narrow Immich API key: the only Immich credential the agent ever keeps. */
@@ -89,6 +100,14 @@ export interface AgentState {
 	people: StoredPerson[];
 	sessions: StoredSession[];
 	shares: StoredShare[];
+	autoLinks: {
+		/** Per person (user id, or '' with SHRIM_AUTH=none): only Immich links made after this get one. */
+		since: Record<string, string>;
+		/** Immich links whose shrim.pics link was revoked here: left alone from then on. */
+		ignored: string[];
+		/** People who turned it off for themselves (user id, or ''). */
+		off: string[];
+	};
 }
 
 const file = join(config.dataDir, 'state.json');
@@ -126,7 +145,18 @@ export function upgrade(raw: unknown): AgentState {
 		sessions: arr<StoredSession>(s.sessions)
 			.filter((x) => x && typeof x.id === 'string' && typeof x.userId === 'string')
 			.map(({ id, userId, createdAt, expiresAt }) => ({ id, userId, createdAt, expiresAt })),
-		shares: arr<StoredShare>(s.shares).filter((x) => x && typeof x.id === 'string' && typeof x.key === 'string')
+		shares: arr<StoredShare>(s.shares).filter((x) => x && typeof x.id === 'string' && typeof x.key === 'string'),
+		autoLinks: autoLinks(s.autoLinks)
+	};
+}
+
+function autoLinks(raw: unknown): AgentState['autoLinks'] {
+	const a = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+	const since = a.since && typeof a.since === 'object' ? (a.since as Record<string, unknown>) : {};
+	return {
+		since: Object.fromEntries(Object.entries(since).filter((e): e is [string, string] => typeof e[1] === 'string')),
+		ignored: arr<string>(a.ignored).filter((x) => typeof x === 'string'),
+		off: arr<string>(a.off).filter((x) => typeof x === 'string')
 	};
 }
 

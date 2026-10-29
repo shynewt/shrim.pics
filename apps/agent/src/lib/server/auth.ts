@@ -72,6 +72,15 @@ export function localUser(): AgentUser {
 	};
 }
 
+/** Everyone the agent may act for in the background: people with a key here, or the one local user. */
+export function keyHolders(): AgentUser[] {
+	if (!authEnabled()) {
+		const local = localUser();
+		return local.credential ? [local] : [];
+	}
+	return state.people.filter((p) => p.credential).map(toUser);
+}
+
 function setCookie(cookies: Cookies, token: string, secure: boolean) {
 	cookies.set(AUTH_COOKIE, token, {
 		path: '/',
@@ -128,6 +137,8 @@ export async function rememberPerson(
 		checkedAt: Date.now()
 	};
 	state.people = [...state.people.filter((p) => p.userId !== user.id), person];
+	// automatic links start from their first sign-in: older Immich links are left alone
+	state.autoLinks.since[user.id] ??= new Date().toISOString();
 	if (user.isAdmin) claimUnowned(user);
 	save();
 }

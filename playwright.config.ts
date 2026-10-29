@@ -47,6 +47,8 @@ export default defineConfig({
 					env: {
 						IMMICH_URL: process.env.IMMICH_URL ?? 'http://localhost:2283',
 						SHRIM_RELAY_URL: 'http://localhost:5273',
+						// e2e/auto-links.spec.ts runs its own agent: this one mustn't pick up other tests' Immich links
+						SHRIM_AUTO_LINKS: 'off',
 						DATA_DIR: join(data, 'agent')
 					}
 				}

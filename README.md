@@ -77,10 +77,16 @@ The port is published on localhost only, so the agent isn't open to your whole n
 
 Everyone in your home signs in with their own Immich account and sees their own links. Immich admins see everyone's links and are the only ones who can connect the agent.
 
-- **API key.** The sign-in page links to your API keys in Immich and lists what to tick: `user.read`, `album.read` and `sharedLink.create`, plus `sharedLink.update` and `sharedLink.delete` if you want to edit and remove Immich links from the agent.
+- **API key.** The sign-in page links to your API keys in Immich and lists what to tick: `user.read`, `album.read` and `sharedLink.create`, plus `sharedLink.update` and `sharedLink.delete` if you want to edit and remove Immich links from the agent, and `sharedLink.read` for sharing straight from Immich (below).
 - **Single sign-on.** If Immich signs people in with OAuth, the agent uses that too. Add the address you open the agent at, plus `/login/sso` (for example `http://localhost:2284/login/sso`), to your sign-in provider's redirect URIs.
 
 Nobody types an Immich password into the agent. It keeps one narrow API key per person, on its own volume, and never sends it to shrim.pics. Friends who open a link only ever reach Immich through that album's share link.
+
+### Sharing straight from Immich
+
+You don't have to open the agent to share. In Immich, use **Share → Create link** as usual, on the web or in the app. Within a minute, the link's description starts with its shrim.pics link: copy that and send it. Changing the link's expiry or uploads in Immich, or deleting it, carries over. Links you made before signing in to the agent are left alone, and so are password-protected ones.
+
+Each person can turn this off in the agent's settings. To turn it off for everyone, set `SHRIM_AUTO_LINKS=off`.
 
 Already have your own sign-in in front of the agent, like Authelia or Tailscale? Set `SHRIM_AUTH=none`. Anyone who can reach the page can then share your albums. The agent then only answers on IP addresses and the names in `SHRIM_ALLOWED_HOSTS`, so other websites can't reach it through your browser.
 
@@ -96,6 +102,7 @@ Already have your own sign-in in front of the agent, like Authelia or Tailscale?
 | `SHRIM_AUTH`          | `immich`                    | `immich`: everyone signs in with Immich. `none`: no sign-in, only behind your own |
 | `IMMICH_API_KEY`      | none                        | Only with `SHRIM_AUTH=none`: the key for the album list                           |
 | `SHRIM_ALLOWED_HOSTS` | none                        | Names to answer on besides IP addresses, e.g. `nas.home.arpa,.ts.net`             |
+| `SHRIM_AUTO_LINKS`    | `on`                        | `off`: Immich links don't get a shrim.pics link by themselves (see above)         |
 | `SHRIM_SETUP_TOKEN`   | none                        | One-time token from your dashboard: connects on first start, no code needed       |
 | `SHRIM_MAX_UPLOAD_MB` | `4096`                      | Largest file friends can add                                                      |
 | `DATA_DIR`            | `/data`                     | Holds your share keys and everyone's API keys. Back it up and keep it private.    |

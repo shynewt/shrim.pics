@@ -91,7 +91,8 @@
 				: s.expired
 					? { text: `Expired ${s.expiresAt ? formatDate(s.expiresAt) : ''}` }
 					: { text: s.expiresAt ? `Expires ${formatDate(s.expiresAt)}` : 'No expiry' },
-		...(!isInactive(s) && opened(s.views) ? [{ text: opened(s.views)! }] : [])
+		...(!isInactive(s) && opened(s.views) ? [{ text: opened(s.views)! }] : []),
+		...(s.fromImmich ? [{ text: 'Shared from Immich' }] : [])
 	];
 
 	function openCreate() {
@@ -394,7 +395,13 @@
 
 		<Panel flush>
 			{#if shown.length === 0}
-				<EmptyState mascot title="No share links yet" body="Make one to share an Immich album with anyone.">
+				<EmptyState
+					mascot
+					title="No share links yet"
+					body={data.autoLinks
+						? 'Make one here, or share an album in Immich as usual: its link shows up here and in its description.'
+						: 'Make one to share an Immich album with anyone.'}
+				>
 					{#snippet action()}
 						<Button variant="primary" icon="plus" onclick={openCreate} disabled={!connected}>New share link</Button>
 					{/snippet}
@@ -534,6 +541,7 @@
 			{#if revoking && !revoking.mine && revoking.owner}It's {revoking.owner}'s link.{/if}
 			The album stays in Immich.
 			{#if revoking?.removesImmichLink}This also removes the link in Immich.{/if}
+			{#if revoking?.fromImmich}The Immich link stays, and the shrim.pics link comes out of its description.{/if}
 		{/if}
 	</p>
 	{#snippet footer()}

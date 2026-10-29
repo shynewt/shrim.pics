@@ -1,18 +1,11 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { generateShareKey, parseImmichLink, shareLink, toBase64Url, type ImmichLinkRef } from '@shrim/protocol';
-import {
-	authEnabled,
-	can,
-	credentialOf,
-	dismissOlderKey,
-	endSession,
-	forgetCredential,
-	localUser,
-	type AgentUser
-} from '#lib/server/auth.ts';
+import { parseImmichLink, type ImmichLinkRef } from '@shrim/protocol';
+import { authEnabled, can, dismissOlderKey, endSession, forgetCredential, type AgentUser } from '#lib/server/auth.ts';
 import { config } from '#lib/server/config.ts';
 import { apiKeysPage, immichPublicUrl } from '#lib/server/public-url.ts';
 import { enqueue, forgetShare } from '#lib/server/handler.ts';
+import { createShare, forget, linkOf, ownerCredential } from '#lib/server/shares.ts';
+import { autoLinkStatus, checkAutoLinks, setAutoLinks } from '#lib/server/auto-links.ts';
 import {
 	API_KEY_OPTIONAL,
 	API_KEY_PERMISSIONS,
@@ -30,7 +23,6 @@ import {
 	RelayError,
 	cancelPairing,
 	connection,
-	createRelayShare,
 	disableRelayShare,
 	disconnect,
 	listRelayShares,
@@ -47,29 +39,9 @@ import type { Actions, PageServerLoad } from './$types';
 const EXPIRY_DAYS = new Set([0, 1, 7, 30, 90]);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function origin() {
-	return connection().me?.publicOrigin ?? state.relayUrl;
-}
-
 /** Their own link (with SHRIM_AUTH=none, every link is). */
 const isMine = (user: AgentUser, s: StoredShare) => !authEnabled() || (!!s.ownerId && s.ownerId === user.id);
 const canSee = (user: AgentUser, s: StoredShare) => user.isAdmin || isMine(user, s);
-
-/** What the agent can act on a link's Immich side with: its owner's sign-in, if they have one. */
-const ownerCredential = (s: StoredShare) => (authEnabled() ? credentialOf(s.ownerId) : localUser().credential);
-
-/** Forgets a link here: its key, and the Immich link if we made it (as its owner, if we still can). */
-async function forget(id: string) {
-	const share = state.shares.find((s) => s.id === id);
-	if (!share) return;
-	state.shares = state.shares.filter((s) => s.id !== id);
-	save();
-	forgetShare(id);
-	const cred = ownerCredential(share);
-	if (share.immichLinkId && cred && can(cred, 'delete')) {
-		await deleteSharedLink(cred, share.immichLinkId).catch(() => {});
-	}
-}
 
 function signedOut(user: AgentUser): never {
 	if (user.credential) forgetCredential(user.credential);
@@ -80,6 +52,7 @@ const adminOnly = () => fail(403, { error: 'adminOnly' as const });
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const user = locals.user;
+	checkAutoLinks();
 	// Someone may have just subscribed: look at the account again if it's been a while.
 	const [immichOk, remote] = await Promise.all([
 		ping(),
@@ -112,6 +85,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			publicUrl: immichPublicUrl(null),
 			apiKeysUrl: apiKeysPage(immichPublicUrl(null))
 		},
+		autoLinks: !['unavailable', 'off', 'noRead'].includes(autoLinkStatus(user.id)),
 		setupSeen: authEnabled() ? state.setupSeenBy.includes(user.id) : !!state.setupSeen,
 		relay: {
 			url: state.relayUrl,
@@ -140,9 +114,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 					mine,
 					owner: mine ? null : (s.ownerName ?? null),
 					// Someone else's link opens their album: an admin may revoke it, not open it.
-					link: mine ? shareLink(origin(), s.id, Buffer.from(s.key, 'base64url')) : null,
+					link: mine ? linkOf(s) : null,
 					allowUpload: s.allowUpload,
 					madeByAgent: !!s.immichLinkId,
+					fromImmich: !!s.auto,
 					removesImmichLink: !!s.immichLinkId && can(ownerCredential(s), 'delete'),
 					allowDownload: s.allowDownload ?? null,
 					showMetadata: s.showMetadata ?? null,
@@ -169,27 +144,10 @@ async function finishShare(
 	immichLinkId?: string
 ) {
 	const expiresAt = days ? new Date(Date.now() + days * 86_400_000).toISOString() : null;
-	const id = await createRelayShare(link.allowUpload, expiresAt);
-	const key = generateShareKey();
-	state.shares.push({
-		id,
-		key: toBase64Url(key),
-		immich: ref,
-		label,
-		albumName: link.album?.albumName ?? '',
-		linkType: link.type,
-		allowUpload: link.allowUpload,
-		createdAt: new Date().toISOString(),
-		expiresAt,
-		immichLinkId,
-		allowDownload: link.allowDownload,
-		showMetadata: link.showMetadata,
-		...(authEnabled() ? { ownerId: owner.id, ownerName: owner.name } : {})
-	});
-	save();
+	const share = await createShare(owner, ref, link, { label, expiresAt, immichLinkId });
 	return {
-		id,
-		link: shareLink(origin(), id, key),
+		id: share.id,
+		link: linkOf(share),
 		label: label || link.album?.albumName || 'Shared photos',
 		allowUpload: link.allowUpload,
 		allowDownload: link.allowDownload,
@@ -280,6 +238,13 @@ export const actions: Actions = {
 		}
 	},
 
+	autoLinks: async ({ request, locals }) => {
+		if (!config.autoLinks) return fail(400, { autoLinksError: true });
+		const on = (await request.formData()).get('on') === 'on';
+		setAutoLinks(locals.user.id, on);
+		return { autoLinks: on };
+	},
+
 	revoke: async ({ request, locals }) => {
 		const id = formText(await request.formData(), 'id');
 		const share = state.shares.find((s) => s.id === id);
@@ -356,6 +321,7 @@ export const actions: Actions = {
 		if (!check.ok) return fail(400, { keyError: check.reason, missing: check.missing ?? [] });
 		state.immichApiKey = key;
 		state.immichApiKeySavedAt = new Date().toISOString();
+		state.autoLinks.since[''] ??= state.immichApiKeySavedAt;
 		state.immichKeyCanDelete = check.canDelete;
 		state.immichKeyCanUpdate = check.canUpdate;
 		save();

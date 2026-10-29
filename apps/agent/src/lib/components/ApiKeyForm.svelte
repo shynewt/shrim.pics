@@ -29,7 +29,8 @@
 		{ name: 'album.read', why: 'Lists your albums so you can pick one', optional: false },
 		{ name: 'sharedLink.create', why: 'Makes the Immich link behind each share link', optional: false },
 		{ name: 'sharedLink.update', why: 'Lets you change what friends can do later', optional: true },
-		{ name: 'sharedLink.delete', why: 'Revoking a link here also removes it in Immich', optional: true }
+		{ name: 'sharedLink.delete', why: 'Revoking a link here also removes it in Immich', optional: true },
+		{ name: 'sharedLink.read', why: 'Gives links you share in Immich a shrim.pics link too', optional: true }
 	]);
 </script>
 

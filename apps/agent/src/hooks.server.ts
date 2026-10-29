@@ -5,11 +5,13 @@ import { config } from '#lib/server/config.ts';
 import { refuseLargeBody } from '#lib/server/form.ts';
 import { hostAllowed } from '#lib/server/hosts.ts';
 import { enqueue } from '#lib/server/handler.ts';
+import { startAutoLinks } from '#lib/server/auto-links.ts';
 import { redeemSetupToken, startRelay } from '#lib/server/relay.ts';
 
 export async function init() {
 	startRelay(enqueue);
 	void redeemSetupToken(config.setupToken, enqueue);
+	startAutoLinks();
 }
 
 const PUBLIC = new Set(['/login', '/login/sso', '/login/sso/start']);

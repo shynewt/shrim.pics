@@ -7,6 +7,7 @@
 		Notice,
 		SettingRow,
 		SettingsList,
+		Switch,
 		TopBar,
 		formatDate,
 		toast
@@ -96,6 +97,57 @@
 					{/if}
 				</SettingRow>
 			</SettingsList>
+		</section>
+	{/if}
+
+	{#if data.autoLinks !== 'unavailable'}
+		{@const on = data.autoLinks !== 'off'}
+		<section class="grid gap-3" aria-labelledby="auto-title">
+			<h2 class="text-md tracking-normal text-muted" id="auto-title">Sharing from Immich</h2>
+			<form
+				method="POST"
+				action="?/autoLinks"
+				use:enhance={() =>
+					async ({ result, update }) => {
+						await update({ reset: false });
+						if (result.type === 'success') toast(result.data?.autoLinks ? 'Turned on' : 'Turned off');
+					}}
+			>
+				<SettingsList label="Sharing from Immich">
+					<SettingRow
+						icon="link"
+						tone={on && data.autoLinks !== 'on' ? 'warning' : 'neutral'}
+						title="Make links for what I share in Immich"
+					>
+						{#snippet description()}
+							{#if !on}
+								Off. Links you make in Immich stay as they are.
+							{:else if data.autoLinks === 'noRead'}
+								Your Immich key can't see your share links (it needs sharedLink.read).
+								{data.me.via === 'sso'
+									? 'Sign out and in again so the agent can make a new key.'
+									: 'Add that permission to your key in Immich.'}
+							{:else if data.autoLinks === 'noUpdate'}
+								New Immich links get a shrim.pics link, listed here in the agent. Your key can't write it into Immich
+								(it needs sharedLink.update).
+							{:else if data.autoLinks === 'plan'}
+								Waiting for an active shrim.pics plan. Links you share in Immich meanwhile get one once it's active.
+							{:else}
+								In Immich, use Share → Create link as usual. Within a minute, the link's description shows the
+								shrim.pics link to send. Links you made before are left alone.
+							{/if}
+						{/snippet}
+						{#snippet control()}
+							<Switch
+								name="on"
+								checked={on}
+								label="Make links for what I share in Immich"
+								onchange={(e) => e.currentTarget.form?.requestSubmit()}
+							/>
+						{/snippet}
+					</SettingRow>
+				</SettingsList>
+			</form>
 		</section>
 	{/if}
 

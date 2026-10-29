@@ -257,11 +257,16 @@ export async function upload(
 
 /** What an API key needs to make links. sharedLink.delete only lets revoking also remove the Immich link. */
 export const API_KEY_PERMISSIONS = ['album.read', 'sharedLink.create'] as const;
-export const API_KEY_OPTIONAL = ['sharedLink.delete', 'sharedLink.update'] as const;
+export const API_KEY_OPTIONAL = ['sharedLink.delete', 'sharedLink.update', 'sharedLink.read'] as const;
 /** Signing in with a key also needs to know whose key it is. */
 export const SIGN_IN_KEY_PERMISSIONS = ['user.read', ...API_KEY_PERMISSIONS] as const;
 /** What the key the agent makes at an SSO sign-in may do: exactly this, nothing more. */
-export const AGENT_KEY_PERMISSIONS = [...SIGN_IN_KEY_PERMISSIONS, 'sharedLink.update', 'sharedLink.delete'] as const;
+export const AGENT_KEY_PERMISSIONS = [
+	...SIGN_IN_KEY_PERMISSIONS,
+	'sharedLink.update',
+	'sharedLink.delete',
+	'sharedLink.read'
+] as const;
 export const AGENT_KEY_NAME = 'shrim.pics agent';
 
 /** Immich no longer accepts this sign-in or key: signed out, expired, or deleted. */
@@ -507,6 +512,9 @@ export async function listAlbums(cred: Credential, userId?: string): Promise<Alb
 		});
 }
 
+/** The description of Immich links the agent makes itself. */
+export const AGENT_MADE = 'Made by the shrim.pics agent';
+
 export async function createAlbumLink(
 	cred: Credential,
 	opts: { albumId: string; allowUpload: boolean; allowDownload: boolean; showMetadata: boolean }
@@ -522,7 +530,7 @@ export async function createAlbumLink(
 			showMetadata: opts.showMetadata,
 			// No expiry in Immich: shrim.pics enforces the link's expiry, and can change it later.
 			expiresAt: null,
-			description: 'Made by the shrim.pics agent'
+			description: AGENT_MADE
 		})
 	});
 	const link = (await res.json()) as { id: string; key: string };
@@ -538,6 +546,34 @@ export async function updateSharedLink(
 		method: 'PATCH',
 		headers: { 'content-type': 'application/json' },
 		body: JSON.stringify(patch)
+	});
+}
+
+/** What the share-link list says about each link (assets left out). */
+export interface OwnSharedLink {
+	id: string;
+	key: string;
+	type: 'ALBUM' | 'INDIVIDUAL';
+	description: string | null;
+	password: string | null;
+	createdAt: string;
+	expiresAt: string | null;
+	allowUpload: boolean;
+	allowDownload: boolean;
+	showMetadata: boolean;
+}
+
+/** Their own Immich share links. Needs sharedLink.read. */
+export async function listSharedLinks(cred: Credential): Promise<OwnSharedLink[]> {
+	return (await asUser(cred, '/shared-links')).json() as Promise<OwnSharedLink[]>;
+}
+
+/** Needs sharedLink.update. */
+export async function setSharedLinkDescription(cred: Credential, id: string, description: string | null) {
+	await asUser(cred, `/shared-links/${id}`, {
+		method: 'PATCH',
+		headers: { 'content-type': 'application/json' },
+		body: JSON.stringify({ description })
 	});
 }
 

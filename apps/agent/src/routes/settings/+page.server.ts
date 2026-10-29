@@ -1,4 +1,5 @@
 import { authEnabled, can } from '#lib/server/auth.ts';
+import { autoLinkStatus } from '#lib/server/auto-links.ts';
 import { config } from '#lib/server/config.ts';
 import { API_KEY_OPTIONAL, ping, serverInfo } from '#lib/server/immich.ts';
 import { apiKeysPage, immichPublicUrl } from '#lib/server/public-url.ts';
@@ -51,6 +52,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			apiKeysUrl: apiKeysPage(immichPublicUrl(info))
 		},
 		optionalPermissions: API_KEY_OPTIONAL,
+		autoLinks: autoLinkStatus(user.id),
 		sso: authEnabled() && user.isAdmin ? { enabled: !!info?.oauth, callbackUrl: ssoCallbackUrl(url.origin) } : null
 	};
 };

@@ -5,8 +5,16 @@
 		name,
 		id,
 		label,
-		disabled = false
-	}: { checked?: boolean; name?: string; id?: string; label?: string; disabled?: boolean } = $props();
+		disabled = false,
+		onchange
+	}: {
+		checked?: boolean;
+		name?: string;
+		id?: string;
+		label?: string;
+		disabled?: boolean;
+		onchange?: (event: Event & { currentTarget: HTMLInputElement }) => void;
+	} = $props();
 </script>
 
 <span class="relative inline-flex flex-none">
@@ -19,6 +27,7 @@
 		{name}
 		{disabled}
 		bind:checked
+		{onchange}
 		aria-label={label}
 	/>
 	<span
