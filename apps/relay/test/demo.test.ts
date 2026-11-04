@@ -74,7 +74,13 @@ describe('example album', () => {
 		expect((await ask({ op: 'original', asset }))!.head.filename).toBe('plaza-de-espana.webp');
 
 		const info = JSON.parse(fromUtf8((await ask({ op: 'info', asset: m.assets[1].id }))!.body)) as AssetInfo;
-		expect(info).toMatchObject({ filename: 'plaza-tower.webp', place: 'Seville, Spain' });
+		expect(info).toMatchObject({
+			filename: 'plaza-tower.webp',
+			place: 'Seville, Spain',
+			camera: 'FUJIFILM X-T5',
+			lens: 'XF16-55mmF2.8 R LM WR',
+			exposure: 'f/8 · 1/500 s · 35 mm · ISO 125'
+		});
 	});
 
 	it('refuses uploads, and has nothing sharper and no videos', async () => {

@@ -19,30 +19,42 @@ const out = resolve(import.meta.dirname, '../apps/relay/demo');
 const require = createRequire(join(import.meta.dirname, '../apps/relay/package.json'));
 const { rgbaToThumbHash } = await import(require.resolve('thumbhash'));
 
+// Made-up EXIF, written the way the agent formats Immich's, so the info panel looks like a real album's.
+const XT5 = { camera: 'FUJIFILM X-T5', lens: 'XF16-55mmF2.8 R LM WR' };
+const IPHONE = { camera: 'Apple iPhone 15 Pro', lens: 'iPhone 15 Pro back triple camera 6.765mm f/1.78' };
+const phone = (/** @type {string} */ shutter, /** @type {number} */ iso) =>
+	`f/1.78 · ${shutter} s · 6.765 mm · ISO ${iso}`;
+
 /** Three days, newest first in the album like Immich shows it. */
-/** @type {Record<string, [name: string, camera?: string | null, exposure?: string | null][]>} */
+/** @type {Record<string, [name: string, gear: { camera: string, lens: string }, exposure: string][]>} */
 const DAYS = {
 	18: [
-		['plaza-de-espana'],
-		['plaza-tower'],
-		['plaza-arches'],
-		['plaza-tiles'],
-		['plaza-canal'],
-		['gallery'],
-		['flamenco'],
-		['tapas']
+		['plaza-de-espana', XT5, 'f/8 · 1/400 s · 16 mm · ISO 125'],
+		['plaza-tower', XT5, 'f/8 · 1/500 s · 35 mm · ISO 125'],
+		['plaza-arches', XT5, 'f/5.6 · 1/250 s · 23 mm · ISO 160'],
+		['plaza-tiles', IPHONE, phone('1/120', 64)],
+		['plaza-canal', XT5, 'f/7.1 · 1/320 s · 18 mm · ISO 125'],
+		['gallery', XT5, 'f/4 · 1/125 s · 16 mm · ISO 400'],
+		['flamenco', XT5, 'f/2.8 · 1/160 s · 55 mm · ISO 3200'],
+		['tapas', IPHONE, phone('1/60', 400)]
 	],
 	17: [
-		['cathedral-arch'],
-		['cathedral-tram'],
-		['sierpes'],
-		['santa-cruz'],
-		['orange-trees'],
-		['jamon'],
-		['jamon-plate'],
-		['dinner']
+		['cathedral-arch', XT5, 'f/8 · 1/250 s · 21 mm · ISO 160'],
+		['cathedral-tram', XT5, 'f/5.6 · 1/640 s · 48 mm · ISO 125'],
+		['sierpes', IPHONE, phone('1/250', 50)],
+		['santa-cruz', XT5, 'f/4 · 1/125 s · 27 mm · ISO 250'],
+		['orange-trees', XT5, 'f/2.8 · 1/1000 s · 55 mm · ISO 125'],
+		['jamon', IPHONE, phone('1/100', 160)],
+		['jamon-plate', IPHONE, phone('1/60', 250)],
+		['dinner', IPHONE, phone('1/30', 1000)]
 	],
-	16: [['triana'], ['market'], ['olives'], ['peacock'], ['salmorejo']]
+	16: [
+		['triana', XT5, 'f/8 · 1/320 s · 23 mm · ISO 125'],
+		['market', IPHONE, phone('1/60', 320)],
+		['olives', IPHONE, phone('1/120', 100)],
+		['peacock', XT5, 'f/4 · 1/500 s · 55 mm · ISO 200'],
+		['salmorejo', IPHONE, phone('1/100', 125)]
+	]
 };
 
 /** @param {string[]} args */
@@ -85,7 +97,7 @@ mkdirSync(out + '/previews', { recursive: true });
 
 const assets = [];
 for (const [day, photos] of Object.entries(DAYS).sort(([a], [b]) => Number(b) - Number(a))) {
-	for (const [i, [name, camera, exposure]] of photos.entries()) {
+	for (const [i, [name, gear, exposure]] of photos.entries()) {
 		const file = join(src, `${name}.jpg`);
 		const preview = join(out, 'previews', `${name}.webp`);
 		const webp = ['-strip', '-define', 'webp:method=6'];
@@ -124,8 +136,8 @@ for (const [day, photos] of Object.entries(DAYS).sort(([a], [b]) => Number(b) - 
 			width,
 			height,
 			thumbhash: Buffer.from(hash).toString('base64'),
-			...(camera ? { camera } : {}),
-			...(exposure ? { exposure } : {})
+			...gear,
+			exposure
 		});
 		console.log(name, width, height);
 	}

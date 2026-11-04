@@ -33,6 +33,7 @@ interface DemoAsset {
 	height: number;
 	thumbhash: string;
 	camera?: string;
+	lens?: string;
 	exposure?: string;
 }
 
@@ -164,6 +165,7 @@ async function dispatch(d: Demo, head: RequestHead): Promise<Reply> {
 				filename: `${a.name}.webp`,
 				takenAt: a.takenAt,
 				camera: a.camera,
+				lens: a.lens,
 				exposure: a.exposure,
 				size: preview.length,
 				width: a.width,
