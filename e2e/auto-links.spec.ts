@@ -4,7 +4,7 @@
  * and someone who turns it off in the agent's settings gets no new ones.
  * Starts its own agent (the shared one has it off), connected with a setup token.
  */
-import { spawn, type ChildProcess } from 'node:child_process';
+import { execFileSync, spawn, type ChildProcess } from 'node:child_process';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
@@ -14,6 +14,7 @@ import { expect, test, type Page } from '@playwright/test';
 const RELAY = process.env.E2E_RELAY_URL ?? 'http://localhost:5273';
 const IMMICH = process.env.IMMICH_URL ?? 'http://localhost:2283';
 const ROOT = join(import.meta.dirname, '..');
+const SAMPLES = process.env.SAMPLES_DIR ?? '/tmp/shrim-samples';
 const ADMIN = { email: 'admin@shrim.test', password: 'shrim-dev-password' };
 const ALBUM = 'Lisbon, August';
 
@@ -59,6 +60,10 @@ const freePort = () =>
 	});
 
 test.describe.configure({ mode: 'serial' });
+
+test.beforeAll(() => {
+	execFileSync('node', [join(ROOT, 'dev', 'seed-immich.mjs'), SAMPLES, IMMICH]);
+});
 
 test.afterAll(async () => {
 	for (const undo of cleanup.reverse()) await undo();
