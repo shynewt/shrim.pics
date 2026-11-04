@@ -201,7 +201,10 @@ async function agentPage(context: BrowserContext) {
 /** Connects the agent to a fresh relay account, unless it is connected already. */
 async function connect(context: BrowserContext, agent: Page) {
 	const code = agent.locator('.code-display');
-	const connected = agent.getByText(/^Connected (as|to) /).or(agent.getByRole('button', { name: 'New share link' }));
+	// Disconnected, the button still shows (disabled) before the pairing code has loaded.
+	const connected = agent
+		.getByText(/^Connected (as|to) /)
+		.or(agent.getByRole('button', { name: 'New share link', disabled: false }));
 	await expect(code.or(connected).first()).toBeVisible({ timeout: 20_000 });
 	if (!(await code.isVisible())) return;
 

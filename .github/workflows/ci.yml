@@ -86,3 +86,4 @@ jobs:
         with:
           name: e2e-results
           path: e2e/.out
+          include-hidden-files: true
